@@ -1,0 +1,3 @@
+2016-07-20 16:19:36 : /Users/epic_ios/SCITLAS/Git/Stellar/Stellar_010/stl_data_manager/stl_data_handler_tushare.py LINE 61    ERROR    tushare.get_h_data(600004) excpetion, args: ('date',)
+2016-07-20 16:26:40 : /Users/epic_ios/SCITLAS/Git/Stellar/Stellar_010/stl_data_manager/stl_data_handler_tushare.py LINE 59    ERROR    tushare.get_h_data(600004) excpetion, args: ('date',)
+2016-07-20 16:26:40 : /Users/epic_ios/SCITLAS/Git/Stellar/Stellar_010/stl_data_manager/stl_data_handler_tushare.py LINE 75    ERROR    tushare.get_hist_data(600004) excpetion, args: ('date',)
