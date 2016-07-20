@@ -5,7 +5,7 @@ Stellar
 
 详见：https://github.com/SCITLAS/Stellar/tree/master/Charter
 
-
+===
 
 An open source project for R&D of financial investment strategies, and trading them algorithmiclly.
 
