@@ -7,7 +7,7 @@ Stellar
 
 主要使用python 3.5开发，开发环境pycharm 5。
 
-项目依赖：
+### 项目依赖：
 - anaconda
 - pyqt5
 - pymysql
@@ -24,7 +24,7 @@ See more at: https://github.com/SCITLAS/Stellar/tree/master/Charter
 
 Stellar is developed with python 3.5, in pycharm 5
 
-Dependencies:
+### Dependencies:
 - anaconda
 - pyqt5
 - pymysql
