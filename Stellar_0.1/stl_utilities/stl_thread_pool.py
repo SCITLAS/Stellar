@@ -3,24 +3,24 @@ __author__ = 'MoroJoJo'
 
 
 '''
-
-网上搬得一个线程池实现:http://my.oschina.net/zhengyijie/blog/177943
+网上搬得一个线程池实现: http://my.oschina.net/zhengyijie/blog/177943
 谢谢原作者
-
 '''
+
 
 import sys
 import threading
 import queue
 import traceback
 
-# 定义一些Exception，用于自定义异常处理
 
-class StlNoResultsPending(Exception):
+
+# 定义一些Exception，用于自定义异常处理
+class StlNoResultsPendingException(Exception):
     """All works requests have been processed"""
     pass
 
-class StlNoWorkersAvailable(Exception):
+class StlNoWorkersAvailableException(Exception):
     """No worket threads available to process remaining requests."""
     pass
 
@@ -28,8 +28,8 @@ def _handle_thread_exception(request, exc_info):
     """默认的异常处理函数，只是简单的打印"""
     traceback.print_exception(*exc_info)
 
-#classes
 
+#classes
 class StlWorkerThread(threading.Thread):
     """后台线程，真正的工作线程，从请求队列(request_queue)中获取work，
     并将执行后的结果添加到结果队列(result_queue)"""
@@ -107,6 +107,7 @@ class StlWorkRequest:
         return "StlWorkRequest id=%s args=%r kwargs=%r exception=%s" % \
             (self.requestID,self.args,self.kwds,self.exception)
 
+
 class StlThreadPool:
     '''
     @param num_workers:初始化的线程数量
@@ -156,9 +157,9 @@ class StlThreadPool:
     def poll(self,block = False):
         while True:
             if not self.work_requests:
-                raise StlNoResultsPending
+                raise StlNoResultsPendingException
             elif block and not self.workers:
-                raise StlNoWorkersAvailable
+                raise StlNoWorkersAvailableException
             try:
                 '''默认只要resultQueue有值，则取出，否则一直block'''
                 request , result = self._result_queue.get(block=block)
@@ -174,7 +175,7 @@ class StlThreadPool:
         while True:
             try:
                 self.poll(True)
-            except StlNoResultsPending:
+            except StlNoResultsPendingException:
                 break
 
     def workersize(self):
@@ -186,7 +187,7 @@ class StlThreadPool:
         self.joinAllDismissedWorkers()
 
 
-if __name__=='__main__':
+if __name__ == '__main__':
     import random
     import time
     import datetime
@@ -211,16 +212,16 @@ if __name__=='__main__':
         try:
             time.sleep(0.5)
             main.poll()
-            if(counter==5):
+            if(counter == 5):
                 print("Add 3 more workers threads")
                 main.createWorkers(3)
                 print('-'*20, main.workersize(),'-'*20)
-            if(counter==10):
+            if(counter == 10):
                 print("dismiss 2 workers threads")
                 main.dismissWorkers(2)
                 print('-'*20, main.workersize(),'-'*20)
             counter+=1
-        except StlNoResultsPending:
+        except StlNoResultsPendingException:
             print("no pending results")
             break
 

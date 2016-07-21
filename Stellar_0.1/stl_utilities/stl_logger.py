@@ -11,7 +11,7 @@ import logging
 import time
 
 
-def data_manager_logger(name):
+def dm_logger(name):
     '''
     获取以name命名的数据管理包日志器
 
@@ -45,4 +45,4 @@ def data_manager_logger(name):
 
 
 if __name__ == '__main__':
-    data_manager_logger(__file__).debug('data_manager_logger test')
+    dm_logger(__file__).debug('data_manager_logger test')
