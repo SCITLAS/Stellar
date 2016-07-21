@@ -5,10 +5,26 @@ Stellar
 
 详见：https://github.com/SCITLAS/Stellar/tree/master/Charter
 
+项目依赖：
+- numpy
+- scipy
+- pandas
+- ta-lib
+- tushare
+- quandl
+
 ===
 
 An open source quant project for R&D of financial investment strategies, and trading them algorithmiclly.
 
 See more at: https://github.com/SCITLAS/Stellar/tree/master/Charter
+
+Dependencies:
+- numpy
+- scipy
+- pandas
+- ta-lib
+- tushare
+- quandl
 
 
