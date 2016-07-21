@@ -8,9 +8,10 @@ Stellar
 主要使用python 3.5开发。
 
 项目依赖：
-- numpy
-- scipy
-- pandas
+- anaconda
+- pyqt5
+- pymysql
+- pymongo
 - ta-lib
 - tushare
 - quandl
@@ -24,9 +25,10 @@ See more at: https://github.com/SCITLAS/Stellar/tree/master/Charter
 Stellar is developed with python 3.5
 
 Dependencies:
-- numpy
-- scipy
-- pandas
+- anaconda
+- pyqt5
+- pymysql
+- pymongo
 - ta-lib
 - tushare
 - quandl
