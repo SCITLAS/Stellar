@@ -21,6 +21,9 @@ Stellar
 - quandl
 
 ===
+
+Stellar
+=========
 An open source quant project for R&D of financial investment strategies, and trading them algorithmiclly.
 
 See more at: https://github.com/SCITLAS/Stellar/tree/master/Charter
@@ -28,7 +31,7 @@ See more at: https://github.com/SCITLAS/Stellar/tree/master/Charter
 =
 ### Stellar 0.1
 
-Stellar 0.1 is a single process stand alone system, developed with python 3.5, in pycharm 5
+A single process stand alone system, developed with python 3.5, in pycharm 5
 
 #### Dependencies:
 - anaconda
