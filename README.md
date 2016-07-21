@@ -20,7 +20,7 @@ Stellar
 - tushare
 - quandl
 
-===
+
 
 Stellar
 =========
