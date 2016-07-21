@@ -5,6 +5,8 @@ Stellar
 
 详见：https://github.com/SCITLAS/Stellar/tree/master/Charter
 
+主要使用python 3.5开发。
+
 项目依赖：
 - numpy
 - scipy
@@ -18,6 +20,8 @@ Stellar
 An open source quant project for R&D of financial investment strategies, and trading them algorithmiclly.
 
 See more at: https://github.com/SCITLAS/Stellar/tree/master/Charter
+
+Stellar is developed with python 3.5
 
 Dependencies:
 - numpy
