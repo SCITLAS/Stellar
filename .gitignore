@@ -1,4 +1,7 @@
 
+*.log 
+*.pyc 
+
 Stellar_0.1/.idea/.name
 
 Stellar_0.1/.idea/encodings.xml
@@ -9,6 +12,7 @@ Stellar_0.1/.idea/modules.xml
 
 Stellar_0.1/.idea/Stellar_0.1.iml
 
+<<<<<<< HEAD
 Stellar_0.1/.idea/workspace.xml
 
 *.pyc
@@ -18,3 +22,5 @@ Stellar_0.1/.idea/workspace.xml
 *.log
 
 Stellar_0.1/logs/data_manager_log.log
+=======
+>>>>>>> origin/master
