@@ -30,7 +30,7 @@ def get_all_security_history():
         无
     '''
 
-    slog.data_manager_logger('Get Security History').debug('Begin...')
+    slog.StlDmLogger().debug('Begin...')
 
     #沪市股票
     for code1 in sfu.get_all_code_sh():
@@ -52,7 +52,7 @@ def get_all_security_history():
         get_security_history('gem', code4, True)
         get_security_history('gem', code4, False)
 
-    slog.data_manager_logger('Get Security History').debug('Finish...')
+    slog.StlDmLogger().debug('Finish...')
 
 
 def get_security_history(type, code, is_all):
@@ -81,48 +81,62 @@ def get_security_history(type, code, is_all):
         file_path = '../data/origin/tushare/%s/%s-r.csv' % (type, code)
     start_date_str = '2000-01-01'
     end_date_str = time.strftime('%Y-%m-%d')
-    operator = 'w'
     date_str = ''
+    is_update = False
 
     if os.path.exists(file_path):
-        print('%s exists, do update task' % file_path)
-        operator = 'a'
+        slog.StlDmLogger().debug('%s exists, do update task' % file_path)
         line = linecache.getline(file_path, 2)
-        date_str = line[0:10]
-        latest_date = datetime.datetime.strptime(date_str, '%Y-%m-%d')
-        today = datetime.datetime.today()
-        if latest_date < today:
-            print('latest_date =', latest_date, ' , today =', today, ' later date is ', today)
-            next_day = latest_date + datetime.timedelta(days=1)
-            start_date_str = datetime.datetime.strftime(next_day, '%Y-%m-%d')
+        if line is None:
+            is_update = False
+            slog.StlDmLogger().debug('%s 2 line is none' % file_path)
+        elif line == '':
+            is_update = False
+            slog.StlDmLogger().debug("%s 2 line is ''" % file_path)
+        elif line == '\n':
+            is_update = False
+            slog.StlDmLogger().debug("%s 2 line is '\\n'" % file_path)
         else:
-            print('latest_date =', latest_date, ' , today =', today, ' later date is ', latest_date)
-
+            is_update = True
+            date_str = line[0:10]
+            latest_date = datetime.datetime.strptime(date_str, '%Y-%m-%d')
+            today = datetime.datetime.today()
+            if latest_date < today:
+                slog.StlDmLogger().debug('latest_date = %s, today = %s, later date is %s' % (latest_date, today, today))
+                next_day = latest_date + datetime.timedelta(days=1)
+                start_date_str = datetime.datetime.strftime(next_day, '%Y-%m-%d')
+            else:
+                slog.StlDmLogger().debug('latest_date = %s, today = %s, later date is %s' % (latest_date, today, latest_date))
     else:
-        print('%s exists, do get all task' % file_path)
+        slog.StlDmLogger().debug('%s exists, do get all task' % file_path)
 
-    print('type = %s, code = %s, lastest_date: %s, start_date: %s, end_date = %s' % (type, code, date_str, start_date_str, end_date_str))
+    slog.StlDmLogger().debug('type = %s, code = %s, lastest_date: %s, start_date: %s, end_date = %s' % (type, code, date_str, start_date_str, end_date_str))
 
-    try:
-        if is_all:
-            tmp_data_hist = tushare.get_h_data(code, start=start_date_str, end=end_date_str)
+    if start_date_str == end_date_str:
+        slog.StlDmLogger().debug('%s data is already up-to-date.' % file_path)
+    else:
+        try:
+            if is_all:
+                tmp_data_hist = tushare.get_h_data(code, start=start_date_str, end=end_date_str)
+            else:
+                tmp_data_hist = tushare.get_hist_data(code, start=start_date_str, end=end_date_str)
+        except Exception as exception:
+            slog.StlDmLogger().error('tushare.get_hist_data(%s) excpetion, args: %s' % (code, exception.args.__str__()))
+
+        if tmp_data_hist is None:
+            slog.StlDmLogger().warning('tushare.get_hist_data(%s) return none' % code)
         else:
-            tmp_data_hist = tushare.get_hist_data(code, start=start_date_str, end=end_date_str)
-    except Exception as exception:
-        slog.dm_logger(__file__).error('tushare.get_hist_data(%s) excpetion, args: %s' % (code, exception.args.__str__()))
-
-    if tmp_data_hist is None:
-        slog.dm_logger(__file__).warning('tushare.get_hist_data(%s) return none' % code)
-    else:
-        if operator == 'a':
-            old_data = pd.read_csv(file_path)
-            tmp_data_hist.append(old_data)
-            print(tmp_data_hist)
-        data_str_hist = tmp_data_hist.to_csv()
-        with open(file_path, operator) as fout:
-            fout.write(data_str_hist)
+            if is_update:
+                old_data = pd.read_csv(file_path, index_col=0)
+                all_data = tmp_data_hist.append(old_data)
+                data_str_hist = all_data.to_csv()
+            else:
+                data_str_hist = tmp_data_hist.to_csv()
+            with open(file_path, 'w') as fout:
+                fout.write(data_str_hist)
 
 
 if __name__ == "__main__":
     get_security_history('sh', '600004', False)
+    get_security_history('sh', '600004', True)
 

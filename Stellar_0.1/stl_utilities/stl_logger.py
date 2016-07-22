@@ -8,41 +8,28 @@ __author__ = 'MoroJoJo'
 
 
 import logging
-import time
 
 
-def dm_logger(name):
-    '''
-    获取以name命名的数据管理包日志器
+DM_LOG_FILE = '../logs/data_manager_log.log'
+LOG_LEVEL = logging.DEBUG
+class StlDmLogger(logging.Logger):
+    def __init__(self):
+        logging.Logger.__init__(self, name='STL_DM', level=LOG_LEVEL)
+        formatter = logging.Formatter("[%(asctime)s] %(name)s [%(levelname)s] %(filename)s LINE %(lineno)d:  %(message)s")
+        stream_handler = logging.StreamHandler()
+        stream_handler.setFormatter(formatter)
+        self.addHandler(stream_handler)
 
-    Parameters
-    ------
-        name: 记录日志的名称
-    return
-    -------
-        logger: 带名字的logger
-    '''
-
-    now = time.strftime('%Y-%m-%d %H:%M:%S')
-
-    logging.basicConfig(
-        level = logging.DEBUG,
-        format = now + ' : ' + name + ' LINE %(lineno)-4d  %(levelname)-8s %(message)s',
-        datefmt = '%m-%d %H:%M',
-        filename = '../logs/data_manager_log.log',
-        filemode = 'a'
-    )
-
-    handler = logging.StreamHandler()
-    handler.setLevel(logging.DEBUG)
-    formatter = logging.Formatter(name + ': LINE %(lineno)-4d : %(levelname)-8s %(message)s')
-    handler.setFormatter(formatter)
-
-    logger = logging.getLogger(name)
-    logger.addHandler(handler)
-
-    return logger
+        file_handler = logging.FileHandler(DM_LOG_FILE)
+        file_handler.setFormatter(formatter)
+        self.addHandler(file_handler)
 
 
 if __name__ == '__main__':
-    dm_logger(__file__).debug('data_manager_logger test')
+    StlDmLogger().debug('debug')
+    StlDmLogger().info('info')
+    StlDmLogger().warning('warning')
+    StlDmLogger().error('error')
+    StlDmLogger().fatal('fatal')
+    StlDmLogger().critical('critical')
+

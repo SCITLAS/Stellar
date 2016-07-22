@@ -1,0 +1,15 @@
+[2016-07-22 16:59:29,201] STL_DM [DEBUG] stl_data_handler_tushare.py LINE 88:  ../data/origin/tushare/sh/600004-r.csv exists, do update task
+[2016-07-22 16:59:29,203] STL_DM [DEBUG] stl_data_handler_tushare.py LINE 105:  latest_date = 2016-07-21 00:00:00, today = 2016-07-22 16:59:29.203651, later date is 2016-07-22 16:59:29.203651
+[2016-07-22 16:59:29,204] STL_DM [DEBUG] stl_data_handler_tushare.py LINE 113:  type = sh, code = 600004, lastest_date: 2016-07-21, start_date: 2016-07-22, end_date = 2016-07-22
+[2016-07-22 16:59:29,204] STL_DM [DEBUG] stl_data_handler_tushare.py LINE 116:  ../data/origin/tushare/sh/600004-r.csv data is already up-to-date.
+[2016-07-22 16:59:29,204] STL_DM [DEBUG] stl_data_handler_tushare.py LINE 88:  ../data/origin/tushare/sh/600004.csv exists, do update task
+[2016-07-22 16:59:29,225] STL_DM [DEBUG] stl_data_handler_tushare.py LINE 105:  latest_date = 2016-07-19 00:00:00, today = 2016-07-22 16:59:29.224896, later date is 2016-07-22 16:59:29.224896
+[2016-07-22 16:59:29,225] STL_DM [DEBUG] stl_data_handler_tushare.py LINE 113:  type = sh, code = 600004, lastest_date: 2016-07-19, start_date: 2016-07-20, end_date = 2016-07-22
+[2016-07-22 17:07:00,591] STL_DM [DEBUG] stl_data_handler_tushare.py LINE 88:  ../data/origin/tushare/sh/600004-r.csv exists, do update task
+[2016-07-22 17:07:00,636] STL_DM [DEBUG] stl_data_handler_tushare.py LINE 105:  latest_date = 2016-07-21 00:00:00, today = 2016-07-22 17:07:00.628408, later date is 2016-07-22 17:07:00.628408
+[2016-07-22 17:07:00,638] STL_DM [DEBUG] stl_data_handler_tushare.py LINE 113:  type = sh, code = 600004, lastest_date: 2016-07-21, start_date: 2016-07-22, end_date = 2016-07-22
+[2016-07-22 17:07:00,639] STL_DM [DEBUG] stl_data_handler_tushare.py LINE 116:  ../data/origin/tushare/sh/600004-r.csv data is already up-to-date.
+[2016-07-22 17:07:00,639] STL_DM [DEBUG] stl_data_handler_tushare.py LINE 88:  ../data/origin/tushare/sh/600004.csv exists, do update task
+[2016-07-22 17:07:00,641] STL_DM [DEBUG] stl_data_handler_tushare.py LINE 105:  latest_date = 2016-07-21 00:00:00, today = 2016-07-22 17:07:00.640918, later date is 2016-07-22 17:07:00.640918
+[2016-07-22 17:07:00,641] STL_DM [DEBUG] stl_data_handler_tushare.py LINE 113:  type = sh, code = 600004, lastest_date: 2016-07-21, start_date: 2016-07-22, end_date = 2016-07-22
+[2016-07-22 17:07:00,641] STL_DM [DEBUG] stl_data_handler_tushare.py LINE 116:  ../data/origin/tushare/sh/600004.csv data is already up-to-date.
