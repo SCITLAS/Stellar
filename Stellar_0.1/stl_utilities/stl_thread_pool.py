@@ -34,7 +34,7 @@ class StlWorkerThread(threading.Thread):
     """后台线程，真正的工作线程，从请求队列(request_queue)中获取work，
     并将执行后的结果添加到结果队列(result_queue)"""
     def __init__(self,request_queue, result_queue, poll_timeout=5, **kwds):
-        threading.Thread.__init__(self,**kwds)
+        threading.Thread.__init__(self, **kwds)
         '''设置为守护进行'''
         self.setDaemon(True)
         self._request_queue = request_queue

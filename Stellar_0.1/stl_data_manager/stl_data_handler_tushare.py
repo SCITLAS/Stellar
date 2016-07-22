@@ -15,7 +15,7 @@ import pandas as pd
 import tushare
 from stl_utilities import stl_logger as slog
 from stl_utilities import stl_finance_utilities as sfu
-from stl_utilities import stl_thread_pool
+from stl_utilities import stl_thread_pool as stp
 
 
 def get_all_security_history():
@@ -33,9 +33,36 @@ def get_all_security_history():
     slog.StlDmLogger().debug('Begin...')
 
     #沪市股票
+    sh_thread_pool1 = stp.StlThreadPool(2)
+    sh_thread_pool2 = stp.StlThreadPool(2)
     for code1 in sfu.get_all_code_sh():
-        get_security_history('sh', code1, True)
-        get_security_history('sh', code1, False)
+        req1 = stp.StlWorkRequest(get_security_history, args=['sh', code1, True], callback=print_result)
+        sh_thread_pool1.putRequest(req1)
+        slog.StlDmLogger().debug('work request #%s added to sh_thread_pool1' % req1.requestID)
+
+        # req2 = stp.StlWorkRequest(get_security_history, args=['sh', code1, False], callback=print_result)
+        # sh_thread_pool2.putRequest(req2)
+        # slog.StlDmLogger().debug('work request #%s added to sh_thread_pool2' % req2.requestID)
+
+    counter = 0
+    while True:
+        try:
+            time.sleep(0.5)
+            sh_thread_pool1.poll()
+            if counter == 5:
+                slog.StlDmLogger().debug('Add 3 more worker threads')
+                sh_thread_pool1.createWorkers(3)
+                slog.StlDmLogger().debug('-'*20, sh_thread_pool1.workersize(), '-'*20)
+            if counter == 10:
+                slog.StlDmLogger().debug('dismiss 2 worker threads')
+                sh_thread_pool1.dismissedWorkers(2)
+                slog.StlDmLogger().debug('-'*20, sh_thread_pool1.workersize(), '-'*20)
+        except stp.StlNoResultsPendingException:
+            slog.StlDmLogger().debug('No Pending Results')
+            break
+    sh_thread_pool1.stop()
+
+
 
     #深市股票
     for code2 in sfu.get_all_code_sz():
@@ -136,7 +163,41 @@ def get_security_history(type, code, is_all):
                 fout.write(data_str_hist)
 
 
+def print_result(request,result):
+    print("---Result from request %s : %r" % (request.requestID, result))
+
+
 if __name__ == "__main__":
-    get_security_history('sh', '600004', False)
-    get_security_history('sh', '600004', True)
+    # get_security_history('sh', '600004', False)
+    # get_security_history('sh', '600004', True)
+
+    #沪市股票
+    sh_thread_pool1 = stp.StlThreadPool(2)
+    sh_thread_pool2 = stp.StlThreadPool(2)
+    for code1 in sfu.get_all_code_sh():
+        req1 = stp.StlWorkRequest(get_security_history, args=['sh', code1, True], callback=print_result)
+        sh_thread_pool1.putRequest(req1)
+        slog.StlDmLogger().debug('work request #%s added to sh_thread_pool1' % req1.requestID)
+
+        # req2 = stp.StlWorkRequest(get_security_history, args=['sh', code1, False], callback=print_result)
+        # sh_thread_pool2.putRequest(req2)
+        # slog.StlDmLogger().debug('work request #%s added to sh_thread_pool2' % req2.requestID)
+
+    counter = 0
+    while True:
+        try:
+            time.sleep(0.5)
+            sh_thread_pool1.poll()
+            if counter == 5:
+                slog.StlDmLogger().debug('Add 3 more worker threads')
+                sh_thread_pool1.createWorkers(3)
+                slog.StlDmLogger().debug('-'*20, sh_thread_pool1.workersize(), '-'*20)
+            if counter == 10:
+                slog.StlDmLogger().debug('dismiss 2 worker threads')
+                sh_thread_pool1.dismissedWorkers(2)
+                slog.StlDmLogger().debug('-'*20, sh_thread_pool1.workersize(), '-'*20)
+        except stp.StlNoResultsPendingException:
+            slog.StlDmLogger().debug('No Pending Results')
+            break
+    sh_thread_pool1.stop()
 

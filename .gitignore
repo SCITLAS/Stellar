@@ -10,3 +10,9 @@ Stellar_0.1/.idea/modules.xml
 Stellar_0.1/.idea/Stellar_0.1.iml
 
 Stellar_0.1/.idea/workspace.xml
+
+*.pyc
+
+*.log
+
+*.log
