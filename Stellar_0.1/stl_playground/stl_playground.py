@@ -44,6 +44,16 @@ def dataframe2csv_test():
 
     df3.to_csv('result.csv')
 
+def dataframe2list_test():
+    '''
+    把dataframe的index列保存到一个list里面
+    '''
+
+    data = tushare.get_stock_basics()
+    data_list = data.index.tolist()
+    print(data_list)
+
 
 if __name__ == '__main__':
-    dataframe2csv_test()
+    # dataframe2csv_test()
+    dataframe2list_test()

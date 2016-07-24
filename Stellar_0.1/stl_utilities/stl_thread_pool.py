@@ -67,11 +67,11 @@ class StlWorkerThread(threading.Thread):
                     '''执行callable，讲请求和结果以tuple的方式放入request_queue'''
                     result = request.callable(*request.args, **request.kwds)
                     print(self.getName())
-                    self._result_queue.put((request,result))
+                    self._result_queue.put((request, result))
                 except:
                     '''异常处理'''
                     request.exception = True
-                    self._result_queue.put((request,sys.exc_info()))
+                    self._result_queue.put((request, sys.exc_info()))
 
     def dismiss(self):
         '''设置一个标志，表示完成当前work之后，退出'''
@@ -147,7 +147,7 @@ class StlThreadPool:
             worker.join()
         self.dismissedWorkers = []
 
-    def putRequest(self,request ,block=True,timeout=None):
+    def putRequest(self,request, block=True, timeout=None):
         assert isinstance(request, StlWorkRequest)
         assert not getattr(request, 'exception', None)
         '''当queue满了，也就是容量达到了前面设定的q_size,它将一直阻塞，直到有空余位置，或是timeout'''
@@ -162,11 +162,11 @@ class StlThreadPool:
                 raise StlNoWorkersAvailableException
             try:
                 '''默认只要resultQueue有值，则取出，否则一直block'''
-                request , result = self._result_queue.get(block=block)
+                request, result = self._result_queue.get(block=block)
                 if request.exception and request.exc_callback:
                     request.exc_callback(request,result)
                 if request.callback and not (request.exception and request.exc_callback):
-                    request.callback(request,result)
+                    request.callback(request, result)
                 del self.work_requests[request.requestID]
             except queue.Empty:
                 break
@@ -183,7 +183,7 @@ class StlThreadPool:
 
     def stop(self):
         '''join 所有的thread,确保所有的线程都执行完毕'''
-        self.dismissWorkers(self.workersize(),True)
+        self.dismissWorkers(self.workersize(), True)
         self.joinAllDismissedWorkers()
 
 
@@ -192,7 +192,7 @@ if __name__ == '__main__':
     import time
     import datetime
     def do_work(data):
-        time.sleep(random.randint(1,3))
+        time.sleep(random.randint(1, 3))
         res = str(datetime.datetime.now()) + "" +str(data)
         return res
 
@@ -205,7 +205,7 @@ if __name__ == '__main__':
         main.putRequest(req)
         print("work request #%s added." % req.requestID)
 
-    print('-'*20, main.workersize(),'-'*20)
+    print('-'*20, main.workersize(), '-'*20)
 
     counter = 0
     while True:
@@ -215,7 +215,7 @@ if __name__ == '__main__':
             if(counter == 5):
                 print("Add 3 more workers threads")
                 main.createWorkers(3)
-                print('-'*20, main.workersize(),'-'*20)
+                print('-'*20, main.workersize(), '-'*20)
             if(counter == 10):
                 print("dismiss 2 workers threads")
                 main.dismissWorkers(2)

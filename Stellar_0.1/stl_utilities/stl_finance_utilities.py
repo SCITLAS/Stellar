@@ -7,6 +7,47 @@ __author__ = 'MoroJoJo'
 '''
 
 
+import tushare
+
+
+def get_all_code():
+    '''
+    获取所有A股所有股票的代码
+
+    调用tushare.get_stock_basics()方法可以获得所有股票的基本信息
+
+    Parameters
+    ------
+        无
+    return
+    -------
+        list A股所有股票代码
+    '''
+
+    file_path = '../data/origin/tushare/security_fundamental_info/basic_info.csv'
+
+    (is_update, start_date_str, end_date_str) = get_input_para(file_path)
+    if start_date_str == end_date_str:
+        slog.StlDmLogger().debug('%s data is already up-to-date.' % file_path)
+    else:
+        try:
+            tmp_data_hist = tushare.get_hist_data(code, start=start_date_str, end=end_date_str, ktype=type)
+        except Exception as exception:
+            slog.StlDmLogger().error('tushare.get_hist_data(%s) excpetion, args: %s' % (code, exception.args.__str__()))
+
+        if tmp_data_hist is None:
+            slog.StlDmLogger().warning('tushare.get_hist_data(%s) return none' % code)
+        else:
+            if is_update:
+                old_data = pd.read_csv(file_path, index_col=0)
+                all_data = tmp_data_hist.append(old_data)
+                data_str_hist = all_data.to_csv()
+            else:
+                data_str_hist = tmp_data_hist.to_csv()
+            with open(file_path, 'w') as fout:
+                fout.write(data_str_hist)
+
+
 def get_all_code_sh():
     '''
     获取所有上海交易所A股代码
