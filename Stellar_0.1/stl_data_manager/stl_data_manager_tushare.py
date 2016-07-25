@@ -19,11 +19,11 @@ from stl_utilities import stl_thread_pool as stp
 from stl_utilities import stl_file_utilities as sfu
 
 
-thread_count = 50    #查询交易数据的并行线程数
-retry_count = 5      #调用tushare接口失败重试次数
-retry_pause = 0.1    #调用tushare接口失败重试间隔时间
-autype ='qfq'        #复权类型，qfq-前复权 hfq-后复权 None-不复权
-drop_factor = True   #是否移除复权因子，在分析过程中可能复权因子意义不大，但是如需要先储存到数据库之后再分析的话，有该项目会更加灵活
+thread_count = 50    # 查询交易数据的并行线程数
+retry_count = 5      # 调用tushare接口失败重试次数
+retry_pause = 0.1    # 调用tushare接口失败重试间隔时间
+autype ='qfq'        # 复权类型，qfq-前复权 hfq-后复权 None-不复权
+drop_factor = True   # 是否移除复权因子，在分析过程中可能复权因子意义不大，但是如需要先储存到数据库之后再分析的话，有该项目会更加灵活
 
 
 def get_all_security_basic_info():
@@ -74,20 +74,20 @@ def get_all_security_history():
     -------
         无
     '''
-    slog.StlDmLogger().debug('Begin...')
+    slog.StlDmLogger().debug('get_all_security_history Begin...')
 
     code_list = get_all_security_basic_info()
 
-    get_recent_history_in_code_list(code_list, 'D', thread_count)   #获取最近3年所有股票的日线数据
-    get_recent_history_in_code_list(code_list, 'W', thread_count)   #获取最近3年所有股票的周线数据
-    get_recent_history_in_code_list(code_list, 'M', thread_count)   #获取最近3年所有股票的月线数据
-    get_recent_history_in_code_list(code_list, '5', thread_count)   #获取最近3年所有股票的5分钟线数据
-    get_recent_history_in_code_list(code_list, '15', thread_count)  #获取最近3年所有股票的15分钟线数据
-    get_recent_history_in_code_list(code_list, '30', thread_count)  #获取最近3年所有股票的30分钟线数据
-    get_recent_history_in_code_list(code_list, '60', thread_count)  #获取最近3年所有股票的60分钟线数据
-    get_all_history_in_code_list(code_list, thread_count)           #获取最近3年所有股票自2000年1月1日以来的所有数据
+    get_recent_history_in_code_list(code_list, 'D', thread_count)   # 获取最近3年所有股票的日线数据
+    get_recent_history_in_code_list(code_list, 'W', thread_count)   # 获取最近3年所有股票的周线数据
+    get_recent_history_in_code_list(code_list, 'M', thread_count)   # 获取最近3年所有股票的月线数据
+    get_recent_history_in_code_list(code_list, '5', thread_count)   # 获取最近3年所有股票的5分钟线数据
+    get_recent_history_in_code_list(code_list, '15', thread_count)  # 获取最近3年所有股票的15分钟线数据
+    get_recent_history_in_code_list(code_list, '30', thread_count)  # 获取最近3年所有股票的30分钟线数据
+    get_recent_history_in_code_list(code_list, '60', thread_count)  # 获取最近3年所有股票的60分钟线数据
+    get_all_history_in_code_list(code_list, thread_count)           # 获取自2000年1月1日以来的所有数据
 
-    slog.StlDmLogger().debug('Finish...')
+    slog.StlDmLogger().debug('get_all_security_history Finish...')
 
 
 def get_all_history_in_code_list(code_list, thread_count):
@@ -111,23 +111,15 @@ def get_all_history_in_code_list(code_list, thread_count):
         sh_thread_pool.putRequest(req)
         slog.StlDmLogger().debug('work request #%s added to sh_thread_pool' % req.requestID)
 
-    counter = 0
     while True:
         try:
             time.sleep(0.5)
             sh_thread_pool.poll()
-            if counter == 5:
-                slog.StlDmLogger().debug('Add 3 more worker threads')
-                sh_thread_pool.createWorkers(3)
-                slog.StlDmLogger().debug('-'*20, sh_thread_pool.workersize(), '-'*20)
-            if counter == 10:
-                slog.StlDmLogger().debug('dismiss 2 worker threads')
-                sh_thread_pool.dismissedWorkers(2)
-                slog.StlDmLogger().debug('-'*20, sh_thread_pool.workersize(), '-'*20)
         except stp.StlNoResultsPendingException:
             slog.StlDmLogger().debug('No Pending Results')
             break
     sh_thread_pool.stop()
+
 
 def get_all_history_of_code(code):
     '''
@@ -143,12 +135,14 @@ def get_all_history_of_code(code):
     -------
         无
     '''
+    tmp_data_hist = pd.DataFrame()
     file_path = '../data/origin/tushare/security_trade_data/all/%s.csv' % code
     (is_update, start_date_str, end_date_str) = get_input_para(file_path)
     if start_date_str == end_date_str:
         slog.StlDmLogger().debug('%s data is already up-to-date.' % file_path)
     else:
         try:
+            slog.StlDmLogger().debug('tushare.get_h_data:%s, start=%s, end=%s' % (code, start_date_str, end_date_str))
             tmp_data_hist = tushare.get_h_data(code, start=start_date_str, end=end_date_str, autype=autype, retry_count=retry_count, pause=retry_pause, drop_factor=drop_factor)
         except Exception as exception:
             slog.StlDmLogger().error('tushare.get_hist_data(%s) excpetion, args: %s' % (code, exception.args.__str__()))
@@ -197,6 +191,7 @@ def get_recent_history_in_code_list(code_list, type, thread_count):
             break
     sh_thread_pool.stop()
 
+
 def get_recent_history_of_code(code, type):
     '''
     获取code对应股票的近3年历史行情信息,并将结果保存到对应csv文件
@@ -232,6 +227,7 @@ def get_recent_history_of_code(code, type):
         slog.StlDmLogger().debug('%s data is already up-to-date.' % file_path)
     else:
         try:
+            slog.StlDmLogger().debug('tushare.get_hist_data:%s, start=%s, end=%s' % (code, start_date_str, end_date_str))
             tmp_data_hist = tushare.get_hist_data(code, start=start_date_str, end=end_date_str, ktype=type, retry_count=retry_count, pause=retry_pause)
         except Exception as exception:
             slog.StlDmLogger().error('tushare.get_hist_data(%s) excpetion, args: %s' % (code, exception.args.__str__()))
@@ -270,25 +266,25 @@ def get_input_para(file_path):
         line = linecache.getline(file_path, 2)
         if line is None:
             is_update = False
-            slog.StlDmLogger().debug('%s 2 line is none' % file_path)
         elif line == '':
             is_update = False
-            slog.StlDmLogger().debug("%s 2 line is ''" % file_path)
         elif line == '\n':
             is_update = False
-            slog.StlDmLogger().debug("%s 2 line is '\\n'" % file_path)
         else:
             is_update = True
             date_str = line[0:10]
             latest_date = datetime.datetime.strptime(date_str, '%Y-%m-%d')
             today = datetime.datetime.today()
-            if latest_date < today:
+            if (today - latest_date).days >= 1:
                 next_day = latest_date + datetime.timedelta(days=1)
                 start_date_str = datetime.datetime.strftime(next_day, '%Y-%m-%d')
+            else:
+                start_date_str = end_date_str
     else:
         slog.StlDmLogger().debug('%s does not exist, do get all task' % file_path)
 
     return (is_update, start_date_str, end_date_str)
+
 
 def print_result(request, result):
     print("---Result from request %s : %r" % (request.requestID, result))
@@ -328,8 +324,37 @@ def check_data_integrity(data_path):
     return missing_code_list
 
 
+def get_all_security_history_no_multi_thread():
+    '''
+    获取所有股票历史行情, 并存入到对应的csv文件中, 不使用多线程
+
+    Parameters
+    ------
+        无
+    return
+    -------
+        无
+    '''
+    slog.StlDmLogger().debug('get_all_security_history_no_multi_thread Begin...')
+
+    code_list = get_all_security_basic_info()
+
+    for code in code_list:
+        get_recent_history_of_code(code, 'D')    # 获取最近3年所有股票的日线数据
+        get_recent_history_of_code(code, 'W')    # 获取最近3年所有股票的周线数据
+        get_recent_history_of_code(code, 'M')    # 获取最近3年所有股票的月线数据
+        get_recent_history_of_code(code, '5')    # 获取最近3年所有股票的5分钟线数据
+        get_recent_history_of_code(code, '15')   # 获取最近3年所有股票的15分钟线数据
+        get_recent_history_of_code(code, '30')   # 获取最近3年所有股票的30分钟线数据
+        get_recent_history_of_code(code, '60')   # 获取最近3年所有股票的60分钟线数据
+        get_all_history_of_code(code)            # 获取自2000年1月1日以来的所有数据
+
+    slog.StlDmLogger().debug('get_all_security_history_no_multi_thread Finish...')
+
+
 if __name__ == "__main__":
     get_all_security_history()
+    # get_all_security_history_no_multi_thread()
 
     # data_path = '../data/origin/tushare/security_trade_data/all'
     # missing_list = check_data_integrity(data_path)
@@ -353,4 +378,6 @@ if __name__ == "__main__":
     #     data_str_hist = tmp_data_hist.to_csv()
     #     with open(file_path, 'w') as fout:
     #         fout.write(data_str_hist)
+
+
 
