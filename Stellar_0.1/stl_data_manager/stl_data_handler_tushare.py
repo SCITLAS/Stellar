@@ -15,8 +15,15 @@ import linecache
 import pandas as pd
 import tushare
 from stl_utilities import stl_logger as slog
-from stl_utilities import stl_finance_utilities as sfu
 from stl_utilities import stl_thread_pool as stp
+from stl_utilities import stl_file_utilities as sfu
+
+
+thread_count = 50    #查询交易数据的并行线程数
+retry_count = 5      #调用tushare接口失败重试次数
+retry_pause = 0.1    #调用tushare接口失败重试间隔时间
+autype ='qfq'        #复权类型，qfq-前复权 hfq-后复权 None-不复权
+drop_factor = True   #是否移除复权因子，在分析过程中可能复权因子意义不大，但是如需要先储存到数据库之后再分析的话，有该项目会更加灵活
 
 
 def get_all_security_basic_info():
@@ -41,7 +48,6 @@ def get_all_security_basic_info():
     -------
         code_list: 股票代码列表
     '''
-
     file_path = '../data/origin/tushare/security_fundamental_data/basic_info.csv'
     try:
         basic_data = tushare.get_stock_basics()
@@ -68,8 +74,6 @@ def get_all_security_history():
     -------
         无
     '''
-
-    thread_count = 50
     slog.StlDmLogger().debug('Begin...')
 
     code_list = get_all_security_basic_info()
@@ -101,7 +105,6 @@ def get_all_history_in_code_list(code_list, thread_count):
     -------
         无
     '''
-
     sh_thread_pool = stp.StlThreadPool(thread_count)
     for code in code_list:
         req = stp.StlWorkRequest(get_all_history_of_code, args=[code], callback=print_result)
@@ -140,14 +143,13 @@ def get_all_history_of_code(code):
     -------
         无
     '''
-
     file_path = '../data/origin/tushare/security_trade_data/all/%s.csv' % code
     (is_update, start_date_str, end_date_str) = get_input_para(file_path)
     if start_date_str == end_date_str:
         slog.StlDmLogger().debug('%s data is already up-to-date.' % file_path)
     else:
         try:
-            tmp_data_hist = tushare.get_h_data(code, start=start_date_str, end=end_date_str)
+            tmp_data_hist = tushare.get_h_data(code, start=start_date_str, end=end_date_str, autype=autype, retry_count=retry_count, pause=retry_pause, drop_factor=drop_factor)
         except Exception as exception:
             slog.StlDmLogger().error('tushare.get_hist_data(%s) excpetion, args: %s' % (code, exception.args.__str__()))
 
@@ -180,7 +182,6 @@ def get_recent_history_in_code_list(code_list, type, thread_count):
     -------
         无
     '''
-
     sh_thread_pool = stp.StlThreadPool(thread_count)
     for code in code_list:
         req = stp.StlWorkRequest(get_recent_history_of_code, args=[code, type], callback=print_result)
@@ -211,7 +212,6 @@ def get_recent_history_of_code(code, type):
     -------
         无
     '''
-
     if type == 'D':
         file_path = '../data/origin/tushare/security_trade_data/recent/day/%s.csv' % code
     elif type == 'W':
@@ -232,7 +232,7 @@ def get_recent_history_of_code(code, type):
         slog.StlDmLogger().debug('%s data is already up-to-date.' % file_path)
     else:
         try:
-            tmp_data_hist = tushare.get_hist_data(code, start=start_date_str, end=end_date_str, ktype=type)
+            tmp_data_hist = tushare.get_hist_data(code, start=start_date_str, end=end_date_str, ktype=type, retry_count=retry_count, pause=retry_pause)
         except Exception as exception:
             slog.StlDmLogger().error('tushare.get_hist_data(%s) excpetion, args: %s' % (code, exception.args.__str__()))
 
@@ -262,7 +262,6 @@ def get_input_para(file_path):
         start_date_str: 本次获取数据的开始日期
         end_date_str: 本次获取数据的结束日期
     '''
-
     start_date_str = '2000-01-01'
     end_date_str = time.strftime('%Y-%m-%d')
     is_update = False
@@ -295,5 +294,63 @@ def print_result(request, result):
     print("---Result from request %s : %r" % (request.requestID, result))
 
 
+def check_data_integrity(data_path):
+    '''
+    对比data_path对应的文件夹中所有csv文件和basic_info.csv中code是否对应
+
+    Parameters
+    ------
+        data_path: 指定文件夹路径
+    return
+    -------
+        missing_code_list: 缺失的code列表
+    '''
+    data_code_list = sfu.get_code_list_in_dir(data_path)
+    missing_code_list = []
+    try:
+        basic_data = tushare.get_stock_basics()
+    except Exception as exception:
+        slog.StlDmLogger().error('tushare.get_stock_basics() excpetion, args: %s' % exception.args.__str__())
+    if basic_data is None:
+        slog.StlDmLogger().warning('tushare.get_stock_basics() return none')
+        return []
+    else:
+        code_list = basic_data.index
+        for code in code_list:
+            found = False
+            for tmp_code in data_code_list:
+                if tmp_code == code:
+                    found = True
+                    break
+            if found != True:
+                missing_code_list.append(code)
+
+    return missing_code_list
+
+
 if __name__ == "__main__":
     get_all_security_history()
+
+    # data_path = '../data/origin/tushare/security_trade_data/all'
+    # missing_list = check_data_integrity(data_path)
+    # print('missing list after calling tushare.get_h_data():')
+    # print(missing_list)
+    #
+    # data_path = '../data/origin/tushare/security_trade_data/recent/day'
+    # missing_list = check_data_integrity(data_path)
+    # print('missing list after calling tushare.get_hist_data():')
+    # print(missing_list)
+
+    # file_path = '../data/origin/tushare/security_trade_data/all/000033.csv'
+    # try:
+    #     tmp_data_hist = tushare.get_h_data('000033', start='2000-01-01', end='2015-04-29')
+    # except Exception as exception:
+    #     slog.StlDmLogger().error('tushare.get_hist_data(%s) excpetion, args: %s' % ('000033', exception.args.__str__()))
+    #
+    # if tmp_data_hist is None:
+    #     slog.StlDmLogger().warning('tushare.get_hist_data(%s) return none' % '000033')
+    # else:
+    #     data_str_hist = tmp_data_hist.to_csv()
+    #     with open(file_path, 'w') as fout:
+    #         fout.write(data_str_hist)
+

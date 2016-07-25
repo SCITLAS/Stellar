@@ -24,7 +24,6 @@ def dataframe2csv_test():
     调用read_csv时使用index_col参数设置当前第一列为index, 就不会再增加索引列了.
     pd.read_csv('xxx.csv', index_col=0)
     '''
-
     df1 = tushare.get_hist_data('600004', start='2016-07-18', end='2016-07-19')
     print('----------------- df1 -----------------')
     print(df1)
@@ -48,7 +47,6 @@ def dataframe2list_test():
     '''
     把dataframe的index列保存到一个list里面
     '''
-
     data = tushare.get_stock_basics()
     data_list = data.index.tolist()
     print(data_list)

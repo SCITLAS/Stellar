@@ -13,6 +13,9 @@ import logging
 DM_LOG_FILE = '../logs/data_manager_log.log'
 LOG_LEVEL = logging.DEBUG
 class StlDmLogger(logging.Logger):
+    '''
+    data_manager的日志类
+    '''
     def __init__(self):
         logging.Logger.__init__(self, name='STL_DM', level=LOG_LEVEL)
         formatter = logging.Formatter("[%(asctime)s] %(name)s [%(levelname)s] %(filename)s LINE %(lineno)d:  %(message)s")
