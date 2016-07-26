@@ -7,6 +7,16 @@ __author__ = 'MoroJoJo'
 存入对应的csv文件
 '''
 
+'''
+已知问题:
+1. tushare.get_h_data()接口无法获取到000033的行情信息, 返回为None, 已经反馈给tushare作者.
+   他说是因为停牌, 这支股票2015年4月29日最后一次交易,然后停牌至今.
+   照理说, 设置查询的额截止日期到2015-04-29,应该是可以查询到数据的, 如下:
+   tushare.get_h_data('000033', start='2000-01-01', end='2015-04-29')
+   但以上调用依然返回None, 实际上这个接口查不到000033任何时间段的行情数据.
+
+'''
+
 
 import os
 import datetime
@@ -24,6 +34,27 @@ retry_count = 5      # 调用tushare接口失败重试次数
 retry_pause = 0.1    # 调用tushare接口失败重试间隔时间
 autype ='qfq'        # 复权类型，qfq-前复权 hfq-后复权 None-不复权
 drop_factor = True   # 是否移除复权因子，在分析过程中可能复权因子意义不大，但是如需要先储存到数据库之后再分析的话，有该项目会更加灵活
+
+
+def get_recent_index_data():
+    '''
+    获取A股所有指数近3年的信息
+
+    调用tushare.get_hist_data()方法获得所有指数信息，并存入对应的csv文件中
+
+    Parameters
+    ------
+        code:指数代码, sh=上证指数 sz=深圳成指 hs300=沪深300指数 sz50=上证50 zxb=中小板 cyb=创业板
+    return
+    -------
+        无
+    '''
+    get_recent_history_of_code('sh', 'sh')
+    get_recent_history_of_code('sz', 'sz')
+    get_recent_history_of_code('hs300', 'hs300')
+    get_recent_history_of_code('sz50', 'sz50')
+    get_recent_history_of_code('zxb', 'zxb')
+    get_recent_history_of_code('cyb', 'cyb')
 
 
 def get_all_security_basic_info():
@@ -76,8 +107,7 @@ def get_all_security_history():
     '''
     slog.StlDmLogger().debug('get_all_security_history Begin...')
 
-    code_list = get_all_security_basic_info()
-
+    code_list = get_all_security_basic_info()                       # 获取所有股票的基本信息
     get_recent_history_in_code_list(code_list, 'D', thread_count)   # 获取最近3年所有股票的日线数据
     get_recent_history_in_code_list(code_list, 'W', thread_count)   # 获取最近3年所有股票的周线数据
     get_recent_history_in_code_list(code_list, 'M', thread_count)   # 获取最近3年所有股票的月线数据
@@ -221,6 +251,18 @@ def get_recent_history_of_code(code, type):
         file_path = '../data/origin/tushare/security_trade_data/recent/30min/%s.csv' % code
     elif type == '60':
         file_path = '../data/origin/tushare/security_trade_data/recent/60min/%s.csv' % code
+    elif code == 'sh':
+        file_path = '../data/origin/tushare/index_trade_data/recent/sh.csv'
+    elif type == 'sz':
+        file_path = '../data/origin/tushare/index_trade_data/recent/sz.csv'
+    elif type == 'hs300':
+        file_path = '../data/origin/tushare/index_trade_data/recent/hs300.csv'
+    elif type == 'sz50':
+        file_path = '../data/origin/tushare/index_trade_data/recent/sz50.csv'
+    elif type == 'zxb':
+        file_path = '../data/origin/tushare/index_trade_data/recent/sme.csv'
+    elif type == 'cyb':
+        file_path = '../data/origin/tushare/index_trade_data/recent/gem.csv'
 
     (is_update, start_date_str, end_date_str) = get_input_para(file_path)
     if start_date_str == end_date_str:
@@ -228,7 +270,10 @@ def get_recent_history_of_code(code, type):
     else:
         try:
             slog.StlDmLogger().debug('tushare.get_hist_data:%s, start=%s, end=%s' % (code, start_date_str, end_date_str))
-            tmp_data_hist = tushare.get_hist_data(code, start=start_date_str, end=end_date_str, ktype=type, retry_count=retry_count, pause=retry_pause)
+            if type in ['sh', 'sz', 'hs300', 'sz50', 'zxb', 'cyb']:
+                tmp_data_hist = tushare.get_hist_data(code, start=start_date_str, end=end_date_str, retry_count=retry_count, pause=retry_pause)
+            else:
+                tmp_data_hist = tushare.get_hist_data(code, start=start_date_str, end=end_date_str, ktype=type, retry_count=retry_count, pause=retry_pause)
         except Exception as exception:
             slog.StlDmLogger().error('tushare.get_hist_data(%s) excpetion, args: %s' % (code, exception.args.__str__()))
 
@@ -353,7 +398,9 @@ def get_all_security_history_no_multi_thread():
 
 
 if __name__ == "__main__":
-    get_all_security_history()
+    # get_all_security_history()
+    get_recent_index_data()
+
     # get_all_security_history_no_multi_thread()
 
     # data_path = '../data/origin/tushare/security_trade_data/all'
