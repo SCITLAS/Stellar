@@ -36,7 +36,7 @@ autype ='qfq'        # 复权类型，qfq-前复权 hfq-后复权 None-不复权
 drop_factor = True   # 是否移除复权因子，在分析过程中可能复权因子意义不大，但是如需要先储存到数据库之后再分析的话，有该项目会更加灵活
 
 
-def get_recent_index_data():
+def get_all_index_data():
     '''
     获取A股所有指数近3年的信息
 
@@ -49,12 +49,93 @@ def get_recent_index_data():
     -------
         无
     '''
-    get_recent_history_of_code('sh', 'sh')
-    get_recent_history_of_code('sz', 'sz')
-    get_recent_history_of_code('hs300', 'hs300')
-    get_recent_history_of_code('sz50', 'sz50')
-    get_recent_history_of_code('zxb', 'zxb')
-    get_recent_history_of_code('cyb', 'cyb')
+    get_index_data('000001')    # 上证指数
+    get_index_data('399001')    # 深圳成指
+    get_index_data('000300')    # 沪深300
+    get_index_data('000016')    # 上证50
+    get_index_data('399101')    # 中小板综合指数
+    get_index_data('399005')    # 中小板指数
+    get_index_data('399102')    # 创业板综合指数
+    get_index_data('399006')    # 创业板指数
+
+
+def get_index_data(code):
+    '''
+    获取code对应指数的历史行情信息,并将结果保存到对应csv文件
+
+    tushare.get_h_data()查询指定指数的历史行情,
+    数据只有7列:  date, open, hight, close, low, volume, amount
+
+    Parameters
+    ------
+        code: 股票代码
+     return
+    -------
+        无
+    '''
+    file_path = '../data/origin/tushare/index_trade_data/all/%s.csv' % code
+    (is_update, start_date_str, end_date_str) = get_input_para(file_path)
+    if start_date_str == end_date_str:
+        slog.StlDmLogger().debug('%s data is already up-to-date.' % file_path)
+    else:
+        tmp_data_hist = pd.DataFrame()
+        try:
+            slog.StlDmLogger().debug('tushare.get_h_data: %s, start=%s, end=%s' % (code, start_date_str, end_date_str))
+            tmp_data_hist = tushare.get_h_data(code, start=start_date_str, end=end_date_str, index=True, retry_count=retry_count, pause=retry_pause, drop_factor=drop_factor)
+        except Exception as exception:
+            slog.StlDmLogger().error('tushare.get_hist_data(%s) excpetion, args: %s' % (code, exception.args.__str__()))
+
+        if tmp_data_hist is None:
+            slog.StlDmLogger().warning('tushare.get_hist_data(%s) return none' % code)
+        else:
+            if is_update:
+                old_data = pd.read_csv(file_path, index_col=0)
+                all_data = tmp_data_hist.append(old_data)
+                data_str_hist = all_data.to_csv()
+            else:
+                data_str_hist = tmp_data_hist.to_csv()
+            with open(file_path, 'w') as fout:
+                fout.write(data_str_hist)
+
+
+def get_all_history_of_code(code):
+    '''
+    获取code对应股票的所有历史行情信息,并将结果保存到对应csv文件
+
+    tushare.get_h_data()可以查询指定股票所有的历史行情,
+    数据只有7列:  date, open, hight, close, low, volume, amount
+
+    Parameters
+    ------
+        code: 股票代码
+    return
+    -------
+        无
+    '''
+    tmp_data_hist = pd.DataFrame()
+    file_path = '../data/origin/tushare/security_trade_data/all/%s.csv' % code
+    (is_update, start_date_str, end_date_str) = get_input_para(file_path)
+    if start_date_str == end_date_str:
+        slog.StlDmLogger().debug('%s data is already up-to-date.' % file_path)
+    else:
+        tmp_data_hist = pd.DataFrame()
+        try:
+            slog.StlDmLogger().debug('tushare.get_h_data: %s, start=%s, end=%s' % (code, start_date_str, end_date_str))
+            tmp_data_hist = tushare.get_h_data(code, start=start_date_str, end=end_date_str, autype=autype, retry_count=retry_count, pause=retry_pause, drop_factor=drop_factor)
+        except Exception as exception:
+            slog.StlDmLogger().error('tushare.get_hist_data(%s) excpetion, args: %s' % (code, exception.args.__str__()))
+
+        if tmp_data_hist is None:
+            slog.StlDmLogger().warning('tushare.get_hist_data(%s) return none' % code)
+        else:
+            if is_update:
+                old_data = pd.read_csv(file_path, index_col=0)
+                all_data = tmp_data_hist.append(old_data)
+                data_str_hist = all_data.to_csv()
+            else:
+                data_str_hist = tmp_data_hist.to_csv()
+            with open(file_path, 'w') as fout:
+                fout.write(data_str_hist)
 
 
 def get_all_security_basic_info():
@@ -80,6 +161,7 @@ def get_all_security_basic_info():
         code_list: 股票代码列表
     '''
     file_path = '../data/origin/tushare/security_fundamental_data/basic_info.csv'
+    basic_data = pd.DataFrame()
     try:
         basic_data = tushare.get_stock_basics()
     except Exception as exception:
@@ -116,6 +198,7 @@ def get_all_security_history():
     get_recent_history_in_code_list(code_list, '30', thread_count)  # 获取最近3年所有股票的30分钟线数据
     get_recent_history_in_code_list(code_list, '60', thread_count)  # 获取最近3年所有股票的60分钟线数据
     get_all_history_in_code_list(code_list, thread_count)           # 获取自2000年1月1日以来的所有数据
+    get_all_index_data()                                            # 获取指数信息
 
     slog.StlDmLogger().debug('get_all_security_history Finish...')
 
@@ -165,14 +248,14 @@ def get_all_history_of_code(code):
     -------
         无
     '''
-    tmp_data_hist = pd.DataFrame()
     file_path = '../data/origin/tushare/security_trade_data/all/%s.csv' % code
     (is_update, start_date_str, end_date_str) = get_input_para(file_path)
     if start_date_str == end_date_str:
         slog.StlDmLogger().debug('%s data is already up-to-date.' % file_path)
     else:
+        tmp_data_hist = pd.DataFrame()
         try:
-            slog.StlDmLogger().debug('tushare.get_h_data:%s, start=%s, end=%s' % (code, start_date_str, end_date_str))
+            slog.StlDmLogger().debug('tushare.get_h_data: %s, start=%s, end=%s' % (code, start_date_str, end_date_str))
             tmp_data_hist = tushare.get_h_data(code, start=start_date_str, end=end_date_str, autype=autype, retry_count=retry_count, pause=retry_pause, drop_factor=drop_factor)
         except Exception as exception:
             slog.StlDmLogger().error('tushare.get_hist_data(%s) excpetion, args: %s' % (code, exception.args.__str__()))
@@ -251,29 +334,15 @@ def get_recent_history_of_code(code, type):
         file_path = '../data/origin/tushare/security_trade_data/recent/30min/%s.csv' % code
     elif type == '60':
         file_path = '../data/origin/tushare/security_trade_data/recent/60min/%s.csv' % code
-    elif code == 'sh':
-        file_path = '../data/origin/tushare/index_trade_data/recent/sh.csv'
-    elif type == 'sz':
-        file_path = '../data/origin/tushare/index_trade_data/recent/sz.csv'
-    elif type == 'hs300':
-        file_path = '../data/origin/tushare/index_trade_data/recent/hs300.csv'
-    elif type == 'sz50':
-        file_path = '../data/origin/tushare/index_trade_data/recent/sz50.csv'
-    elif type == 'zxb':
-        file_path = '../data/origin/tushare/index_trade_data/recent/sme.csv'
-    elif type == 'cyb':
-        file_path = '../data/origin/tushare/index_trade_data/recent/gem.csv'
 
     (is_update, start_date_str, end_date_str) = get_input_para(file_path)
     if start_date_str == end_date_str:
         slog.StlDmLogger().debug('%s data is already up-to-date.' % file_path)
     else:
+        tmp_data_hist = pd.DataFrame()
         try:
-            slog.StlDmLogger().debug('tushare.get_hist_data:%s, start=%s, end=%s' % (code, start_date_str, end_date_str))
-            if type in ['sh', 'sz', 'hs300', 'sz50', 'zxb', 'cyb']:
-                tmp_data_hist = tushare.get_hist_data(code, start=start_date_str, end=end_date_str, retry_count=retry_count, pause=retry_pause)
-            else:
-                tmp_data_hist = tushare.get_hist_data(code, start=start_date_str, end=end_date_str, ktype=type, retry_count=retry_count, pause=retry_pause)
+            slog.StlDmLogger().debug('tushare.get_hist_data: %s, start=%s, end=%s' % (code, start_date_str, end_date_str))
+            tmp_data_hist = tushare.get_hist_data(code, start=start_date_str, end=end_date_str, ktype=type, retry_count=retry_count, pause=retry_pause)
         except Exception as exception:
             slog.StlDmLogger().error('tushare.get_hist_data(%s) excpetion, args: %s' % (code, exception.args.__str__()))
 
@@ -348,6 +417,7 @@ def check_data_integrity(data_path):
     '''
     data_code_list = sfu.get_code_list_in_dir(data_path)
     missing_code_list = []
+    basic_data = pd.DataFrame()
     try:
         basic_data = tushare.get_stock_basics()
     except Exception as exception:
@@ -382,6 +452,8 @@ def get_all_security_history_no_multi_thread():
     '''
     slog.StlDmLogger().debug('get_all_security_history_no_multi_thread Begin...')
 
+    get_all_index_data()
+
     code_list = get_all_security_basic_info()
 
     for code in code_list:
@@ -399,9 +471,9 @@ def get_all_security_history_no_multi_thread():
 
 if __name__ == "__main__":
     # get_all_security_history()
-    get_recent_index_data()
+    # get_all_index_data()
 
-    # get_all_security_history_no_multi_thread()
+    get_all_security_history_no_multi_thread()
 
     # data_path = '../data/origin/tushare/security_trade_data/all'
     # missing_list = check_data_integrity(data_path)
@@ -413,18 +485,6 @@ if __name__ == "__main__":
     # print('missing list after calling tushare.get_hist_data():')
     # print(missing_list)
 
-    # file_path = '../data/origin/tushare/security_trade_data/all/000033.csv'
-    # try:
-    #     tmp_data_hist = tushare.get_h_data('000033', start='2000-01-01', end='2015-04-29')
-    # except Exception as exception:
-    #     slog.StlDmLogger().error('tushare.get_hist_data(%s) excpetion, args: %s' % ('000033', exception.args.__str__()))
-    #
-    # if tmp_data_hist is None:
-    #     slog.StlDmLogger().warning('tushare.get_hist_data(%s) return none' % '000033')
-    # else:
-    #     data_str_hist = tmp_data_hist.to_csv()
-    #     with open(file_path, 'w') as fout:
-    #         fout.write(data_str_hist)
 
 
 
