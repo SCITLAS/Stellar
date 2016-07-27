@@ -2,13 +2,13 @@
 __author__ = 'MoroJoJo'
 
 
+import pandas as pd
+import tushare
+
+
 '''
 轻量级的试验场地
 '''
-
-
-import pandas as pd
-import tushare
 
 
 def dataframe2csv_test():
@@ -55,3 +55,4 @@ def dataframe2list_test():
 if __name__ == '__main__':
     # dataframe2csv_test()
     dataframe2list_test()
+

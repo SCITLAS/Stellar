@@ -2,15 +2,15 @@
 __author__ = 'MoroJoJo'
 
 
+import logging
+
+
 '''
 日志工具模块
 '''
 
 
-import logging
-
-
-DM_LOG_FILE = '../logs/data_manager_log.log'
+DM_LOG_FILE = '../../logs/data_manager_log.log'
 LOG_LEVEL = logging.DEBUG
 class StlDmLogger(logging.Logger):
     '''

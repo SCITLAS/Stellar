@@ -2,17 +2,16 @@
 __author__ = 'MoroJoJo'
 
 
-'''
-网上搬得一个线程池实现: http://my.oschina.net/zhengyijie/blog/177943
-谢谢原作者
-'''
-
-
 import sys
 import threading
 import queue
 import traceback
 
+
+'''
+网上搬得一个线程池实现: http://my.oschina.net/zhengyijie/blog/177943
+谢谢原作者
+'''
 
 
 # 定义一些Exception，用于自定义异常处理

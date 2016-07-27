@@ -4,6 +4,10 @@ __author__ = 'MoroJoJo'
 
 import os, time
 
+'''
+文件工具方法
+'''
+
 
 '''
 比较两个文件夹中文件的差异, 从网上搬得: http://blog.csdn.net/imzoer/article/details/8675078
