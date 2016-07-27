@@ -89,23 +89,29 @@ def get_tick_data(code, tick_date):
     tick_dir_path = '../../data/origin/tushare/security_trade_data/tick/%s' % tick_date
     if not os.path.exists(tick_dir_path):
         os.makedirs(tick_dir_path)
-    file_path = '%s/%s.csv' % (tick_dir_path, code)
-    tmp_data_hist = pd.DataFrame()
-    try:
-        slog.StlDmLogger().debug('tushare.get_tick_data: %s, tick_date=%s' % (code, tick_date))
-        tmp_data = tushare.get_tick_data(code, tick_date, retry_count=retry_count, pause=retry_pause)
-    except Exception as exception:
-        slog.StlDmLogger().error('tushare.get_tick_data(%s) excpetion, args: %s' % (code, exception.args.__str__()))
 
-    if tmp_data_hist is None:
-        slog.StlDmLogger().warning('tushare.get_tick_data(%s) return none' % code)
+    file_path = '%s/%s.csv' % (tick_dir_path, code)
+    if not os.path.exists(file_path):
+        try:
+            tmp_data = pd.DataFrame()
+            slog.StlDmLogger().debug('tushare.get_tick_data: %s, tick_date=%s' % (code, tick_date))
+            tmp_data = tushare.get_tick_data(code, tick_date, retry_count=retry_count, pause=retry_pause)
+        except Exception as exception:
+            slog.StlDmLogger().error('tushare.get_tick_data(%s) excpetion, args: %s' % (code, exception.args.__str__()))
+
+        if tmp_data is None:
+            slog.StlDmLogger().warning('tushare.get_tick_data(%s) return none' % code)
+        else:
+            data_str = tmp_data.to_csv()
+            with open(file_path, 'w') as fout:
+                fout.write(data_str)
     else:
-        data_str = tmp_data.to_csv()
-        with open(file_path, 'w') as fout:
-            fout.write(data_str)
+        slog.StlDmLogger().debug('%s already exists' % file_path)
+
+
 
 
 if __name__ == "__main__":
-    get_all_security_tick_data_multi_thread(start_date_str='2016-07-26', during=10, direction=tick_backward)
+    # get_all_security_tick_data_multi_thread(start_date_str='2016-07-26', during=10, direction=tick_backward)
     get_all_security_tick_data_no_multi_thread(start_date_str='2016-07-26', during=10, direction=tick_backward)
     # get_tick_data('002612', '2016-07-26')
