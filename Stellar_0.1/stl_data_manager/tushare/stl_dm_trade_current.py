@@ -48,6 +48,7 @@ def get_all_current_data():
     slog.StlDmLogger().debug('get_all_current_data begin...')
 
     file_path = '../../data/origin/tushare/security_trade_data/current/current.csv'
+    tmp_data = pd.DataFrame()
     try:
         tmp_data = tushare.get_today_all()
     except Exception as exception:
@@ -60,6 +61,7 @@ def get_all_current_data():
         with open(file_path, 'w') as fout:
             fout.write(data_str)
     slog.StlDmLogger().debug('get_all_current_data Finish...')
+
 
 if __name__ == "__main__":
     get_all_current_data()

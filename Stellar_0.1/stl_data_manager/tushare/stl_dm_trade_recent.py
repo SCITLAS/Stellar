@@ -188,9 +188,38 @@ def get_index_recent_data(code, start_date, type):
                 fout.write(data_str_hist)
 
 
+def get_all_security_recent_data_no_multi_thread():
+    '''
+    获取所有股票历史行情, 并存入到对应的csv文件中, 不使用多线程
+
+    Parameters
+    ------
+        无
+    return
+    -------
+        无
+    '''
+    slog.StlDmLogger().debug('get_all_security_history_no_multi_thread Begin...')
+
+    get_all_index_recent_data()
+
+    code_list = sfund.get_all_security_basic_info()
+
+    for code in code_list:
+        get_recent_data_of_code(code, 'D')    # 获取最近3年所有股票的日线数据
+        get_recent_data_of_code(code, 'W')    # 获取最近3年所有股票的周线数据
+        get_recent_data_of_code(code, 'M')    # 获取最近3年所有股票的月线数据
+        get_recent_data_of_code(code, '5')    # 获取最近3年所有股票的5分钟线数据
+        get_recent_data_of_code(code, '15')   # 获取最近3年所有股票的15分钟线数据
+        get_recent_data_of_code(code, '30')   # 获取最近3年所有股票的30分钟线数据
+        get_recent_data_of_code(code, '60')   # 获取最近3年所有股票的60分钟线数据
+
+    slog.StlDmLogger().debug('get_all_security_history_no_multi_thread Finish...')
+
+
 def get_all_security_recent_data_multi_thread():
     '''
-    获取所有股票近期行情, 并存入到对应的csv文件中, 多线程版本
+    获取所有股票近期行情, 并存入到对应的csv文件中, 使用多线程
 
     Parameters
     ------
@@ -216,7 +245,7 @@ def get_all_security_recent_data_multi_thread():
 
 def get_recent_data_in_code_list_multi_thread(code_list, type, thread_count):
     '''
-    获取code对应股票的近3年历史行情信息,并将结果保存到对应csv文件, 多线程版本
+    获取code对应股票的近3年历史行情信息,并将结果保存到对应csv文件
 
     Parameters
     ------
@@ -389,35 +418,6 @@ def check_data_integrity(data_path):
                 missing_code_list.append(code)
 
     return missing_code_list
-
-
-def get_all_security_recent_data_no_multi_thread():
-    '''
-    获取所有股票历史行情, 并存入到对应的csv文件中, 不使用多线程
-
-    Parameters
-    ------
-        无
-    return
-    -------
-        无
-    '''
-    slog.StlDmLogger().debug('get_all_security_history_no_multi_thread Begin...')
-
-    get_all_index_recent_data()
-
-    code_list = sfund.get_all_security_basic_info()
-
-    for code in code_list:
-        get_recent_data_of_code(code, 'D')    # 获取最近3年所有股票的日线数据
-        get_recent_data_of_code(code, 'W')    # 获取最近3年所有股票的周线数据
-        get_recent_data_of_code(code, 'M')    # 获取最近3年所有股票的月线数据
-        get_recent_data_of_code(code, '5')    # 获取最近3年所有股票的5分钟线数据
-        get_recent_data_of_code(code, '15')   # 获取最近3年所有股票的15分钟线数据
-        get_recent_data_of_code(code, '30')   # 获取最近3年所有股票的30分钟线数据
-        get_recent_data_of_code(code, '60')   # 获取最近3年所有股票的60分钟线数据
-
-    slog.StlDmLogger().debug('get_all_security_history_no_multi_thread Finish...')
 
 
 if __name__ == "__main__":
