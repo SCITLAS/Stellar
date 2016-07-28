@@ -31,11 +31,13 @@ import tushare
 '''
 
 
-thread_count = 50    # 查询交易数据的并行线程数
-retry_count = 5      # 调用tushare接口失败重试次数
-retry_pause = 0.1    # 调用tushare接口失败重试间隔时间
-autype ='qfq'        # 复权类型，qfq-前复权 hfq-后复权 None-不复权
-drop_factor = True   # 是否移除复权因子，在分析过程中可能复权因子意义不大，但是如需要先储存到数据库之后再分析的话，有该项目会更加灵活
+THREAD_COUNT = 50    # 查询交易数据的并行线程数
+RETRY_COUNT = 5      # 调用tushare接口失败重试次数
+RETRY_PAUSE = 0.1    # 调用tushare接口失败重试间隔时间
+AUTYPE ='qfq'        # 复权类型，qfq-前复权 hfq-后复权 None-不复权
+DROP_FACTOR = True   # 是否移除复权因子，在分析过程中可能复权因子意义不大，但是如需要先储存到数据库之后再分析的话，有该项目会更加灵活
+
+DEFAULT_DIR_PATH = '../../../Data/origin/tushare/security_trade_data/history/all'
 
 
 def get_all_index_data():
@@ -84,7 +86,10 @@ def get_index_data(code, start_date):
     -------
         无
     '''
-    file_path = '../../data/origin/tushare/index_trade_data/all/%s.csv' % code
+    dir_path = DEFAULT_DIR_PATH
+    if not os.path.exists(dir_path):
+        os.makedirs(dir_path)
+    file_path = '%s/%s.csv' % (dir_path, code)
     (is_update, start_date_str, end_date_str) = get_input_para(file_path)
     if start_date_str == end_date_str:
         slog.StlDmLogger().debug('%s data is already up-to-date.' % file_path)
@@ -94,7 +99,7 @@ def get_index_data(code, start_date):
             if start_date_str == '2000-01-01':
                 start_date_str = start_date
             slog.StlDmLogger().debug('tushare.get_h_data: %s, start=%s, end=%s' % (code, start_date_str, end_date_str))
-            tmp_data_hist = tushare.get_h_data(code, start=start_date_str, end=end_date_str, index=True, retry_count=retry_count, pause=retry_pause, drop_factor=drop_factor)
+            tmp_data_hist = tushare.get_h_data(code, start=start_date_str, end=end_date_str, index=True, retry_count=RETRY_COUNT, pause=RETRY_PAUSE, drop_factor=DROP_FACTOR)
         except Exception as exception:
             slog.StlDmLogger().error('tushare.get_hist_data(%s) excpetion, args: %s' % (code, exception.args.__str__()))
 
@@ -125,7 +130,7 @@ def get_all_security_history_multi_thread():
     slog.StlDmLogger().debug('get_all_security_history_multi_thread (%d threads) Begin...')
 
     code_list = sfund.get_all_security_basic_info()                 # 获取所有股票的基本信息
-    get_all_history_in_code_list_multi_thread(code_list, thread_count)           # 获取自2000年1月1日以来的所有数据
+    get_all_history_in_code_list_multi_thread(code_list, THREAD_COUNT)           # 获取自2000年1月1日以来的所有数据
     get_all_index_data()                                            # 获取指数信息
 
     slog.StlDmLogger().debug('get_all_security_history_multi_thread (%d threads) Finish...')
@@ -179,7 +184,10 @@ def get_all_history_of_code(code):
     -------
         无
     '''
-    file_path = '../../data/origin/tushare/security_trade_data/all/%s.csv' % code
+    dir_path = DEFAULT_DIR_PATH
+    if not os.path.exists(dir_path):
+        os.makedirs(dir_path)
+    file_path = '%s/%s.csv' % (dir_path, code)
     (is_update, start_date_str, end_date_str) = get_input_para(file_path)
     if start_date_str == end_date_str:
         slog.StlDmLogger().debug('%s data is already up-to-date.' % file_path)
@@ -187,7 +195,7 @@ def get_all_history_of_code(code):
         tmp_data_hist = pd.DataFrame()
         try:
             slog.StlDmLogger().debug('tushare.get_h_data: %s, start=%s, end=%s' % (code, start_date_str, end_date_str))
-            tmp_data_hist = tushare.get_h_data(code, start=start_date_str, end=end_date_str, autype=autype, retry_count=retry_count, pause=retry_pause, drop_factor=drop_factor)
+            tmp_data_hist = tushare.get_h_data(code, start=start_date_str, end=end_date_str, autype=AUTYPE, retry_count=RETRY_COUNT, pause=RETRY_PAUSE, drop_factor=DROP_FACTOR)
         except Exception as exception:
             slog.StlDmLogger().error('tushare.get_hist_data(%s) excpetion, args: %s' % (code, exception.args.__str__()))
 

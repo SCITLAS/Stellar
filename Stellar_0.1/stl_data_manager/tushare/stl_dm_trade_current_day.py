@@ -21,7 +21,10 @@ import tushare
 '''
 
 
-def get_all_current_data():
+DEFAULT_DIR_PATH = '../../../Data/origin/tushare/security_trade_data/current_day'
+
+
+def get_all_security_current_day_data():
     '''
     获取所有股票的最新一个交易日数据,并将结果保存到对应csv文件
 
@@ -45,9 +48,12 @@ def get_all_current_data():
     -------
         无
     '''
-    slog.StlDmLogger().debug('get_all_current_data begin...')
+    slog.StlDmLogger().debug('get_all_security_current_day_data begin...')
 
-    file_path = '../../data/origin/tushare/security_trade_data/current/current.csv'
+    dir_path = DEFAULT_DIR_PATH
+    if not os.path.exists(dir_path):
+        os.makedirs(dir_path)
+    file_path = '%s/security.csv' % dir_path
     tmp_data = pd.DataFrame()
     try:
         tmp_data = tushare.get_today_all()
@@ -60,9 +66,9 @@ def get_all_current_data():
         data_str = tmp_data.to_csv()
         with open(file_path, 'w') as fout:
             fout.write(data_str)
-    slog.StlDmLogger().debug('get_all_current_data Finish...')
+    slog.StlDmLogger().debug('get_all_security_current_day_data Finish...')
 
 
 if __name__ == "__main__":
-    get_all_current_data()
+    get_all_security_current_day_data()
 

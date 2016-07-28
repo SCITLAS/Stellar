@@ -21,11 +21,12 @@ import tushare
 '''
 
 
-thread_count = 50    # 查询交易数据的并行线程数
-retry_count = 5      # 调用tushare接口失败重试次数
-retry_pause = 0.1    # 调用tushare接口失败重试间隔时间
-autype ='qfq'        # 复权类型，qfq-前复权 hfq-后复权 None-不复权
-drop_factor = True   # 是否移除复权因子，在分析过程中可能复权因子意义不大，但是如需要先储存到数据库之后再分析的话，有该项目会更加灵活
+THREAD_COUNT = 50    # 查询交易数据的并行线程数
+RETRY_COUNT = 5      # 调用tushare接口失败重试次数
+RETRY_PAUSE = 0.1    # 调用tushare接口失败重试间隔时间
+DROP_FACTOR = True   # 是否移除复权因子，在分析过程中可能复权因子意义不大，但是如需要先储存到数据库之后再分析的话，有该项目会更加灵活
+
+DEFAULT_DIR_PATH = '../../../Data/origin/tushare/security_trade_data/history/recent'
 
 
 def get_all_index_recent_data():
@@ -146,21 +147,36 @@ def get_index_recent_data(code, start_date, type):
     elif code == 'cyb':
         file_name = '399006'
 
-    file_path = ''
     if type == 'D':
-        file_path = '../../data/origin/tushare/index_trade_data/recent/day/%s.csv' % file_name
+        dir_path = '%s/day' % DEFAULT_DIR_PATH
+        if not os.path.exists(dir_path):
+            os.makedirs(dir_path)
     elif type == 'W':
-        file_path = '../../data/origin/tushare/index_trade_data/recent/week/%s.csv' % file_name
+        dir_path = '%s/week' % DEFAULT_DIR_PATH
+        if not os.path.exists(dir_path):
+            os.makedirs(dir_path)
     elif type == 'M':
-        file_path = '../../data/origin/tushare/index_trade_data/recent/month/%s.csv' % file_name
+        dir_path = '%s/month' % DEFAULT_DIR_PATH
+        if not os.path.exists(dir_path):
+            os.makedirs(dir_path)
     elif type == '5':
-        file_path = '../../data/origin/tushare/index_trade_data/recent/5min/%s.csv' % file_name
+        dir_path = '%s/5min' % DEFAULT_DIR_PATH
+        if not os.path.exists(dir_path):
+            os.makedirs(dir_path)
     elif type == '15':
-        file_path = '../../data/origin/tushare/index_trade_data/recent/15min/%s.csv' % file_name
+        dir_path = '%s/15min' % DEFAULT_DIR_PATH
+        if not os.path.exists(dir_path):
+            os.makedirs(dir_path)
     elif type == '30':
-        file_path = '../../data/origin/tushare/index_trade_data/recent/30min/%s.csv' % file_name
+        dir_path = '%s/30min' % DEFAULT_DIR_PATH
+        if not os.path.exists(dir_path):
+            os.makedirs(dir_path)
     elif type == '60':
-        file_path = '../../data/origin/tushare/index_trade_data/recent/60min/%s.csv' % file_name
+        dir_path = '%s/60min' % DEFAULT_DIR_PATH
+        if not os.path.exists(dir_path):
+            os.makedirs(dir_path)
+    file_path = '%s/%s.csv' % (dir_path, file_name)
+
 
     (is_update, start_date_str, end_date_str) = get_input_para(file_path)
     if start_date_str == end_date_str:
@@ -171,7 +187,7 @@ def get_index_recent_data(code, start_date, type):
             if start_date_str == '2000-01-01':
                 start_date_str = start_date
             slog.StlDmLogger().debug('tushare.get_h_data: %s, start=%s, end=%s' % (code, start_date_str, end_date_str))
-            tmp_data_hist = tushare.get_hist_data(code, start=start_date_str, end=end_date_str, ktype=type, retry_count=retry_count, pause=retry_pause)
+            tmp_data_hist = tushare.get_hist_data(code, start=start_date_str, end=end_date_str, ktype=type, retry_count=RETRY_COUNT, pause=RETRY_PAUSE)
         except Exception as exception:
             slog.StlDmLogger().error('tushare.get_hist_data(%s) excpetion, args: %s' % (code, exception.args.__str__()))
 
@@ -228,19 +244,19 @@ def get_all_security_recent_data_multi_thread():
     -------
         无
     '''
-    slog.StlDmLogger().debug('get_all_security_recent_data_multi_thread (%d threads) Begin...' % thread_count)
+    slog.StlDmLogger().debug('get_all_security_recent_data_multi_thread (%d threads) Begin...' % THREAD_COUNT)
 
     get_all_index_recent_data()                                  # 获取指数信息
     code_list = sfund.get_all_security_basic_info()              # 获取所有股票的基本信息
-    get_recent_data_in_code_list_multi_thread(code_list, 'D', thread_count)   # 获取最近3年所有股票的日线数据
-    get_recent_data_in_code_list_multi_thread(code_list, 'W', thread_count)   # 获取最近3年所有股票的周线数据
-    get_recent_data_in_code_list_multi_thread(code_list, 'M', thread_count)   # 获取最近3年所有股票的月线数据
-    get_recent_data_in_code_list_multi_thread(code_list, '5', thread_count)   # 获取最近3年所有股票的5分钟线数据
-    get_recent_data_in_code_list_multi_thread(code_list, '15', thread_count)  # 获取最近3年所有股票的15分钟线数据
-    get_recent_data_in_code_list_multi_thread(code_list, '30', thread_count)  # 获取最近3年所有股票的30分钟线数据
-    get_recent_data_in_code_list_multi_thread(code_list, '60', thread_count)  # 获取最近3年所有股票的60分钟线数据
+    get_recent_data_in_code_list_multi_thread(code_list, 'D', THREAD_COUNT)   # 获取最近3年所有股票的日线数据
+    get_recent_data_in_code_list_multi_thread(code_list, 'W', THREAD_COUNT)   # 获取最近3年所有股票的周线数据
+    get_recent_data_in_code_list_multi_thread(code_list, 'M', THREAD_COUNT)   # 获取最近3年所有股票的月线数据
+    get_recent_data_in_code_list_multi_thread(code_list, '5', THREAD_COUNT)   # 获取最近3年所有股票的5分钟线数据
+    get_recent_data_in_code_list_multi_thread(code_list, '15', THREAD_COUNT)  # 获取最近3年所有股票的15分钟线数据
+    get_recent_data_in_code_list_multi_thread(code_list, '30', THREAD_COUNT)  # 获取最近3年所有股票的30分钟线数据
+    get_recent_data_in_code_list_multi_thread(code_list, '60', THREAD_COUNT)  # 获取最近3年所有股票的60分钟线数据
 
-    slog.StlDmLogger().debug('get_all_security_recent_data_multi_thread (%d threads)Finish...' % thread_count)
+    slog.StlDmLogger().debug('get_all_security_recent_data_multi_thread (%d threads)Finish...' % THREAD_COUNT)
 
 
 def get_recent_data_in_code_list_multi_thread(code_list, type, thread_count):
@@ -302,19 +318,34 @@ def get_recent_data_of_code(code, type):
         无
     '''
     if type == 'D':
-        file_path = '../../data/origin/tushare/security_trade_data/recent/day/%s.csv' % code
+        dir_path = '%s/day' % DEFAULT_DIR_PATH
+        if not os.path.exists(dir_path):
+            os.makedirs(dir_path)
     elif type == 'W':
-        file_path = '../../data/origin/tushare/security_trade_data/recent/week/%s.csv' % code
+        dir_path = '%s/week' % DEFAULT_DIR_PATH
+        if not os.path.exists(dir_path):
+            os.makedirs(dir_path)
     elif type == 'M':
-        file_path = '../../data/origin/tushare/security_trade_data/recent/month/%s.csv' % code
+        dir_path = '%s/month' % DEFAULT_DIR_PATH
+        if not os.path.exists(dir_path):
+            os.makedirs(dir_path)
     elif type == '5':
-        file_path = '../../data/origin/tushare/security_trade_data/recent/5min/%s.csv' % code
+        dir_path = '%s/5min' % DEFAULT_DIR_PATH
+        if not os.path.exists(dir_path):
+            os.makedirs(dir_path)
     elif type == '15':
-        file_path = '../../data/origin/tushare/security_trade_data/recent/15min/%s.csv' % code
+        dir_path = '%s/15min' % DEFAULT_DIR_PATH
+        if not os.path.exists(dir_path):
+            os.makedirs(dir_path)
     elif type == '30':
-        file_path = '../../data/origin/tushare/security_trade_data/recent/30min/%s.csv' % code
+        dir_path = '%s/30min' % DEFAULT_DIR_PATH
+        if not os.path.exists(dir_path):
+            os.makedirs(dir_path)
     elif type == '60':
-        file_path = '../../data/origin/tushare/security_trade_data/recent/60min/%s.csv' % code
+        dir_path = '%s/60min' % DEFAULT_DIR_PATH
+        if not os.path.exists(dir_path):
+            os.makedirs(dir_path)
+    file_path = '%s/%s.csv' % (dir_path, code)
 
     (is_update, start_date_str, end_date_str) = get_input_para(file_path)
     if start_date_str == end_date_str:
@@ -323,7 +354,7 @@ def get_recent_data_of_code(code, type):
         tmp_data_hist = pd.DataFrame()
         try:
             slog.StlDmLogger().debug('tushare.get_hist_data: %s, start=%s, end=%s' % (code, start_date_str, end_date_str))
-            tmp_data_hist = tushare.get_hist_data(code, start=start_date_str, end=end_date_str, ktype=type, retry_count=retry_count, pause=retry_pause)
+            tmp_data_hist = tushare.get_hist_data(code, start=start_date_str, end=end_date_str, ktype=type, retry_count=RETRY_COUNT, pause=RETRY_PAUSE)
         except Exception as exception:
             slog.StlDmLogger().error('tushare.get_hist_data(%s) excpetion, args: %s' % (code, exception.args.__str__()))
 
@@ -422,7 +453,7 @@ def check_data_integrity(data_path):
 
 if __name__ == "__main__":
     # get_all_security_recent_data_multi_thread()
-    # get_all_security_recent_data_no_multi_thread()
+    get_all_security_recent_data_no_multi_thread()
     get_all_index_recent_data()
 
 

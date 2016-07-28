@@ -3,6 +3,7 @@ __author__ = 'MoroJoJo'
 
 
 from stl_utilities import stl_logger as slog
+import os
 import tushare
 import pandas as pd
 
@@ -35,7 +36,10 @@ def get_all_security_basic_info():
     -------
         code_list: 股票代码列表
     '''
-    file_path = '../../data/origin/tushare/security_fundamental_data/basic_info.csv'
+    dir_path = '../../../Data/origin/tushare/security_fundamental_data'
+    if not os.path.exists(dir_path):
+        os.makedirs(dir_path)
+    file_path = '%s/basic_info.csv' % dir_path
     basic_data = pd.DataFrame()
     try:
         basic_data = tushare.get_stock_basics()
@@ -49,3 +53,6 @@ def get_all_security_basic_info():
         with open(file_path, 'w') as fout:
             fout.write(basic_data_str)
         return basic_data.index.tolist()
+
+if __name__ == "__main__":
+    get_all_security_basic_info()
