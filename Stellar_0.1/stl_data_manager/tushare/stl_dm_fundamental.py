@@ -14,7 +14,7 @@ import pandas as pd
 '''
 
 
-def get_all_security_basic_info():
+def get_all_security_basic_info(refresh=False):
     '''
     获取所有A股所有股票的基本信息
 
@@ -31,7 +31,7 @@ def get_all_security_basic_info():
 
     Parameters
     ------
-        无
+        refresh: 是否刷新
     return
     -------
         code_list: 股票代码列表
@@ -40,19 +40,51 @@ def get_all_security_basic_info():
     if not os.path.exists(dir_path):
         os.makedirs(dir_path)
     file_path = '%s/basic_info.csv' % dir_path
-    basic_data = pd.DataFrame()
-    try:
-        basic_data = tushare.get_stock_basics()
-    except Exception as exception:
-        slog.StlDmLogger().error('tushare.get_stock_basics() excpetion, args: %s' % exception.args.__str__())
-    if basic_data is None:
-        slog.StlDmLogger().warning('tushare.get_stock_basics() return none')
-        return []
+
+    if refresh:
+        # 强制从tushare获取数据刷新
+        basic_data = pd.DataFrame()
+        try:
+            basic_data = tushare.get_stock_basics()
+        except Exception as exception:
+            slog.StlDmLogger().error('tushare.get_stock_basics() excpetion, args: %s' % exception.args.__str__())
+        if basic_data is None:
+            slog.StlDmLogger().warning('tushare.get_stock_basics() return none')
+            return []
+        else:
+            basic_data_str = basic_data.to_csv()
+            with open(file_path, 'w') as fout:
+                fout.write(basic_data_str)
+            return basic_data.index.tolist()
     else:
-        basic_data_str = basic_data.to_csv()
-        with open(file_path, 'w') as fout:
-            fout.write(basic_data_str)
-        return basic_data.index.tolist()
+        # 不强制刷新
+        if os.path.exists(file_path):
+            # 文件存在, 就从文件里面读
+            old_data = pd.read_csv(file_path)
+            old_data['code'] = old_data['code'].apply(lambda x: '%06d' % x)
+            return old_data['code'].tolist()
+        else:
+            # 文件不存在, 从tushare获取数据
+            basic_data = pd.DataFrame()
+            try:
+                basic_data = tushare.get_stock_basics()
+            except Exception as exception:
+                slog.StlDmLogger().error('tushare.get_stock_basics() excpetion, args: %s' % exception.args.__str__())
+            if basic_data is None:
+                slog.StlDmLogger().warning('tushare.get_stock_basics() return none')
+                return []
+            else:
+                basic_data_str = basic_data.to_csv()
+                with open(file_path, 'w') as fout:
+                    fout.write(basic_data_str)
+                return basic_data.index.tolist()
+
 
 if __name__ == "__main__":
-    get_all_security_basic_info()
+    code_list_1 = get_all_security_basic_info(refresh=True)
+    print('code_list_1:')
+    print(code_list_1)
+
+    code_list_2 = get_all_security_basic_info(refresh=False)
+    print('code_list_2:')
+    print(code_list_2)

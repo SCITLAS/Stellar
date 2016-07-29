@@ -26,182 +26,7 @@ RETRY_COUNT = 5      # 调用tushare接口失败重试次数
 RETRY_PAUSE = 0.1    # 调用tushare接口失败重试间隔时间
 DROP_FACTOR = True   # 是否移除复权因子，在分析过程中可能复权因子意义不大，但是如需要先储存到数据库之后再分析的话，有该项目会更加灵活
 
-DEFAULT_DIR_PATH = '../../../Data/origin/tushare/security_trade_data/history/recent'
-
-
-def get_all_index_recent_data():
-    '''
-    获取A股所有指数近3年的信息
-
-    调用tushare.get_hist_data()方法获得所有指数信息，并存入对应的csv文件中
-
-    Parameters
-    ------
-        无
-    return
-    -------
-        无
-    '''
-
-    # 查询的开始时间有限制,如果开始时间一个月没有数据,就查不到数据,所以需要设置一下,
-    # 下面这些开始时间,都是我人肉实验得出的数据.
-    sh_start_date = '2000-01-01'
-    sz_start_date = '2000-01-01'
-    hs300_start_date = '2005-01-01'
-    sz50_start_date = '2004-01-01'
-    sme_start_date_1 = '2005-06-01'
-    gem_start_date_1 = '2010-08-01'
-
-    #近期数据
-    ## sh=上证指数 sz=深圳成指 hs300=沪深300指数 sz50=上证50 zxb=中小板 cyb=创业板
-    get_index_recent_data('sh', start_date=sh_start_date, type='5')          # 上证指数
-    get_index_recent_data('sh', start_date=sh_start_date, type='15')         # 上证指数
-    get_index_recent_data('sh', start_date=sh_start_date, type='30')         # 上证指数
-    get_index_recent_data('sh', start_date=sh_start_date, type='60')         # 上证指数
-    get_index_recent_data('sh', start_date=sh_start_date, type='D')          # 上证指数
-    get_index_recent_data('sh', start_date=sh_start_date, type='W')          # 上证指数
-    get_index_recent_data('sh', start_date=sh_start_date, type='M')          # 上证指数
-
-    get_index_recent_data('sz', start_date=sz_start_date, type='5')          # 深圳成指
-    get_index_recent_data('sz', start_date=sz_start_date, type='15')         # 深圳成指
-    get_index_recent_data('sz', start_date=sz_start_date, type='30')         # 深圳成指
-    get_index_recent_data('sz', start_date=sz_start_date, type='60')         # 深圳成指
-    get_index_recent_data('sz', start_date=sz_start_date, type='D')          # 深圳成指
-    get_index_recent_data('sz', start_date=sz_start_date, type='W')          # 深圳成指
-    get_index_recent_data('sz', start_date=sz_start_date, type='M')          # 深圳成指
-
-    get_index_recent_data('hs300', start_date=hs300_start_date, type='5')    # 沪深300
-    get_index_recent_data('hs300', start_date=hs300_start_date, type='15')   # 沪深300
-    get_index_recent_data('hs300', start_date=hs300_start_date, type='30')   # 沪深300
-    get_index_recent_data('hs300', start_date=hs300_start_date, type='60')   # 沪深300
-    get_index_recent_data('hs300', start_date=hs300_start_date, type='D')    # 沪深300
-    get_index_recent_data('hs300', start_date=hs300_start_date, type='W')    # 沪深300
-    get_index_recent_data('hs300', start_date=hs300_start_date, type='M')    # 沪深300
-
-    get_index_recent_data('sz50', start_date=sz50_start_date, type='5')      # 上证50
-    get_index_recent_data('sz50', start_date=sz50_start_date, type='15')     # 上证50
-    get_index_recent_data('sz50', start_date=sz50_start_date, type='30')     # 上证50
-    get_index_recent_data('sz50', start_date=sz50_start_date, type='60')     # 上证50
-    get_index_recent_data('sz50', start_date=sz50_start_date, type='D')      # 上证50
-    get_index_recent_data('sz50', start_date=sz50_start_date, type='W')      # 上证50
-    get_index_recent_data('sz50', start_date=sz50_start_date, type='M')      # 上证50
-
-    get_index_recent_data('zxb', start_date=sme_start_date_1, type='5')      # 中小板指数
-    get_index_recent_data('zxb', start_date=sme_start_date_1, type='15')     # 中小板指数
-    get_index_recent_data('zxb', start_date=sme_start_date_1, type='30')     # 中小板指数
-    get_index_recent_data('zxb', start_date=sme_start_date_1, type='60')     # 中小板指数
-    get_index_recent_data('zxb', start_date=sme_start_date_1, type='D')      # 中小板指数
-    get_index_recent_data('zxb', start_date=sme_start_date_1, type='W')      # 中小板指数
-    get_index_recent_data('zxb', start_date=sme_start_date_1, type='M')      # 中小板指数
-
-    get_index_recent_data('cyb', start_date=gem_start_date_1, type='5')      # 中小板指数
-    get_index_recent_data('cyb', start_date=gem_start_date_1, type='15')     # 中小板指数
-    get_index_recent_data('cyb', start_date=gem_start_date_1, type='30')     # 中小板指数
-    get_index_recent_data('cyb', start_date=gem_start_date_1, type='60')     # 中小板指数
-    get_index_recent_data('cyb', start_date=gem_start_date_1, type='D')      # 中小板指数
-    get_index_recent_data('cyb', start_date=gem_start_date_1, type='W')      # 中小板指数
-    get_index_recent_data('cyb', start_date=gem_start_date_1, type='M')      # 中小板指数
-
-
-def get_index_recent_data(code, start_date, type):
-    '''
-    获取code对应指数的近期行情信息,并将结果保存到对应csv文件
-
-    tushare.get_hist_data()查询指定股票3年的历史行情,
-        date：日期
-        open：开盘价
-        high：最高价
-        close：收盘价
-        low：最低价
-        volume：成交量
-        price_change：价格变动
-        p_change：涨跌幅
-        ma5：5日均价
-        ma10：10日均价
-        ma20:20日均价
-        v_ma5:5日均量
-        v_ma10:10日均量
-        v_ma20:20日均量
-        turnover:换手率[注：指数无此项]
-
-    Parameters
-    ------
-        code: 股票代码, sh=上证指数 sz=深圳成指 hs300=沪深300指数 sz50=上证50 zxb=中小板 cyb=创业板
-        start_date: 查询开始日期
-        type: 数据类型：D=日k线 W=周 M=月 5=5分钟 15=15分钟 30=30分钟 60=60分钟
-     return
-    -------
-        无
-    '''
-    file_name = ''
-    if code == 'sh':
-        file_name = '000001'
-    elif code == 'sz':
-        file_name = '399001'
-    elif code == 'hs300':
-        file_name = '000300'
-    elif code == 'sz50':
-        file_name = '000016'
-    elif code == 'zxb':
-        file_name = '399005'
-    elif code == 'cyb':
-        file_name = '399006'
-
-    if type == 'D':
-        dir_path = '%s/day' % DEFAULT_DIR_PATH
-        if not os.path.exists(dir_path):
-            os.makedirs(dir_path)
-    elif type == 'W':
-        dir_path = '%s/week' % DEFAULT_DIR_PATH
-        if not os.path.exists(dir_path):
-            os.makedirs(dir_path)
-    elif type == 'M':
-        dir_path = '%s/month' % DEFAULT_DIR_PATH
-        if not os.path.exists(dir_path):
-            os.makedirs(dir_path)
-    elif type == '5':
-        dir_path = '%s/5min' % DEFAULT_DIR_PATH
-        if not os.path.exists(dir_path):
-            os.makedirs(dir_path)
-    elif type == '15':
-        dir_path = '%s/15min' % DEFAULT_DIR_PATH
-        if not os.path.exists(dir_path):
-            os.makedirs(dir_path)
-    elif type == '30':
-        dir_path = '%s/30min' % DEFAULT_DIR_PATH
-        if not os.path.exists(dir_path):
-            os.makedirs(dir_path)
-    elif type == '60':
-        dir_path = '%s/60min' % DEFAULT_DIR_PATH
-        if not os.path.exists(dir_path):
-            os.makedirs(dir_path)
-    file_path = '%s/%s.csv' % (dir_path, file_name)
-
-
-    (is_update, start_date_str, end_date_str) = get_input_para(file_path)
-    if start_date_str == end_date_str:
-        slog.StlDmLogger().debug('%s data is already up-to-date.' % file_path)
-    else:
-        tmp_data_hist = pd.DataFrame()
-        try:
-            if start_date_str == '2000-01-01':
-                start_date_str = start_date
-            slog.StlDmLogger().debug('tushare.get_h_data: %s, start=%s, end=%s' % (code, start_date_str, end_date_str))
-            tmp_data_hist = tushare.get_hist_data(code, start=start_date_str, end=end_date_str, ktype=type, retry_count=RETRY_COUNT, pause=RETRY_PAUSE)
-        except Exception as exception:
-            slog.StlDmLogger().error('tushare.get_hist_data(%s) excpetion, args: %s' % (code, exception.args.__str__()))
-
-        if tmp_data_hist is None:
-            slog.StlDmLogger().warning('tushare.get_hist_data(%s) return none' % code)
-        else:
-            if is_update:
-                old_data = pd.read_csv(file_path, index_col=0)
-                all_data = tmp_data_hist.append(old_data)
-                data_str_hist = all_data.to_csv()
-            else:
-                data_str_hist = tmp_data_hist.to_csv()
-            with open(file_path, 'w') as fout:
-                fout.write(data_str_hist)
+DEFAULT_DIR_PATH = '../../../Data/origin/tushare/security_trade_data/trade/history/recent'
 
 
 def get_all_security_recent_data_no_multi_thread():
@@ -217,10 +42,7 @@ def get_all_security_recent_data_no_multi_thread():
     '''
     slog.StlDmLogger().debug('get_all_security_history_no_multi_thread Begin...')
 
-    get_all_index_recent_data()
-
     code_list = sfund.get_all_security_basic_info()
-
     for code in code_list:
         get_recent_data_of_code(code, 'D')    # 获取最近3年所有股票的日线数据
         get_recent_data_of_code(code, 'W')    # 获取最近3年所有股票的周线数据
@@ -246,7 +68,6 @@ def get_all_security_recent_data_multi_thread():
     '''
     slog.StlDmLogger().debug('get_all_security_recent_data_multi_thread (%d threads) Begin...' % THREAD_COUNT)
 
-    get_all_index_recent_data()                                  # 获取指数信息
     code_list = sfund.get_all_security_basic_info()              # 获取所有股票的基本信息
     get_recent_data_in_code_list_multi_thread(code_list, 'D', THREAD_COUNT)   # 获取最近3年所有股票的日线数据
     get_recent_data_in_code_list_multi_thread(code_list, 'W', THREAD_COUNT)   # 获取最近3年所有股票的周线数据
@@ -454,7 +275,6 @@ def check_data_integrity(data_path):
 if __name__ == "__main__":
     # get_all_security_recent_data_multi_thread()
     get_all_security_recent_data_no_multi_thread()
-    get_all_index_recent_data()
 
 
 

@@ -5,21 +5,16 @@ __author__ = 'MoroJoJo'
 from stl_utilities import stl_logger as slog
 from stl_utilities import stl_thread_pool as stp
 from stl_data_manager.tushare import stl_dm_fundamental as sfund
-from apscheduler.schedulers.background import BackgroundScheduler
 
 import os
-import datetime
 import time
 import pandas as pd
 import tushare
 
 
 '''
-获取证券股票的指定交易日的分笔(TICK)行情信息
+获取证券股票最新一个交易日的分笔(TICK)行情信息
 存入对应的csv文件
-
-获取证券股票的实时分笔(TICK)行情信息
-以字典形式返回
 '''
 
 
@@ -29,8 +24,6 @@ RETRY_PAUSE = 0.1    # 调用tushare接口失败重试间隔时间
 
 TICK_FORWARD = 0
 TICK_BACKWARD = 1
-
-REAL_TIME_TICK_INTERVAL = 2
 
 DEFAULT_DIR_PATH = '../../../Data/origin/tushare/security_trade_data/tick/current_day'
 

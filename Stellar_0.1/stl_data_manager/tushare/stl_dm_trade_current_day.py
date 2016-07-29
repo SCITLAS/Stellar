@@ -3,14 +3,8 @@ __author__ = 'MoroJoJo'
 
 
 from stl_utilities import stl_logger as slog
-from stl_utilities import stl_thread_pool as stp
-from stl_utilities import stl_file_utilities as sfu
-from stl_data_manager.tushare import stl_dm_fundamental as sfund
 
 import os
-import datetime
-import time
-import linecache
 import pandas as pd
 import tushare
 
@@ -21,7 +15,7 @@ import tushare
 '''
 
 
-DEFAULT_DIR_PATH = '../../../Data/origin/tushare/security_trade_data/current_day'
+DEFAULT_DIR_PATH = '../../../Data/origin/tushare/security_trade_data/trade/current_day'
 
 
 def get_all_security_current_day_data():
@@ -53,7 +47,7 @@ def get_all_security_current_day_data():
     dir_path = DEFAULT_DIR_PATH
     if not os.path.exists(dir_path):
         os.makedirs(dir_path)
-    file_path = '%s/security.csv' % dir_path
+    file_path = '%s/trade.csv' % dir_path
     tmp_data = pd.DataFrame()
     try:
         tmp_data = tushare.get_today_all()

@@ -3,21 +3,15 @@ __author__ = 'MoroJoJo'
 
 
 from stl_utilities import stl_logger as slog
-from stl_utilities import stl_thread_pool as stp
 from stl_data_manager.tushare import stl_dm_fundamental as sfund
 from apscheduler.schedulers.background import BackgroundScheduler
 
-import os
-import datetime
 import time
 import pandas as pd
 import tushare
 
 
 '''
-获取证券股票的指定交易日的分笔(TICK)行情信息
-存入对应的csv文件
-
 获取证券股票的实时分笔(TICK)行情信息
 以字典形式返回
 '''
@@ -30,7 +24,7 @@ RETRY_PAUSE = 0.1    # 调用tushare接口失败重试间隔时间
 REAL_TIME_TICK_INTERVAL = 2
 
 
-def get_all_security_realtime_tick_data_no_multi_thread():
+def get_all_security_real_time_tick_data_no_multi_thread():
     '''
     获取所有股票实时分笔交易信息, 非多线程版本
 
@@ -41,17 +35,17 @@ def get_all_security_realtime_tick_data_no_multi_thread():
     -------
         无
     '''
-    slog.StlDmLogger().debug('get_all_security_realtime_tick_data_no_multi_thread Begin...')
+    slog.StlDmLogger().debug('get_all_security_real_time_tick_data_no_multi_thread Begin...')
 
     code_list = sfund.get_all_security_basic_info()              # 获取所有股票的基本信息
     for code in code_list:
         slog.StlDmLogger().debug('get_realtime_tick_data, code: %s, tick_date: %s' % code)
-        get_realtime_tick_data(code)
+        get_real_time_tick_data(code)
 
-    slog.StlDmLogger().debug('get_all_security_realtime_tick_data_no_multi_thread Finish...')
+    slog.StlDmLogger().debug('get_all_security_real_time_tick_data_no_multi_thread Finish...')
 
 
-def get_realtime_tick_data(code):
+def get_real_time_tick_data(code):
     '''
     获取code对应股票实时分笔交易信息
 
@@ -98,18 +92,18 @@ def get_realtime_tick_data(code):
     try:
         tmp_data = tushare.get_realtime_quotes(code)
     except Exception as exception:
-        slog.StlDmLogger().error('tushare.get_realtime_quotes(%s) excpetion, args: %s' % (code, exception.args.__str__()))
+        slog.StlDmLogger().error('tushare.get_real_time_tick_data(%s) excpetion, args: %s' % (code, exception.args.__str__()))
 
     if tmp_data is None:
-        slog.StlDmLogger().warning('tushare.get_realtime_quotes(%s) return none' % code)
+        slog.StlDmLogger().warning('tushare.get_real_time_tick_data(%s) return none' % code)
         return None
     else:
         data_dict =tmp_data.to_dict()
-        slog.StlDmLogger().debug('tushare.get_realtime_quotes(%s) data: %s' % (code, data_dict))
+        slog.StlDmLogger().debug('tushare.get_real_time_tick_data(%s) data: %s' % (code, data_dict))
         return data_dict
 
 
-def start_get_realtime_tick(code):
+def start_get_real_time_tick(code):
     '''
     定时获取code对应股票实时分笔交易信息
 
@@ -125,7 +119,7 @@ def start_get_realtime_tick(code):
     '''
     scheduler = BackgroundScheduler()
     try:
-        scheduler.add_job(get_realtime_tick_data, args=[code], trigger='cron', second='*/3', hour='*')
+        scheduler.add_job(get_real_time_tick_data, args=[code], trigger='cron', second='*/3', hour='*')
         scheduler.start()
         return (scheduler, code)
     except (Exception):
@@ -134,8 +128,8 @@ def start_get_realtime_tick(code):
 
 
 if __name__ == "__main__":
-    slog.StlDmLogger().debug('start get realtime tick data of 002612')
-    (scheduler, code) = start_get_realtime_tick('002612')
+    slog.StlDmLogger().debug('start get real time tick data of 002612')
+    (scheduler, code) = start_get_real_time_tick('002612')
     time.sleep(20)  # 经测试发现, 网速一般的环境下, 3秒调一次get_realtime_tick_data(), 20秒能查6到7次
-    slog.StlDmLogger().debug('finish get realtime tick data of 002612')
+    slog.StlDmLogger().debug('finish get real time tick data of 002612')
     scheduler.shutdown()
