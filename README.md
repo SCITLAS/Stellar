@@ -19,6 +19,7 @@ Stellar
 - ta-lib
 - tushare
 - quandl
+- apscheduler
 
 
 
@@ -41,5 +42,6 @@ A single process stand alone system, developed with python 3.5, in pycharm 5
 - ta-lib
 - tushare
 - quandl
+- apscheduler
 
 
