@@ -2,7 +2,7 @@
 __author__ = 'MoroJoJo'
 
 
-from stl_utilities import stl_logger as slog
+from stl_utils import stl_logger as slog
 import os
 import tushare
 import pandas as pd

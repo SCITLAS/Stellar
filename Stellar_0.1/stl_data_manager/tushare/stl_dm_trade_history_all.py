@@ -2,9 +2,9 @@
 __author__ = 'MoroJoJo'
 
 
-from stl_utilities import stl_logger as slog
-from stl_utilities import stl_thread_pool as stp
-from stl_utilities import stl_file_utilities as sfu
+from stl_utils import stl_logger as slog
+from stl_utils import stl_thread_pool as stp
+from stl_utils import stl_file_utils as sfu
 from stl_data_manager.tushare import stl_dm_fundamental as sfund
 
 import os
