@@ -51,9 +51,10 @@ def get_all_security_tick_data_no_multi_thread(start_date_str, during, direction
             slog.StlDmLogger().debug('get_tick_data, code: %s, tick_date: %s' % (code, tick_date_str))
             get_tick_data(code, tick_date_str)
         if direction == TICK_BACKWARD:
-            tick_step = -offset
+            tick_step = -1
         else:
-            tick_step = offset
+            tick_step = 1
+        print(tick_date_str)
         star_date = datetime.datetime.strptime(tick_date_str, '%Y-%m-%d')
         next_day = star_date + datetime.timedelta(days=tick_step)
         tick_date_str = datetime.datetime.strftime(next_day, '%Y-%m-%d')
@@ -85,9 +86,10 @@ def get_all_security_tick_data_multi_thread(start_date_str, during, direction):
             sh_thread_pool.putRequest(req)
             slog.StlDmLogger().debug('work request #%s added to sh_thread_pool' % req.requestID)
         if direction == TICK_BACKWARD:
-            tick_step = -offset
+            tick_step = -1
         else:
-            tick_step = offset
+            tick_step = 1
+        print(tick_date_str)
         star_date = datetime.datetime.strptime(tick_date_str, '%Y-%m-%d')
         next_day = star_date + datetime.timedelta(days=tick_step)
         tick_date_str = datetime.datetime.strftime(next_day, '%Y-%m-%d')
@@ -142,8 +144,10 @@ def get_tick_data(code, tick_date):
 
 
 if __name__ == "__main__":
-    get_all_security_tick_data_multi_thread(start_date_str='2016-07-26', during=10, direction=TICK_BACKWARD)
-    # get_all_security_tick_data_no_multi_thread(start_date_str='2016-07-26', during=10, direction=TICK_BACKWARD)
-    # get_tick_data('002612', '2016-07-26')
+    today = datetime.datetime.today()
+    start_date_str = datetime.datetime.strftime(today, '%Y-%m-%d')
+    get_all_security_tick_data_multi_thread(start_date_str=start_date_str, during=10, direction=TICK_BACKWARD)
+    # get_all_security_tick_data_no_multi_thread(start_date_str=start_date_str, during=10, direction=TICK_BACKWARD)
+    # get_tick_data('002612', today)
 
 

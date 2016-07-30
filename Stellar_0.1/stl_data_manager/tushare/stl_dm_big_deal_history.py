@@ -146,8 +146,8 @@ def get_big_deal_data(code, deal_date, vol=VOL):
 
 
 if __name__ == "__main__":
-    # get_all_security_big_deal_no_multi_thread(start_date_str='2016-07-26', during=10, direction=DEAL_BACKWARD, vol=120)
+    get_all_security_big_deal_no_multi_thread(start_date_str='2016-07-26', during=10, direction=DEAL_BACKWARD, vol=400)
     # get_all_security_big_deal_multi_thread(start_date_str='2016-07-26', during=10, direction=DEAL_BACKWARD, vol=200)
-    get_big_deal_data('002612', '2016-07-26', vol=150)
+    # get_big_deal_data('002612', '2016-07-26', vol=150)
 
 
