@@ -15,7 +15,7 @@ import tushare
 
 '''
 获取证券股票的指定交易日的大单交易数据
-存入对应的csv文件
+存入对应的xlsx文件
 '''
 
 
@@ -126,7 +126,7 @@ def get_big_deal_data(code, deal_date, vol=VOL):
     if not os.path.exists(deal_dir_path):
         os.makedirs(deal_dir_path)
 
-    file_path = '%s/%s.csv' % (deal_dir_path, code)
+    file_path = '%s/%s.xlsx' % (deal_dir_path, code)
     if not os.path.exists(file_path):
         try:
             tmp_data = pd.DataFrame()
@@ -138,9 +138,7 @@ def get_big_deal_data(code, deal_date, vol=VOL):
         if tmp_data is None:
             slog.StlDmLogger().warning('tushare.get_sina_dd(%s) return none' % code)
         else:
-            data_str = tmp_data.to_csv()
-            with open(file_path, 'w') as fout:
-                fout.write(data_str)
+            tmp_data.to_excel(file_path)
     else:
         slog.StlDmLogger().debug('%s already exists' % file_path)
 

@@ -17,7 +17,7 @@ import tushare
 
 '''
 获取证券股票的历史行情信息
-存入对应的csv文件
+存入对应的xlsx文件
 '''
 
 '''
@@ -42,7 +42,7 @@ DEFAULT_DIR_PATH = '../../../Data/origin/tushare/security_trade_data/trade/histo
 
 def get_all_security_history_multi_thread():
     '''
-    获取所有股票历史行情, 并存入到对应的csv文件中, 多线程版本
+    获取所有股票历史行情, 并存入到对应的xlsx文件中, 多线程版本
 
     Parameters
     ------
@@ -61,7 +61,7 @@ def get_all_security_history_multi_thread():
 
 def get_all_history_in_code_list_multi_thread(code_list, thread_count):
     '''
-    获取code对应股票的所有历史行情信息,并将结果保存到对应csv文件, 多线程版本
+    获取code对应股票的所有历史行情信息,并将结果保存到对应xlsx文件, 多线程版本
 
     Parameters
     ------
@@ -89,7 +89,7 @@ def get_all_history_in_code_list_multi_thread(code_list, thread_count):
 
 def get_all_history_of_code(code):
     '''
-    获取code对应股票的所有历史行情信息, 并将结果保存到对应csv文件
+    获取code对应股票的所有历史行情信息, 并将结果保存到对应xlsx文件
 
     tushare.get_h_data()可以查询指定股票所有的历史行情, 返回数据如下:
         date : 交易日期 (index)
@@ -110,7 +110,7 @@ def get_all_history_of_code(code):
     dir_path = DEFAULT_DIR_PATH
     if not os.path.exists(dir_path):
         os.makedirs(dir_path)
-    file_path = '%s/%s.csv' % (dir_path, code)
+    file_path = '%s/%s.xlsx' % (dir_path, code)
     (is_update, start_date_str, end_date_str) = get_input_para(file_path)
     if start_date_str == end_date_str:
         slog.StlDmLogger().debug('%s data is already up-to-date.' % file_path)
@@ -126,18 +126,16 @@ def get_all_history_of_code(code):
             slog.StlDmLogger().warning('tushare.get_hist_data(%s) return none' % code)
         else:
             if is_update:
-                old_data = pd.read_csv(file_path, index_col=0)
+                old_data = pd.read_xlsx(file_path, index_col=0)
                 all_data = tmp_data_hist.append(old_data)
-                data_str_hist = all_data.to_csv()
+                all_data.to_excel(file_path)
             else:
-                data_str_hist = tmp_data_hist.to_csv()
-            with open(file_path, 'w') as fout:
-                fout.write(data_str_hist)
+                tmp_data_hist.to_excel(file_path)
 
 
 def get_input_para(file_path):
     '''
-    获取指定csv文件的中最新一条记录的信息，返回需要获取信息的起始日期，以及是更新还是新建
+    获取指定xlsx文件的中最新一条记录的信息，返回需要获取信息的起始日期，以及是更新还是新建
 
     Parameters
     ------
@@ -182,7 +180,7 @@ def print_result(request, result):
 
 def check_data_integrity(data_path):
     '''
-    对比data_path对应的文件夹中所有csv文件和basic_info.csv中code是否对应
+    对比data_path对应的文件夹中所有xlsx文件和basic_info.xlsx中code是否对应
 
     Parameters
     ------
@@ -217,7 +215,7 @@ def check_data_integrity(data_path):
 
 def get_all_security_history_no_multi_thread():
     '''
-    获取所有股票历史行情, 并存入到对应的csv文件中, 不使用多线程
+    获取所有股票历史行情, 并存入到对应的xlsx文件中, 不使用多线程
 
     Parameters
     ------

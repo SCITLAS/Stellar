@@ -39,7 +39,7 @@ def get_all_security_basic_info(refresh=False):
     dir_path = '../../../Data/origin/tushare/security_fundamental_data'
     if not os.path.exists(dir_path):
         os.makedirs(dir_path)
-    file_path = '%s/basic_info.csv' % dir_path
+    file_path = '%s/basic_info.xlsx' % dir_path
 
     if refresh:
         # 强制从tushare获取数据刷新
@@ -52,15 +52,13 @@ def get_all_security_basic_info(refresh=False):
             slog.StlDmLogger().warning('tushare.get_stock_basics() return none')
             return []
         else:
-            basic_data_str = basic_data.to_csv()
-            with open(file_path, 'w') as fout:
-                fout.write(basic_data_str)
+            basic_data.to_excel(file_path)
             return basic_data.index.tolist()
     else:
         # 不强制刷新
         if os.path.exists(file_path):
             # 文件存在, 就从文件里面读
-            old_data = pd.read_csv(file_path)
+            old_data = pd.read_excel(file_path)
             old_data['code'] = old_data['code'].apply(lambda x: '%06d' % x)
             return old_data['code'].tolist()
         else:
@@ -74,9 +72,7 @@ def get_all_security_basic_info(refresh=False):
                 slog.StlDmLogger().warning('tushare.get_stock_basics() return none')
                 return []
             else:
-                basic_data_str = basic_data.to_csv()
-                with open(file_path, 'w') as fout:
-                    fout.write(basic_data_str)
+                basic_data.to_excel(file_path)
                 return basic_data.index.tolist()
 
 

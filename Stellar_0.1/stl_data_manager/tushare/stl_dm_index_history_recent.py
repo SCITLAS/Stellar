@@ -4,6 +4,7 @@ __author__ = 'MoroJoJo'
 
 from stl_utils import stl_logger as slog
 
+import datetime
 import os
 import pandas as pd
 import linecache
@@ -12,7 +13,7 @@ import tushare
 
 '''
 获取指数的近期行情信息
-存入对应的csv文件
+存入对应的xlsx文件
 '''
 
 
@@ -28,7 +29,7 @@ def get_all_index_recent_data():
     '''
     获取所有指数近3年的信息
 
-    调用tushare.get_hist_data()方法获得所有指数信息，并存入对应的csv文件中
+    调用tushare.get_hist_data()方法获得所有指数信息，并存入对应的xlsx文件中
 
     Parameters
     ------
@@ -99,7 +100,7 @@ def get_all_index_recent_data():
 
 def get_index_recent_data(code, start_date, type):
     '''
-    获取code对应指数的近期行情信息,并将结果保存到对应csv文件
+    获取code对应指数的近期行情信息,并将结果保存到对应xlsx文件
 
     tushare.get_hist_data()查询指定股票3年的历史行情,
         date：日期
@@ -169,7 +170,8 @@ def get_index_recent_data(code, start_date, type):
         dir_path = '%s/60min' % DEFAULT_DIR_PATH
         if not os.path.exists(dir_path):
             os.makedirs(dir_path)
-    file_path = '%s/%s.csv' % (dir_path, file_name)
+
+    file_path = '%s/%s.xlsx' % (dir_path, file_name)
 
 
     (is_update, start_date_str, end_date_str) = get_input_para(file_path)
@@ -189,18 +191,16 @@ def get_index_recent_data(code, start_date, type):
             slog.StlDmLogger().warning('tushare.get_hist_data(%s) return none' % code)
         else:
             if is_update:
-                old_data = pd.read_csv(file_path, index_col=0)
+                old_data = pd.read_xlsx(file_path, index_col=0)
                 all_data = tmp_data_hist.append(old_data)
-                data_str_hist = all_data.to_csv()
+                all_data.to_excel(file_path)
             else:
-                data_str_hist = tmp_data_hist.to_csv()
-            with open(file_path, 'w') as fout:
-                fout.write(data_str_hist)
+                tmp_data_hist.to_excel(file_path)
 
 
 def get_input_para(file_path):
     '''
-    获取指定csv文件的中最新一条记录的信息，返回需要获取信息的起始日期，以及是更新还是新建
+    获取指定xlsx文件的中最新一条记录的信息，返回需要获取信息的起始日期，以及是更新还是新建
 
     Parameters
     ------

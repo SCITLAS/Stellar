@@ -18,7 +18,7 @@ import tushare
 
 def get_index_real_time_data():
     '''
-    获取所有指数的实时数据,并将结果保存到对应csv文件
+    获取所有指数的实时数据,并将结果保存到对应xlsx文件
 
     tushare.get_index()查询所有指数一个交易日行情, 返回数据如下:
         code:指数代码

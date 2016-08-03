@@ -11,7 +11,7 @@ import tushare
 
 '''
 获取证券股票的最新一个交易日行情信息
-存入对应的csv文件
+存入对应的xlsx文件
 '''
 
 
@@ -20,7 +20,7 @@ DEFAULT_DIR_PATH = '../../../Data/origin/tushare/security_trade_data/trade/curre
 
 def get_all_security_current_day_data():
     '''
-    获取所有股票的最新一个交易日数据,并将结果保存到对应csv文件
+    获取所有股票的最新一个交易日数据,并将结果保存到对应xlsx文件
 
     tushare.get_today_all()查询所有股票最新一个交易日行情, 返回数据如下:
         code：代码
@@ -47,7 +47,7 @@ def get_all_security_current_day_data():
     dir_path = DEFAULT_DIR_PATH
     if not os.path.exists(dir_path):
         os.makedirs(dir_path)
-    file_path = '%s/trade.csv' % dir_path
+    file_path = '%s/trade.xlsx' % dir_path
     tmp_data = pd.DataFrame()
     try:
         tmp_data = tushare.get_today_all()
@@ -57,9 +57,8 @@ def get_all_security_current_day_data():
     if tmp_data is None:
         slog.StlDmLogger().warning('tushare.get_today_all() return none')
     else:
-        data_str = tmp_data.to_csv()
-        with open(file_path, 'w') as fout:
-            fout.write(data_str)
+        tmp_data.to_excel(file_path)
+
     slog.StlDmLogger().debug('get_all_security_current_day_data Finish...')
 
 
