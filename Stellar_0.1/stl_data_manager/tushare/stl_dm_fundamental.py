@@ -69,7 +69,7 @@ def get_all_security_basic_info(refresh=False):
         if os.path.exists(file_path):
             # 文件存在, 就从文件里面读
             old_data = pd.read_csv(file_path)
-            old_data['code'] = old_data['code'].apply(lambda x: '%06d' % x)
+            old_data['code'] = old_data['code'].map(lambda x:str(x).zfill(6))
             return old_data['code'].tolist()
         else:
             # 文件不存在, 从tushare获取数据
@@ -168,14 +168,173 @@ def get_profit_data(year, quarter):
         tmp_data.to_csv(file_path)
 
 
-if __name__ == "__main__":
-    # code_list_1 = get_all_security_basic_info(refresh=True)
-    # print('code_list_1:')
-    # print(code_list_1)
-    #
-    # code_list_2 = get_all_security_basic_info(refresh=False)
-    # print('code_list_2:')
-    # print(code_list_2)
+def get_operation_data(year, quarter):
+    '''
+    获取指定年份季度的股票的运营能力数据
 
-    # get_report_data(year=DATA_YEAR, quarter=DATA_QUARTER)
+        code,代码
+        name,名称
+        arturnover,应收账款周转率(次)
+        arturndays,应收账款周转天数(天)
+        inventory_turnover,存货周转率(次)
+        inventory_days,存货周转天数(天)
+        currentasset_turnover,流动资产周转率(次)
+        currentasset_days,流动资产周转天数(天)
+
+    Parameters
+    ------
+        year: 年度
+        quarter: 季度
+    return
+    -------
+        无
+    '''
+    dir_path = DEFAULT_DIR_PATH
+    if not os.path.exists(dir_path):
+        os.makedirs(dir_path)
+    file_path = '%s/operation(%dQ%d).csv' % (dir_path, year, quarter)
+
+    tmp_data = pd.DataFrame()
+    try:
+        slog.StlDmLogger().debug('tushare.get_operation_data: year=%d, quarter=%d' % (year, quarter))
+        tmp_data = tushare.get_operation_data(year=year, quarter=quarter)
+    except Exception as exception:
+        slog.StlDmLogger().error('tushare.get_operation_data(%d, %d) excpetion, args: %s' % (year, quarter, exception.args.__str__()))
+
+    if tmp_data is None:
+        slog.StlDmLogger().warning('tushare.get_operation_data(%d, %d) return none' % (year, quarter))
+    else:
+        tmp_data.to_csv(file_path)
+
+
+def get_growth_data(year, quarter):
+    '''
+    获取指定年份季度的股票的成长能力数据
+
+        code,代码
+        name,名称
+        mbrg,主营业务收入增长率(%)
+        nprg,净利润增长率(%)
+        nav,净资产增长率
+        targ,总资产增长率
+        epsg,每股收益增长率
+        seg,股东权益增长率
+
+    Parameters
+    ------
+        year: 年度
+        quarter: 季度
+    return
+    -------
+        无
+    '''
+    dir_path = DEFAULT_DIR_PATH
+    if not os.path.exists(dir_path):
+        os.makedirs(dir_path)
+    file_path = '%s/growth(%dQ%d).csv' % (dir_path, year, quarter)
+
+    tmp_data = pd.DataFrame()
+    try:
+        slog.StlDmLogger().debug('tushare.get_growth_data: year=%d, quarter=%d' % (year, quarter))
+        tmp_data = tushare.get_growth_data(year=year, quarter=quarter)
+    except Exception as exception:
+        slog.StlDmLogger().error('tushare.get_growth_data(%d, %d) excpetion, args: %s' % (year, quarter, exception.args.__str__()))
+
+    if tmp_data is None:
+        slog.StlDmLogger().warning('tushare.get_growth_data(%d, %d) return none' % (year, quarter))
+    else:
+        tmp_data.to_csv(file_path)
+
+
+def get_debt_data(year, quarter):
+    '''
+    获取指定年份季度的股票的偿债能力数据
+
+        code,代码
+        name,名称
+        currentratio,流动比率
+        quickratio,速动比率
+        cashratio,现金比率
+        icratio,利息支付倍数
+        sheqratio,股东权益比率
+        adratio,股东权益增长率
+
+    Parameters
+    ------
+        year: 年度
+        quarter: 季度
+    return
+    -------
+        无
+    '''
+    dir_path = DEFAULT_DIR_PATH
+    if not os.path.exists(dir_path):
+        os.makedirs(dir_path)
+    file_path = '%s/debt(%dQ%d).csv' % (dir_path, year, quarter)
+
+    tmp_data = pd.DataFrame()
+    try:
+        slog.StlDmLogger().debug('tushare.get_debtpaying_data: year=%d, quarter=%d' % (year, quarter))
+        tmp_data = tushare.get_debtpaying_data(year=year, quarter=quarter)
+    except Exception as exception:
+        slog.StlDmLogger().error('tushare.get_debtpaying_data(%d, %d) excpetion, args: %s' % (year, quarter, exception.args.__str__()))
+
+    if tmp_data is None:
+        slog.StlDmLogger().warning('tushare.get_debtpaying_data(%d, %d) return none' % (year, quarter))
+    else:
+        tmp_data.to_csv(file_path)
+
+
+def get_cashflow_data(year, quarter):
+    '''
+    获取指定年份季度的股票的现金流数据
+
+        code,代码
+        name,名称
+        cf_sales,经营现金净流量对销售收入比率
+        rateofreturn,资产的经营现金流量回报率
+        cf_nm,经营现金净流量与净利润的比率
+        cf_liabilities,经营现金净流量对负债比率
+        cashflowratio,现金流量比率
+
+    Parameters
+    ------
+        year: 年度
+        quarter: 季度
+    return
+    -------
+        无
+    '''
+    dir_path = DEFAULT_DIR_PATH
+    if not os.path.exists(dir_path):
+        os.makedirs(dir_path)
+    file_path = '%s/cashflow(%dQ%d).csv' % (dir_path, year, quarter)
+
+    tmp_data = pd.DataFrame()
+    try:
+        slog.StlDmLogger().debug('tushare.get_cashflow_data: year=%d, quarter=%d' % (year, quarter))
+        tmp_data = tushare.get_cashflow_data(year=year, quarter=quarter)
+    except Exception as exception:
+        slog.StlDmLogger().error('tushare.get_cashflow_data(%d, %d) excpetion, args: %s' % (year, quarter, exception.args.__str__()))
+
+    if tmp_data is None:
+        slog.StlDmLogger().warning('tushare.get_cashflow_data(%d, %d) return none' % (year, quarter))
+    else:
+        tmp_data.to_csv(file_path)
+
+
+if __name__ == "__main__":
+    code_list_1 = get_all_security_basic_info(refresh=True)
+    print('code_list_1 (%d):' % len(code_list_1))
+    print(code_list_1)
+
+    code_list_2 = get_all_security_basic_info(refresh=False)
+    print('code_list_2 (%d):' % len(code_list_2))
+    print(code_list_2)
+
+    get_report_data(year=DATA_YEAR, quarter=DATA_QUARTER)
     get_profit_data(year=DATA_YEAR, quarter=DATA_QUARTER)
+    get_operation_data(year=DATA_YEAR, quarter=DATA_QUARTER)
+    get_growth_data(year=DATA_YEAR, quarter=2)
+    get_debt_data(year=DATA_YEAR, quarter=DATA_QUARTER)
+    get_cashflow_data(year=DATA_YEAR, quarter=DATA_QUARTER)
