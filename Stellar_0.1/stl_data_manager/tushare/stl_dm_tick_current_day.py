@@ -14,7 +14,6 @@ import tushare
 
 '''
 获取证券股票最新一个交易日的分笔(TICK)行情信息
-存入对应的xlsx文件
 '''
 
 
@@ -97,7 +96,7 @@ def get_current_day_tick_data(code):
     if not os.path.exists(tick_dir_path):
         os.makedirs(tick_dir_path)
 
-    file_path = '%s/%s.xlsx' % (tick_dir_path, code)
+    file_path = '%s/%s.csv' % (tick_dir_path, code)
     if not os.path.exists(file_path):
         try:
             tmp_data = pd.DataFrame()
@@ -109,7 +108,7 @@ def get_current_day_tick_data(code):
         if tmp_data is None:
             slog.StlDmLogger().warning('tushare.get_today_ticks(%s) return none' % code)
         else:
-            tmp_data.to_excel(file_path)
+            tmp_data.to_csv(file_path)
     else:
         slog.StlDmLogger().debug('%s already exists' % file_path)
 

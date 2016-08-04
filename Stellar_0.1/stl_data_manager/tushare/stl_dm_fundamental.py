@@ -10,8 +10,18 @@ import pandas as pd
 
 '''
 获取证券股票的基本面信息
-存入对应的csv文件
 '''
+
+
+PROFIT_INFO_COUNT = 200       # 获取的分配预案数据条数
+DATA_YEAR = 2016              # 获取数据的年份
+DATA_QUARTER = 1              # 获取数据的季度
+DATA_MONTH = 1                # 获取数据的月份
+
+RETRY_COUNT = 5               # 调用tushare接口失败重试次数
+RETRY_PAUSE = 0.1             # 调用tushare接口失败重试间隔时间
+
+DEFAULT_DIR_PATH = '../../../Data/origin/tushare/security_fundamental_data'
 
 
 def get_all_security_basic_info(refresh=False):
@@ -36,10 +46,10 @@ def get_all_security_basic_info(refresh=False):
     -------
         code_list: 股票代码列表
     '''
-    dir_path = '../../../Data/origin/tushare/security_fundamental_data'
+    dir_path = DEFAULT_DIR_PATH
     if not os.path.exists(dir_path):
         os.makedirs(dir_path)
-    file_path = '%s/basic_info.xlsx' % dir_path
+    file_path = '%s/basics.csv' % dir_path
 
     if refresh:
         # 强制从tushare获取数据刷新
@@ -52,13 +62,13 @@ def get_all_security_basic_info(refresh=False):
             slog.StlDmLogger().warning('tushare.get_stock_basics() return none')
             return []
         else:
-            basic_data.to_excel(file_path)
+            basic_data.to_csv(file_path)
             return basic_data.index.tolist()
     else:
         # 不强制刷新
         if os.path.exists(file_path):
             # 文件存在, 就从文件里面读
-            old_data = pd.read_excel(file_path)
+            old_data = pd.read_csv(file_path)
             old_data['code'] = old_data['code'].apply(lambda x: '%06d' % x)
             return old_data['code'].tolist()
         else:
@@ -72,15 +82,100 @@ def get_all_security_basic_info(refresh=False):
                 slog.StlDmLogger().warning('tushare.get_stock_basics() return none')
                 return []
             else:
-                basic_data.to_excel(file_path)
+                basic_data.to_csv(file_path)
                 return basic_data.index.tolist()
 
 
-if __name__ == "__main__":
-    code_list_1 = get_all_security_basic_info(refresh=True)
-    print('code_list_1:')
-    print(code_list_1)
+def get_report_data(year, quarter):
+    '''
+    获取指定年份季度的股票的业绩报告(主表)
 
-    code_list_2 = get_all_security_basic_info(refresh=False)
-    print('code_list_2:')
-    print(code_list_2)
+        code,代码
+        name,名称
+        eps,每股收益
+        eps_yoy,每股收益同比(%)
+        bvps,每股净资产
+        roe,净资产收益率(%)
+        epcf,每股现金流量(元)
+        net_profits,净利润(万元)
+        profits_yoy,净利润同比(%)
+        distrib,分配方案
+        report_date,发布日期
+
+    Parameters
+    ------
+        year: 年度
+        quarter: 季度
+    return
+    -------
+        无
+    '''
+    dir_path = DEFAULT_DIR_PATH
+    if not os.path.exists(dir_path):
+        os.makedirs(dir_path)
+    file_path = '%s/report(%dQ%d).csv' % (dir_path, year, quarter)
+
+    tmp_data = pd.DataFrame()
+    try:
+        slog.StlDmLogger().debug('tushare.get_report_data: year=%d, quarter=%d' % (year, quarter))
+        tmp_data = tushare.get_report_data(year=year, quarter=quarter)
+    except Exception as exception:
+        slog.StlDmLogger().error('tushare.get_report_data(%d, %d) excpetion, args: %s' % (year, quarter, exception.args.__str__()))
+
+    if tmp_data is None:
+        slog.StlDmLogger().warning('tushare.get_report_data(%d, %d) return none' % (year, quarter))
+    else:
+        tmp_data.to_csv(file_path)
+
+
+def get_profit_data(year, quarter):
+    '''
+    获取指定年份季度的股票的盈利能力数据
+
+        code,代码
+        name,名称
+        roe,净资产收益率(%)
+        net_profit_ratio,净利率(%)
+        gross_profit_rate,毛利率(%)
+        net_profits,净利润(万元)
+        eps,每股收益
+        business_income,营业收入(百万元)
+        bips,每股主营业务收入(元)
+
+    Parameters
+    ------
+        year: 年度
+        quarter: 季度
+    return
+    -------
+        无
+    '''
+    dir_path = DEFAULT_DIR_PATH
+    if not os.path.exists(dir_path):
+        os.makedirs(dir_path)
+    file_path = '%s/profit(%dQ%d).csv' % (dir_path, year, quarter)
+
+    tmp_data = pd.DataFrame()
+    try:
+        slog.StlDmLogger().debug('tushare.get_profit_data: year=%d, quarter=%d' % (year, quarter))
+        tmp_data = tushare.get_profit_data(year=year, quarter=quarter)
+    except Exception as exception:
+        slog.StlDmLogger().error('tushare.get_profit_data(%d, %d) excpetion, args: %s' % (year, quarter, exception.args.__str__()))
+
+    if tmp_data is None:
+        slog.StlDmLogger().warning('tushare.get_profit_data(%d, %d) return none' % (year, quarter))
+    else:
+        tmp_data.to_csv(file_path)
+
+
+if __name__ == "__main__":
+    # code_list_1 = get_all_security_basic_info(refresh=True)
+    # print('code_list_1:')
+    # print(code_list_1)
+    #
+    # code_list_2 = get_all_security_basic_info(refresh=False)
+    # print('code_list_2:')
+    # print(code_list_2)
+
+    # get_report_data(year=DATA_YEAR, quarter=DATA_QUARTER)
+    get_profit_data(year=DATA_YEAR, quarter=DATA_QUARTER)

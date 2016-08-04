@@ -14,7 +14,6 @@ import tushare
 
 '''
 获取指数的历史行情信息
-存入对应的xlsx文件
 '''
 
 
@@ -29,7 +28,7 @@ DEFAULT_DIR_PATH = '../../../Data/origin/tushare/index_trade_data/history/all'
 
 def get_all_index_data():
     '''
-    获取A股所有指数近3年的信息, 并将结果保存到对应xlsx文件
+    获取A股所有指数近3年的信息, 并将结果保存到对应csv文件
 
     Parameters
     ------
@@ -62,7 +61,7 @@ def get_all_index_data():
 
 def get_index_data(code, start_date):
     '''
-    获取code对应指数的历史行情信息, 并将结果保存到对应xlsx文件
+    获取code对应指数的历史行情信息, 并将结果保存到对应csv文件
 
     Parameters
     ------
@@ -75,7 +74,7 @@ def get_index_data(code, start_date):
     dir_path = DEFAULT_DIR_PATH
     if not os.path.exists(dir_path):
         os.makedirs(dir_path)
-    file_path = '%s/%s.xlsx' % (dir_path, code)
+    file_path = '%s/%s.csv' % (dir_path, code)
     (is_update, start_date_str, end_date_str) = get_input_para(file_path)
     if start_date_str == end_date_str:
         slog.StlDmLogger().debug('%s data is already up-to-date.' % file_path)
@@ -93,16 +92,16 @@ def get_index_data(code, start_date):
             slog.StlDmLogger().warning('tushare.get_hist_data(%s) return none' % code)
         else:
             if is_update:
-                old_data = pd.read_xlsx(file_path, index_col=0)
+                old_data = pd.read_csv(file_path, index_col=0)
                 all_data = tmp_data_hist.append(old_data)
-                all_data.to_excel(file_path)
+                all_data.to_csv(file_path)
             else:
-                tmp_data_hist.to_excel(file_path)
+                tmp_data_hist.to_csv(file_path)
 
 
 def get_input_para(file_path):
     '''
-    获取指定xlsx文件的中最新一条记录的信息，返回需要获取信息的起始日期，以及是更新还是新建
+    获取指定csv文件的中最新一条记录的信息，返回需要获取信息的起始日期，以及是更新还是新建
 
     Parameters
     ------
