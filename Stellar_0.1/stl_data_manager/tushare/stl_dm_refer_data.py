@@ -246,7 +246,7 @@ def get_margin_trade_data_sh(start_date, end_date):
         slog.StlDmLogger().debug('tushare.sh_margins, start=%s, end=%s' % (start_date, end_date))
         tmp_data = tushare.sh_margins(start=start_date, end=end_date, retry_count=RETRY_COUNT, pause=RETRY_PAUSE)
     except Exception as exception:
-        slog.StlDmLogger().error('tushare.sh_margins, start=%s, end=%s, excpetion, args: %s' % (start_date, end_date,exception.args.__str__()))
+        slog.StlDmLogger().error('tushare.sh_margins, start=%s, end=%s, excpetion, args: %s' % (start_date, end_date, exception.args.__str__()))
 
     if tmp_data is None:
         slog.StlDmLogger().warning('tushare.sh_margins, start=%s, end=%s return none' % (start_date, end_date))
@@ -287,7 +287,7 @@ def get_margin_trade_detail_data_sh(start_date, end_date, code):
         slog.StlDmLogger().debug('tushare.sh_margin_details, code=%s, start=%s, end=%s' % (code, start_date, end_date))
         tmp_data = tushare.sh_margin_details(start=start_date, end=end_date, symbol=code, retry_count=RETRY_COUNT, pause=RETRY_PAUSE)
     except Exception as exception:
-        slog.StlDmLogger().error('tushare.sh_margin_details, cod=%s, start=%s, end=%s, excpetion, args: %s' % (code, start_date, end_date,exception.args.__str__()))
+        slog.StlDmLogger().error('tushare.sh_margin_details, cod=%s, start=%s, end=%s, excpetion, args: %s' % (code, start_date, end_date, exception.args.__str__()))
 
     if tmp_data is None:
         slog.StlDmLogger().warning('tushare.sh_margin_details, code=%s, start=%s, end=%s return none' % (code, start_date, end_date))
@@ -325,7 +325,7 @@ def get_margin_trade_data_sz(start_date, end_date):
         slog.StlDmLogger().debug('tushare.sz_margins, start=%s, end=%s' % (start_date, end_date))
         tmp_data = tushare.sz_margins(start=start_date, end=end_date, retry_count=RETRY_COUNT, pause=RETRY_PAUSE)
     except Exception as exception:
-        slog.StlDmLogger().error('tushare.sz_margins, start=%s, end=%s, excpetion, args: %s' % (start_date, end_date,exception.args.__str__()))
+        slog.StlDmLogger().error('tushare.sz_margins, start=%s, end=%s, excpetion, args: %s' % (start_date, end_date, exception.args.__str__()))
 
     if tmp_data is None:
         slog.StlDmLogger().warning('tushare.sz_margins, start=%s, end=%s return none' % (start_date, end_date))
@@ -366,7 +366,7 @@ def get_margin_trade_detail_data_sz(start_date, end_date, code):
         slog.StlDmLogger().debug('tushare.sh_margin_details, code=%s, start=%s, end=%s' % (code, start_date, end_date))
         tmp_data = tushare.sh_margin_details(start=start_date, end=end_date, symbol=code, retry_count=RETRY_COUNT, pause=RETRY_PAUSE)
     except Exception as exception:
-        slog.StlDmLogger().error('tushare.sh_margin_details, cod=%s, start=%s, end=%s, excpetion, args: %s' % (code, start_date, end_date,exception.args.__str__()))
+        slog.StlDmLogger().error('tushare.sh_margin_details, cod=%s, start=%s, end=%s, excpetion, args: %s' % (code, start_date, end_date, exception.args.__str__()))
 
     if tmp_data is None:
         slog.StlDmLogger().warning('tushare.sh_margin_details, code=%s, start=%s, end=%s return none' % (code, start_date, end_date))

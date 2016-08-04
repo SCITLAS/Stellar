@@ -14,9 +14,6 @@ import os
 '''
 
 
-RETRY_COUNT = 5               # 调用tushare接口失败重试次数
-RETRY_PAUSE = 0.1             # 调用tushare接口失败重试间隔时间
-
 DEFAULT_DIR_PATH = '../../../Data/origin/tushare/security_macro_economy_data'
 
 
