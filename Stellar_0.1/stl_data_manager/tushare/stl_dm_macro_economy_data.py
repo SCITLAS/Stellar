@@ -3,7 +3,7 @@ __author__ = 'MoroJoJo'
 
 
 from stl_utils import stl_logger as slog
-
+from stl_data_manager.tushare import *
 import tushare
 import pandas as pd
 import os
@@ -14,7 +14,20 @@ import os
 '''
 
 
-DEFAULT_DIR_PATH = '../../../Data/origin/tushare/security_macro_economy_data'
+DEFAULT_DIR_PATH = '../../../Data/origin/tushare/macro_economy_data'
+DEFAULT_H5_PATH = '../../../Data/h5/tushare/macro_economy_data'
+
+
+def get_directory_path():
+    if USING_H5:
+        dir_path = DEFAULT_H5_PATH
+        if not os.path.exists(dir_path):
+            os.makedirs(dir_path)
+    else:
+        dir_path = DEFAULT_DIR_PATH
+        if not os.path.exists(dir_path):
+            os.makedirs(dir_path)
+    return dir_path
 
 
 def get_deposit_rate_data():
@@ -32,10 +45,10 @@ def get_deposit_rate_data():
     -------
         无
     '''
-    dir_path = DEFAULT_DIR_PATH
-    if not os.path.exists(dir_path):
-        os.makedirs(dir_path)
-    file_path = '%s/deposit_rate.csv' % dir_path
+    if USING_H5:
+        file_path = '%s/deposit_rate.h5' % get_directory_path()
+    else:
+        file_path = '%s/deposit_rate.csv' % get_directory_path
 
     tmp_data = pd.DataFrame()
     try:
@@ -47,7 +60,10 @@ def get_deposit_rate_data():
     if tmp_data is None:
         slog.StlDmLogger().warning('tushare.get_deposit_rate() return none')
     else:
-        tmp_data.to_csv(file_path)
+        if USING_H5:
+            tmp_data.to_hdf(file_path, 'deposit_rate', mode='w')
+        else:
+            tmp_data.to_csv(file_path)
 
 
 def get_loan_rate_data():
@@ -65,10 +81,10 @@ def get_loan_rate_data():
     -------
         无
     '''
-    dir_path = DEFAULT_DIR_PATH
-    if not os.path.exists(dir_path):
-        os.makedirs(dir_path)
-    file_path = '%s/loan_rate.csv' % dir_path
+    if USING_H5:
+        file_path = '%s/loan_rate.h5' % get_directory_path()
+    else:
+        file_path = '%s/loan_rate.csv' % get_directory_path
 
     tmp_data = pd.DataFrame()
     try:
@@ -80,7 +96,10 @@ def get_loan_rate_data():
     if tmp_data is None:
         slog.StlDmLogger().warning('tushare.get_loan_rate() return none')
     else:
-        tmp_data.to_csv(file_path)
+        if USING_H5:
+            tmp_data.to_hdf(file_path, 'loan_rate', mode='w')
+        else:
+            tmp_data.to_csv(file_path)
 
 
 def get_rrr_data():
@@ -99,10 +118,10 @@ def get_rrr_data():
     -------
         无
     '''
-    dir_path = DEFAULT_DIR_PATH
-    if not os.path.exists(dir_path):
-        os.makedirs(dir_path)
-    file_path = '%s/rrr.csv' % dir_path
+    if USING_H5:
+        file_path = '%s/rrr.h5' % get_directory_path()
+    else:
+        file_path = '%s/rrr.csv' % get_directory_path()
 
     tmp_data = pd.DataFrame()
     try:
@@ -114,7 +133,10 @@ def get_rrr_data():
     if tmp_data is None:
         slog.StlDmLogger().warning('tushare.get_rrr() return none')
     else:
-        tmp_data.to_csv(file_path)
+        if USING_H5:
+            tmp_data.to_hdf(file_path, 'rrr', mode='w')
+        else:
+            tmp_data.to_csv(file_path)
 
 
 def get_money_supply_data():
@@ -146,10 +168,10 @@ def get_money_supply_data():
     -------
         无
     '''
-    dir_path = DEFAULT_DIR_PATH
-    if not os.path.exists(dir_path):
-        os.makedirs(dir_path)
-    file_path = '%s/money_supply.csv' % dir_path
+    if USING_H5:
+        file_path = '%s/money_supply.h5' % get_directory_path()
+    else:
+        file_path = '%s/money_supply.csv' % get_directory_path()
 
     tmp_data = pd.DataFrame()
     try:
@@ -161,7 +183,10 @@ def get_money_supply_data():
     if tmp_data is None:
         slog.StlDmLogger().warning('tushare.get_money_supply() return none')
     else:
-        tmp_data.to_csv(file_path)
+        if USING_H5:
+            tmp_data.to_hdf(file_path, 'money_supply', mode='w')
+        else:
+            tmp_data.to_csv(file_path)
 
 
 def get_money_supply_bal_data():
@@ -185,10 +210,10 @@ def get_money_supply_bal_data():
     -------
         无
     '''
-    dir_path = DEFAULT_DIR_PATH
-    if not os.path.exists(dir_path):
-        os.makedirs(dir_path)
-    file_path = '%s/money_supply_bal.csv' % dir_path
+    if USING_H5:
+        file_path = '%s/money_supply_bal.h5' % get_directory_path()
+    else:
+        file_path = '%s/money_supply_bal.csv' % get_directory_path()
 
     tmp_data = pd.DataFrame()
     try:
@@ -200,7 +225,10 @@ def get_money_supply_bal_data():
     if tmp_data is None:
         slog.StlDmLogger().warning('tushare.get_money_supply_bal() return none')
     else:
-        tmp_data.to_csv(file_path)
+        if USING_H5:
+            tmp_data.to_hdf(file_path, 'money_supply_bal', mode='w')
+        else:
+            tmp_data.to_csv(file_path)
 
 
 def get_gdp_year_data():
@@ -226,10 +254,10 @@ def get_gdp_year_data():
     -------
         无
     '''
-    dir_path = DEFAULT_DIR_PATH
-    if not os.path.exists(dir_path):
-        os.makedirs(dir_path)
-    file_path = '%s/gdp(Y).csv' % dir_path
+    if USING_H5:
+        file_path = '%s/gdp_year.h5' % get_directory_path()
+    else:
+        file_path = '%s/gdp(Y).csv' % get_directory_path()
 
     tmp_data = pd.DataFrame()
     try:
@@ -241,7 +269,10 @@ def get_gdp_year_data():
     if tmp_data is None:
         slog.StlDmLogger().warning('tushare.get_gdp_year() return none')
     else:
-        tmp_data.to_csv(file_path)
+        if USING_H5:
+            tmp_data.to_hdf(file_path, 'gdp_year', mode='w')
+        else:
+            tmp_data.to_csv(file_path)
 
 
 def get_gdp_quarter_data():
@@ -265,10 +296,10 @@ def get_gdp_quarter_data():
     -------
         无
     '''
-    dir_path = DEFAULT_DIR_PATH
-    if not os.path.exists(dir_path):
-        os.makedirs(dir_path)
-    file_path = '%s/gdp(Q).csv' % dir_path
+    if USING_H5:
+        file_path = '%s/gdp_quarter.h5' % get_directory_path()
+    else:
+        file_path = '%s/gdp(Q).csv' % get_directory_path()
 
     tmp_data = pd.DataFrame()
     try:
@@ -280,7 +311,10 @@ def get_gdp_quarter_data():
     if tmp_data is None:
         slog.StlDmLogger().warning('tushare.get_gdp_quarter() return none')
     else:
-        tmp_data.to_csv(file_path)
+        if USING_H5:
+            tmp_data.to_hdf(file_path, 'gdp_quarter', mode='w')
+        else:
+            tmp_data.to_csv(file_path)
 
 
 def get_gdp_for_data():
@@ -302,10 +336,10 @@ def get_gdp_for_data():
     -------
         无
     '''
-    dir_path = DEFAULT_DIR_PATH
-    if not os.path.exists(dir_path):
-        os.makedirs(dir_path)
-    file_path = '%s/gdp_for.csv' % dir_path
+    if USING_H5:
+        file_path = '%s/gdp_for.h5' % get_directory_path()
+    else:
+        file_path = '%s/gdp_for.csv' % get_directory_path()
 
     tmp_data = pd.DataFrame()
     try:
@@ -317,7 +351,10 @@ def get_gdp_for_data():
     if tmp_data is None:
         slog.StlDmLogger().warning('tushare.get_gdp_for() return none')
     else:
-        tmp_data.to_csv(file_path)
+        if USING_H5:
+            tmp_data.to_hdf(file_path, 'gdp_for', mode='w')
+        else:
+            tmp_data.to_csv(file_path)
 
 
 def get_gdp_pull_data():
@@ -338,10 +375,10 @@ def get_gdp_pull_data():
     -------
         无
     '''
-    dir_path = DEFAULT_DIR_PATH
-    if not os.path.exists(dir_path):
-        os.makedirs(dir_path)
-    file_path = '%s/gdp_pull.csv' % dir_path
+    if USING_H5:
+        file_path = '%s/gdp_pull.h5' % get_directory_path()
+    else:
+        file_path = '%s/gdp_pull.csv' % get_directory_path()
 
     tmp_data = pd.DataFrame()
     try:
@@ -353,7 +390,10 @@ def get_gdp_pull_data():
     if tmp_data is None:
         slog.StlDmLogger().warning('tushare.get_gdp_pull() return none')
     else:
-        tmp_data.to_csv(file_path)
+        if USING_H5:
+            tmp_data.to_hdf(file_path, 'gdp_pull', mode='w')
+        else:
+            tmp_data.to_csv(file_path)
 
 
 def get_gdp_contribution_data():
@@ -374,10 +414,10 @@ def get_gdp_contribution_data():
     -------
         无
     '''
-    dir_path = DEFAULT_DIR_PATH
-    if not os.path.exists(dir_path):
-        os.makedirs(dir_path)
-    file_path = '%s/gdp_contribution.csv' % dir_path
+    if USING_H5:
+        file_path = '%s/gdp_contribution.h5' % get_directory_path()
+    else:
+        file_path = '%s/gdp_contribution.csv' % get_directory_path()
 
     tmp_data = pd.DataFrame()
     try:
@@ -389,7 +429,10 @@ def get_gdp_contribution_data():
     if tmp_data is None:
         slog.StlDmLogger().warning('tushare.get_gdp_contrib() return none')
     else:
-        tmp_data.to_csv(file_path)
+        if USING_H5:
+            tmp_data.to_hdf(file_path, 'gdp_contribution', mode='w')
+        else:
+            tmp_data.to_csv(file_path)
 
 
 def get_gdp_cpi_data():
@@ -406,10 +449,10 @@ def get_gdp_cpi_data():
     -------
         无
     '''
-    dir_path = DEFAULT_DIR_PATH
-    if not os.path.exists(dir_path):
-        os.makedirs(dir_path)
-    file_path = '%s/cpi.csv' % dir_path
+    if USING_H5:
+        file_path = '%s/cpi.h5' % get_directory_path()
+    else:
+        file_path = '%s/cpi.csv' % get_directory_path()
 
     tmp_data = pd.DataFrame()
     try:
@@ -421,7 +464,10 @@ def get_gdp_cpi_data():
     if tmp_data is None:
         slog.StlDmLogger().warning('tushare.get_cpi() return none')
     else:
-        tmp_data.to_csv(file_path)
+        if USING_H5:
+            tmp_data.to_hdf(file_path, 'cpi', mode='w')
+        else:
+            tmp_data.to_csv(file_path)
 
 
 def get_gdp_ppi_data():
@@ -447,10 +493,10 @@ def get_gdp_ppi_data():
     -------
         无
     '''
-    dir_path = DEFAULT_DIR_PATH
-    if not os.path.exists(dir_path):
-        os.makedirs(dir_path)
-    file_path = '%s/ppi.csv' % dir_path
+    if USING_H5:
+        file_path = '%s/ppi.h5' % get_directory_path()
+    else:
+        file_path = '%s/ppi.csv' % get_directory_path()
 
     tmp_data = pd.DataFrame()
     try:
@@ -462,7 +508,10 @@ def get_gdp_ppi_data():
     if tmp_data is None:
         slog.StlDmLogger().warning('tushare.get_ppi() return none')
     else:
-        tmp_data.to_csv(file_path)
+        if USING_H5:
+            tmp_data.to_hdf(file_path, 'ppi', mode='w')
+        else:
+            tmp_data.to_csv(file_path)
 
 
 if __name__ == '__main__':
