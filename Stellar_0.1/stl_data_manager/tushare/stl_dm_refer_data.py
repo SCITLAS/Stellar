@@ -3,10 +3,13 @@ __author__ = 'MoroJoJo'
 
 
 from stl_utils import stl_logger as slog
+from stl_data_manager.tushare import *
+from tables import *
 
 import tushare
 import pandas as pd
 import os
+import h5py
 
 
 '''
@@ -23,6 +26,19 @@ RETRY_COUNT = 5               # 调用tushare接口失败重试次数
 RETRY_PAUSE = 0.1             # 调用tushare接口失败重试间隔时间
 
 DEFAULT_DIR_PATH = '../../../Data/origin/tushare/security_reference_data'
+
+
+def get_directory_path(code):
+    dir_path = ''
+    if STORAGE_MODE == USING_H5:
+        dir_path = '%s/security_data/%s/reference_data' % (DEFAULT_H5_PATH_TS, code)
+        if not os.path.exists(dir_path):
+            os.makedirs(dir_path)
+    elif STORAGE_MODE == USING_CSV:
+        dir_path = '%s/security_data/%s/reference_data' % (DEFAULT_CSV_PATH_TS, code)
+        if not os.path.exists(dir_path):
+            os.makedirs(dir_path)
+    return dir_path
 
 
 def get_profit_data(year, top):
@@ -44,22 +60,52 @@ def get_profit_data(year, top):
     -------
         无
     '''
-    dir_path = DEFAULT_DIR_PATH
-    if not os.path.exists(dir_path):
-        os.makedirs(dir_path)
-    file_path = '%s/profit(%d:1-%d).csv' % (dir_path, year, top)
-
-    tmp_data = pd.DataFrame()
     try:
         slog.StlDmLogger().debug('tushare.profit_data: year=%s, count=%d' % (year, PROFIT_INFO_COUNT))
-        tmp_data = tushare.profit_data(year=year, top=top, retry_count=RETRY_COUNT, pause=RETRY_PAUSE)
+        df = tushare.profit_data(year=year, top=1, retry_count=RETRY_COUNT, pause=RETRY_PAUSE)
     except Exception as exception:
         slog.StlDmLogger().error('tushare.profit_data(%s) excpetion, args: %s' % (year, exception.args.__str__()))
+        return 
 
-    if tmp_data is None:
+    if df is None:
         slog.StlDmLogger().warning('tushare.profit_data(%s) return none' % year)
     else:
-        tmp_data.to_csv(file_path)
+        if STORAGE_MODE == USING_H5:
+            for index, row in df.iterrows():   # 获取每行的index、row
+                for col_name in df.columns:
+                    if col_name == 'code':
+                        dir_path = get_directory_path(row[col_name])
+                        file_path = '%s/profit.h5' % dir_path
+
+                        '''
+                        row里面有str和float类型的数据, 直接以table格式append存储, 会报错:
+                        TypeError: Cannot serialize the column [values] because its data contents are [mixed-integer] object dtype
+                        感觉是数据源有问题, 实在没办法了, 只能把所有数据数据转成str, 再存储.
+                        '''
+                        row['code'] = '%s' % row['code']
+                        row['year'] = '%s' % row['year']
+                        row['report_date'] = '%s' % row['report_date']
+                        row['divi'] = '%.2f' % row['divi']
+                        row['shares'] = '%.2f' % row['shares']
+
+                        tmp_df = pd.DataFrame(row)
+                        store = pd.HDFStore(path=file_path, mode='a')
+                        object_path = '/profit_%d' % year
+                        store.append(key=object_path, value=tmp_df)
+                        #
+                        # node = store.get(key=object_path)
+                        # if node is None:
+                        #     store[object_path] = row
+                        # else:
+                        #     store.append(key=object_path, value=row)
+
+                        store.close()
+                        break
+                print('\n')
+
+        elif STORAGE_MODE == USING_CSV:
+            file_path = ''
+            df.to_csv(file_path)
 
 
 def get_forcast_data(year, quarter):
@@ -86,17 +132,17 @@ def get_forcast_data(year, quarter):
         os.makedirs(dir_path)
     file_path = '%s/forecast(%dQ%d).csv' % (dir_path, year, quarter)
 
-    tmp_data = pd.DataFrame()
+    df = pd.DataFrame()
     try:
         slog.StlDmLogger().debug('tushare.forecast_data: year=%d, quarter=%d' % (year, quarter))
-        tmp_data = tushare.forecast_data(year=year, quarter=quarter)
+        df = tushare.forecast_data(year=year, quarter=quarter)
     except Exception as exception:
         slog.StlDmLogger().error('tushare.forecast_data(%d, %d) excpetion, args: %s' % (year, quarter, exception.args.__str__()))
 
-    if tmp_data is None:
+    if df is None:
         slog.StlDmLogger().warning('tushare.forecast_data(%d, %d) return none' % (year, quarter))
     else:
-        tmp_data.to_csv(file_path)
+        df.to_csv(file_path)
 
 
 def get_restricted_stock_data(year, month):
@@ -122,17 +168,17 @@ def get_restricted_stock_data(year, month):
         os.makedirs(dir_path)
     file_path = '%s/restricted_share(%d-%d).csv' % (dir_path, year, month)
 
-    tmp_data = pd.DataFrame()
+    df = pd.DataFrame()
     try:
         slog.StlDmLogger().debug('tushare.xsg_data: year=%d, month=%d' % (year, month))
-        tmp_data = tushare.xsg_data(year=year, month=month, retry_count=RETRY_COUNT, pause=RETRY_PAUSE)
+        df = tushare.xsg_data(year=year, month=month, retry_count=RETRY_COUNT, pause=RETRY_PAUSE)
     except Exception as exception:
         slog.StlDmLogger().error('tushare.xsg_data(%d, %d) excpetion, args: %s' % (year, month, exception.args.__str__()))
 
-    if tmp_data is None:
+    if df is None:
         slog.StlDmLogger().warning('tushare.xsg_data(%d, %d) return none' % (year, month))
     else:
-        tmp_data.to_csv(file_path)
+        df.to_csv(file_path)
 
 
 def get_fund_holding_data(year, quarter):
@@ -162,17 +208,17 @@ def get_fund_holding_data(year, quarter):
         os.makedirs(dir_path)
     file_path = '%s/fund_holding(%dQ%d).csv' % (dir_path, year, quarter)
 
-    tmp_data = pd.DataFrame()
+    df = pd.DataFrame()
     try:
         slog.StlDmLogger().debug('tushare.fund_holdings: year=%d, quarter=%d' % (year, quarter))
-        tmp_data = tushare.fund_holdings(year=year, quarter=quarter, retry_count=RETRY_COUNT, pause=RETRY_PAUSE)
+        df = tushare.fund_holdings(year=year, quarter=quarter, retry_count=RETRY_COUNT, pause=RETRY_PAUSE)
     except Exception as exception:
         slog.StlDmLogger().error('tushare.fund_holdings(%d, %d) excpetion, args: %s' % (year, quarter, exception.args.__str__()))
 
-    if tmp_data is None:
+    if df is None:
         slog.StlDmLogger().warning('tushare.fund_holdings(%d, %d) return none' % (year, quarter))
     else:
-        tmp_data.to_csv(file_path)
+        df.to_csv(file_path)
 
 
 def get_new_security_data():
@@ -203,17 +249,17 @@ def get_new_security_data():
         os.makedirs(dir_path)
     file_path = '%s/new_security.csv' % dir_path
 
-    tmp_data = pd.DataFrame()
+    df = pd.DataFrame()
     try:
         slog.StlDmLogger().debug('tushare.new_stocks')
-        tmp_data = tushare.new_stocks(retry_count=RETRY_COUNT, pause=RETRY_PAUSE)
+        df = tushare.new_stocks(retry_count=RETRY_COUNT, pause=RETRY_PAUSE)
     except Exception as exception:
         slog.StlDmLogger().error('tushare.new_stocks excpetion, args: %s' % exception.args.__str__())
 
-    if tmp_data is None:
+    if df is None:
         slog.StlDmLogger().warning('tushare.new_stocks return none')
     else:
-        tmp_data.to_csv(file_path)
+        df.to_csv(file_path)
 
 
 def get_margin_trade_data_sh(start_date, end_date):
@@ -241,17 +287,17 @@ def get_margin_trade_data_sh(start_date, end_date):
         os.makedirs(dir_path)
     file_path = '%s/sh_margins(%s--%s).csv' % (dir_path, start_date, end_date)
 
-    tmp_data = pd.DataFrame()
+    df = pd.DataFrame()
     try:
         slog.StlDmLogger().debug('tushare.sh_margins, start=%s, end=%s' % (start_date, end_date))
-        tmp_data = tushare.sh_margins(start=start_date, end=end_date, retry_count=RETRY_COUNT, pause=RETRY_PAUSE)
+        df = tushare.sh_margins(start=start_date, end=end_date, retry_count=RETRY_COUNT, pause=RETRY_PAUSE)
     except Exception as exception:
         slog.StlDmLogger().error('tushare.sh_margins, start=%s, end=%s, excpetion, args: %s' % (start_date, end_date, exception.args.__str__()))
 
-    if tmp_data is None:
+    if df is None:
         slog.StlDmLogger().warning('tushare.sh_margins, start=%s, end=%s return none' % (start_date, end_date))
     else:
-        tmp_data.to_csv(file_path)
+        df.to_csv(file_path)
 
 
 def get_margin_trade_detail_data_sh(start_date, end_date, code):
@@ -282,17 +328,17 @@ def get_margin_trade_detail_data_sh(start_date, end_date, code):
         os.makedirs(dir_path)
     file_path = '%s/%s(%s--%s).csv' % (dir_path, code, start_date, end_date)
 
-    tmp_data = pd.DataFrame()
+    df = pd.DataFrame()
     try:
         slog.StlDmLogger().debug('tushare.sh_margin_details, code=%s, start=%s, end=%s' % (code, start_date, end_date))
-        tmp_data = tushare.sh_margin_details(start=start_date, end=end_date, symbol=code, retry_count=RETRY_COUNT, pause=RETRY_PAUSE)
+        df = tushare.sh_margin_details(start=start_date, end=end_date, symbol=code, retry_count=RETRY_COUNT, pause=RETRY_PAUSE)
     except Exception as exception:
         slog.StlDmLogger().error('tushare.sh_margin_details, cod=%s, start=%s, end=%s, excpetion, args: %s' % (code, start_date, end_date, exception.args.__str__()))
 
-    if tmp_data is None:
+    if df is None:
         slog.StlDmLogger().warning('tushare.sh_margin_details, code=%s, start=%s, end=%s return none' % (code, start_date, end_date))
     else:
-        tmp_data.to_csv(file_path)
+        df.to_csv(file_path)
 
 
 def get_margin_trade_data_sz(start_date, end_date):
@@ -320,17 +366,17 @@ def get_margin_trade_data_sz(start_date, end_date):
         os.makedirs(dir_path)
     file_path = '%s/sz_margins(%s--%s).csv' % (dir_path, start_date, end_date)
 
-    tmp_data = pd.DataFrame()
+    df = pd.DataFrame()
     try:
         slog.StlDmLogger().debug('tushare.sz_margins, start=%s, end=%s' % (start_date, end_date))
-        tmp_data = tushare.sz_margins(start=start_date, end=end_date, retry_count=RETRY_COUNT, pause=RETRY_PAUSE)
+        df = tushare.sz_margins(start=start_date, end=end_date, retry_count=RETRY_COUNT, pause=RETRY_PAUSE)
     except Exception as exception:
         slog.StlDmLogger().error('tushare.sz_margins, start=%s, end=%s, excpetion, args: %s' % (start_date, end_date, exception.args.__str__()))
 
-    if tmp_data is None:
+    if df is None:
         slog.StlDmLogger().warning('tushare.sz_margins, start=%s, end=%s return none' % (start_date, end_date))
     else:
-        tmp_data.to_csv(file_path)
+        df.to_csv(file_path)
 
 
 def get_margin_trade_detail_data_sz(start_date, end_date, code):
@@ -361,26 +407,26 @@ def get_margin_trade_detail_data_sz(start_date, end_date, code):
         os.makedirs(dir_path)
     file_path = '%s/%s(%s--%s).csv' % (dir_path, code, start_date, end_date)
 
-    tmp_data = pd.DataFrame()
+    df = pd.DataFrame()
     try:
         slog.StlDmLogger().debug('tushare.sh_margin_details, code=%s, start=%s, end=%s' % (code, start_date, end_date))
-        tmp_data = tushare.sh_margin_details(start=start_date, end=end_date, symbol=code, retry_count=RETRY_COUNT, pause=RETRY_PAUSE)
+        df = tushare.sh_margin_details(start=start_date, end=end_date, symbol=code, retry_count=RETRY_COUNT, pause=RETRY_PAUSE)
     except Exception as exception:
         slog.StlDmLogger().error('tushare.sh_margin_details, cod=%s, start=%s, end=%s, excpetion, args: %s' % (code, start_date, end_date, exception.args.__str__()))
 
-    if tmp_data is None:
+    if df is None:
         slog.StlDmLogger().warning('tushare.sh_margin_details, code=%s, start=%s, end=%s return none' % (code, start_date, end_date))
     else:
-        tmp_data.to_csv(file_path)
+        df.to_csv(file_path)
 
 
 if __name__ == '__main__':
     get_profit_data(DATA_YEAR, PROFIT_INFO_COUNT)
-    get_forcast_data(DATA_YEAR, DATA_QUARTER)
-    get_restricted_stock_data(DATA_YEAR, DATA_MONTH)
-    get_fund_holding_data(DATA_YEAR, DATA_QUARTER)
-    get_new_security_data()
-    get_margin_trade_data_sh(start_date='2016-07-01', end_date='2016-08-02')
-    get_margin_trade_detail_data_sh(start_date='2016-07-01', end_date='2016-08-02', code='600789')
-    get_margin_trade_data_sz(start_date='2016-07-01', end_date='2016-08-02')
-    get_margin_trade_detail_data_sz(start_date='2016-07-01', end_date='2016-08-02', code='000002')
+    # get_forcast_data(DATA_YEAR, DATA_QUARTER)
+    # get_restricted_stock_data(DATA_YEAR, DATA_MONTH)
+    # get_fund_holding_data(DATA_YEAR, DATA_QUARTER)
+    # get_new_security_data()
+    # get_margin_trade_data_sh(start_date='2016-07-01', end_date='2016-08-02')
+    # get_margin_trade_detail_data_sh(start_date='2016-07-01', end_date='2016-08-02', code='600789')
+    # get_margin_trade_data_sz(start_date='2016-07-01', end_date='2016-08-02')
+    # get_margin_trade_detail_data_sz(start_date='2016-07-01', end_date='2016-08-02', code='000002')
