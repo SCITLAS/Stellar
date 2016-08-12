@@ -85,6 +85,14 @@ def get_current_day_tick_data(code):
     '''
     获取code对应股票最新一个交易日的分笔交易信息
 
+        time：时间
+        price：当前价格
+        pchange:涨跌幅
+        change：价格变动
+        volume：成交手
+        amount：成交金额(元)
+        type：买卖类型【买盘、卖盘、中性盘】
+
     Parameters
     ------
         code: 股票代码

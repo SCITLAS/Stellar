@@ -112,6 +112,14 @@ def get_big_deal_data(code, deal_date, vol=VOL):
     '''
     获取code对应股票在指定时间长度内的大单交易数据
 
+        code：代码
+        name：名称
+        time：时间
+        price：当前价格
+        volume：成交手
+        preprice ：上一笔价格
+        type：买卖类型【买盘、卖盘、中性盘】
+
     Parameters
     ------
         code: 股票代码

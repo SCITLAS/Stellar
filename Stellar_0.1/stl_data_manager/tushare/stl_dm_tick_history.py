@@ -111,6 +111,13 @@ def get_tick_data(code, tick_date):
     '''
     获取code对应股票在指定时间长度内的分笔交易信息
 
+        time：时间
+        price：成交价格
+        change：价格变动
+        volume：成交手
+        amount：成交金额(元)
+        type：买卖类型【买盘、卖盘、中性盘】
+
     Parameters
     ------
         code: 股票代码

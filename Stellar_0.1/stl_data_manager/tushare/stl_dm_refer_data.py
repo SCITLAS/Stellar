@@ -3,18 +3,29 @@ __author__ = 'MoroJoJo'
 
 
 from stl_utils import stl_logger as slog
-from stl_data_manager.tushare import *
-from tables import *
 
 import tushare
 import pandas as pd
 import os
-import h5py
 
 
 '''
 获取投资参考数据
 '''
+
+
+# Global Consts
+USING_H5 = 0
+USING_CSV = 1
+USING_MY_SQL = 2
+USING_MONGO_DB = 3
+STORAGE_MODE = USING_H5
+
+# TuShare Data Storage Path
+DEFAULT_H5_PATH_TS = '../../../Data/h5/tushare'
+DEFAULT_CSV_PATH_TS = '../../../Data/csv/tushare'
+DEFAULT_MY_SQL_PATH_TS = '../../../Data/mysql/tushare'
+DEFAULT_MONGO_DB_PATH_TS = '../../../Data/mongodb/tushare'
 
 
 PROFIT_INFO_COUNT = 200       # 获取的分配预案数据条数
