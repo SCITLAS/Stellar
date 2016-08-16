@@ -63,6 +63,14 @@ def get_index_data(code, start_date):
     '''
     获取code对应指数的历史行情信息, 并将结果保存到对应csv文件
 
+        date 交易日期 (index)
+        open 开盘价
+        high  最高价
+        close 收盘价
+        low 最低价
+        volume 成交量
+        amount 成交金额
+
     Parameters
     ------
         code: 股票代码
