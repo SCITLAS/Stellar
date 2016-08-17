@@ -45,7 +45,7 @@ DEFAULT_MONGO_DB_PATH_TS = '../../../Data/mongodb/tushare'
 THREAD_COUNT = 50    # 查询交易数据的并行线程数
 RETRY_COUNT = 5      # 调用tushare接口失败重试次数
 RETRY_PAUSE = 0.1    # 调用tushare接口失败重试间隔时间
-AUTYPE ='qfq'        # 复权类型，qfq-前复权 hfq-后复权 None-不复权
+AUTYPE = 'qfq'        # 复权类型，qfq-前复权 hfq-后复权 None-不复权
 DROP_FACTOR = True   # 是否移除复权因子，在分析过程中可能复权因子意义不大，但是如需要先储存到数据库之后再分析的话，有该项目会更加灵活
 
 

@@ -81,10 +81,11 @@ def start_get_index_real_time_data():
     try:
         scheduler.add_job(get_index_real_time_data, trigger='cron', second='*/3', hour='*')
         scheduler.start()
-        return scheduler
     except (Exception):
         scheduler.shutdown()
         return None
+    else:
+        return scheduler
 
 if __name__ == "__main__":
     slog.StlDmLogger().debug('start get real time index data')
