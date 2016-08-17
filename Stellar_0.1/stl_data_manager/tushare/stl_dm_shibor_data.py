@@ -2,11 +2,11 @@
 __author__ = 'MoroJoJo'
 
 
-from sqlalchemy import create_engine
-from stl_utils import stl_logger as slog
-import tushare
 import os
-import pandas as pd
+
+import tushare
+
+from stl_utils import stl_logger as slog
 
 
 '''
@@ -15,14 +15,12 @@ import pandas as pd
 
 
 # Global Consts
-USING_H5 = 0
 USING_CSV = 1
 USING_MY_SQL = 2
 USING_MONGO_DB = 3
-STORAGE_MODE = USING_H5
+STORAGE_MODE = USING_CSV
 
 # TuShare Data Storage Path
-DEFAULT_H5_PATH_TS = '../../../Data/h5/tushare'
 DEFAULT_CSV_PATH_TS = '../../../Data/csv/tushare'
 DEFAULT_MY_SQL_PATH_TS = '../../../Data/mysql/tushare'
 DEFAULT_MONGO_DB_PATH_TS = '../../../Data/mongodb/tushare'
@@ -38,16 +36,8 @@ RETRY_PAUSE = 0.1             # 调用tushare接口失败重试间隔时间
 
 def get_directory_path():
     dir_path = ''
-    if STORAGE_MODE == USING_H5:
-        dir_path = '%s/shibor_data' % DEFAULT_H5_PATH_TS
-        if not os.path.exists(dir_path):
-            os.makedirs(dir_path)
-    elif STORAGE_MODE == USING_CSV:
+    if STORAGE_MODE == USING_CSV:
         dir_path = '%s/shibor_data' % DEFAULT_CSV_PATH_TS
-        if not os.path.exists(dir_path):
-            os.makedirs(dir_path)
-    elif STORAGE_MODE == USING_MY_SQL:
-        dir_path = '%s/shibor_data' % DEFAULT_MY_SQL_PATH_TS
         if not os.path.exists(dir_path):
             os.makedirs(dir_path)
     return dir_path
@@ -79,31 +69,13 @@ def get_shibor_data(year):
         df = tushare.shibor_data(year=year)
     except Exception as exception:
         slog.StlDmLogger().error('tushare.shibor_data(%s) excpetion, args: %s' % (year, exception.args.__str__()))
-        return
-
-    if df is None:
-        slog.StlDmLogger().warning('tushare.shibor_data(%s) return none' % year)
     else:
-        slog.StlDmLogger().debug('shibor_%d: %d' % (year, len(df)))
-        if STORAGE_MODE == USING_H5:
-            file_path = '%s/shibor.h5' % get_directory_path()
-            store = pd.HDFStore(path=file_path, mode='a', append=True)
-            node_path = '/shibor_%d' % year
-            node = store.get_node(key=node_path)
-            if node is None:
-                slog.StlDmLogger().debug('%s do not exist, create a new one' % (node_path))
-            else:
-                slog.StlDmLogger().debug('%s do exist, delete old one' % (node_path))
-                store.remove(key=node_path)
-            store[node_path] = df
-            store.flush()
-            store.close()
-        elif STORAGE_MODE == USING_CSV:
-            file_path = '%s/shibor_%d.csv' % (get_directory_path(), year)
-            df.to_csv(file_path)
-        elif STORAGE_MODE == USING_MY_SQL:
-            engine = create_engine('mysql://user:passwd@127.0.0.1/db_name?charset=utf8')
-
+        if df is None:
+            slog.StlDmLogger().warning('tushare.shibor_data(%s) return none' % year)
+        else:
+            if STORAGE_MODE == USING_CSV:
+                file_path = '%s/shibor/%d.csv' % (get_directory_path(), year)
+                df.to_csv(file_path)
 
 
 def get_shibor_quote_data(year):
@@ -142,28 +114,13 @@ def get_shibor_quote_data(year):
         df = tushare.shibor_quote_data(year=year)
     except Exception as exception:
         slog.StlDmLogger().error('tushare.shibor_quote_data(%s) excpetion, args: %s' % (year, exception.args.__str__()))
-        return
-
-    if df is None:
-        slog.StlDmLogger().warning('tushare.shibor_quote_data(%s) return none' % year)
     else:
-        slog.StlDmLogger().debug('shibor_quote_%d: %d' % (year, len(df)))
-        if STORAGE_MODE == USING_H5:
-            file_path = '%s/shibor_quote.h5' % get_directory_path()
-            store = pd.HDFStore(path=file_path, mode='a', append=True)
-            node_path = '/shibor_quote_%d' % year
-            node = store.get_node(key=node_path)
-            if node is None:
-                slog.StlDmLogger().debug('%s do not exist, create a new one' % (node_path))
-            else:
-                slog.StlDmLogger().debug('%s do exist, delete old one' % (node_path))
-                store.remove(key=node_path)
-            store[node_path] = df
-            store.flush()
-            store.close()
-        elif STORAGE_MODE == USING_CSV:
-            file_path = '%s/shibor_quote_%d.csv' % (get_directory_path(), year)
-            df.to_csv(file_path)
+        if df is None:
+            slog.StlDmLogger().warning('tushare.shibor_quote_data(%s) return none' % year)
+        else:
+            if STORAGE_MODE == USING_CSV:
+                file_path = '%s/shibor_quote/%d.csv' % (get_directory_path(), year)
+                df.to_csv(file_path)
 
 
 def get_shibor_ma_data(year):
@@ -208,28 +165,13 @@ def get_shibor_ma_data(year):
         df = tushare.shibor_ma_data(year=year)
     except Exception as exception:
         slog.StlDmLogger().error('tushare.shibor_ma_data(%s) excpetion, args: %s' % (year, exception.args.__str__()))
-        return
-
-    if df is None:
-        slog.StlDmLogger().warning('tushare.shibor_ma_data(%s) return none' % year)
     else:
-        slog.StlDmLogger().debug('shibor_ma_%d: %d' % (year, len(df)))
-        if STORAGE_MODE == USING_H5:
-            file_path = '%s/shibor_ma.h5' % get_directory_path()
-            store = pd.HDFStore(path=file_path, mode='a', append=True)
-            node_path = '/shibor_ma_%d' % year
-            node = store.get_node(key=node_path)
-            if node is None:
-                slog.StlDmLogger().debug('%s do not exist, create a new one' % (node_path))
-            else:
-                slog.StlDmLogger().debug('%s do exist, delete old one' % (node_path))
-                store.remove(key=node_path)
-            store[node_path] = df
-            store.flush()
-            store.close()
-        elif STORAGE_MODE == USING_CSV:
-            file_path = '%s/shibor_ma_%d.csv' % (get_directory_path(), year)
-            df.to_csv(file_path)
+        if df is None:
+            slog.StlDmLogger().warning('tushare.shibor_ma_data(%s) return none' % year)
+        else:
+            if STORAGE_MODE == USING_CSV:
+                file_path = '%s/shibor_ma/%d.csv' % (get_directory_path(), year)
+                df.to_csv(file_path)
 
 
 def get_lpr_data(year):
@@ -251,28 +193,13 @@ def get_lpr_data(year):
         df = tushare.lpr_data(year=year)
     except Exception as exception:
         slog.StlDmLogger().error('tushare.lpr_data(%s) excpetion, args: %s' % (year, exception.args.__str__()))
-        return
-
-    if df is None:
-        slog.StlDmLogger().warning('tushare.lpr_data(%s) return none' % year)
     else:
-        slog.StlDmLogger().debug('lpr-%d: %d' % (year, len(df)))
-        if STORAGE_MODE == USING_H5:
-            file_path = '%s/lpr.h5' % get_directory_path()
-            store = pd.HDFStore(path=file_path, mode='a', append=True)
-            node_path = '/lpr_%d' % year
-            node = store.get_node(key=node_path)
-            if node is None:
-                slog.StlDmLogger().debug('%s do not exist, create a new one' % (node_path))
-            else:
-                slog.StlDmLogger().debug('%s do exist, delete old one' % (node_path))
-                store.remove(key=node_path)
-            store[node_path] = df
-            store.flush()
-            store.close()
-        elif STORAGE_MODE == USING_CSV:
-            file_path = '%s/lpr_%d.csv' % (get_directory_path(), year)
-            df.to_csv(file_path)
+        if df is None:
+            slog.StlDmLogger().warning('tushare.lpr_data(%s) return none' % year)
+        else:
+            if STORAGE_MODE == USING_CSV:
+                file_path = '%s/lpr/%d.csv' % (get_directory_path(), year)
+                df.to_csv(file_path)
 
 
 def get_lpr_ma_data(year):
@@ -294,33 +221,18 @@ def get_lpr_ma_data(year):
         df = tushare.lpr_ma_data(year=year)
     except Exception as exception:
         slog.StlDmLogger().error('tushare.lpr_ma_data(%s) excpetion, args: %s' % (year, exception.args.__str__()))
-        return
-
-    if df is None:
-        slog.StlDmLogger().warning('tushare.lpr_ma_data(%s) return none' % year)
     else:
-        slog.StlDmLogger().debug('lpr_ma-%d: %d' % (year, len(df)))
-        if STORAGE_MODE == USING_H5:
-            file_path = '%s/lpr_ma.h5' % get_directory_path()
-            store = pd.HDFStore(path=file_path, mode='a', append=True)
-            node_path = '/lpr_ma_%d' % year
-            node = store.get_node(key=node_path)
-            if node is None:
-                slog.StlDmLogger().debug('%s do not exist, create a new one' % (node_path))
-            else:
-                slog.StlDmLogger().debug('%s do exist, delete old one' % (node_path))
-                store.remove(key=node_path)
-            store[node_path] = df
-            store.flush()
-            store.close()
-        elif STORAGE_MODE == USING_CSV:
-            file_path = '%s/lpr_ma_%d.csv' % (get_directory_path(), year)
-            df.to_csv(file_path)
+        if df is None:
+            slog.StlDmLogger().warning('tushare.lpr_ma_data(%s) return none' % year)
+        else:
+            if STORAGE_MODE == USING_CSV:
+                file_path = '%s/lpr_ma/%d.csv' % (get_directory_path(), year)
+                df.to_csv(file_path)
 
 
 if __name__ == '__main__':
     get_shibor_data(2016)
-    # get_shibor_quote_data(2016)
-    # get_shibor_ma_data(2016)
-    # get_lpr_data(2016)
-    # get_lpr_ma_data(2016)
+    get_shibor_quote_data(2016)
+    get_shibor_ma_data(2016)
+    get_lpr_data(2016)
+    get_lpr_ma_data(2016)

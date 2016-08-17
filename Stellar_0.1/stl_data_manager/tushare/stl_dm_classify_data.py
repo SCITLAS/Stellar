@@ -2,11 +2,11 @@
 __author__ = 'MoroJoJo'
 
 
-from stl_utils import stl_logger as slog
+import os
 
 import tushare
-import pandas as pd
-import os
+
+from stl_utils import stl_logger as slog
 
 
 '''
@@ -14,7 +14,25 @@ import os
 '''
 
 
-DEFAULT_DIR_PATH = '../../../Data/origin/tushare/security_classify_data'
+# Global Consts
+USING_CSV = 1
+USING_MY_SQL = 2
+USING_MONGO_DB = 3
+STORAGE_MODE = USING_CSV
+
+# TuShare Data Storage Path
+DEFAULT_CSV_PATH_TS = '../../../Data/csv/tushare'
+DEFAULT_MY_SQL_PATH_TS = '../../../Data/mysql/tushare'
+DEFAULT_MONGO_DB_PATH_TS = '../../../Data/mongodb/tushare'
+
+
+def get_directory_path():
+    dir_path = ''
+    if STORAGE_MODE == USING_CSV:
+        dir_path = '%s/security_classify_data' % DEFAULT_CSV_PATH_TS
+        if not os.path.exists(dir_path):
+            os.makedirs(dir_path)
+    return dir_path
 
 
 def get_industry_classify_data(source='sina'):
@@ -31,22 +49,18 @@ def get_industry_classify_data(source='sina'):
     -------
         无
     '''
-    dir_path = DEFAULT_DIR_PATH
-    if not os.path.exists(dir_path):
-        os.makedirs(dir_path)
-    file_path = '%s/industry_classify.csv' % dir_path
-
-    tmp_data = pd.DataFrame()
     try:
         slog.StlDmLogger().debug('tushare.get_industry_classified(%s)' % source)
-        tmp_data = tushare.get_industry_classified(standard=source)
+        df = tushare.get_industry_classified(standard=source)
     except Exception as exception:
         slog.StlDmLogger().error('tushare.get_industry_classified(%s) excpetion, args: %s' % (source, exception.args.__str__()))
-
-    if tmp_data is None:
-        slog.StlDmLogger().warning('tushare.get_industry_classified(%s) return none' % source)
     else:
-        tmp_data.to_csv(file_path)
+        if df is None:
+            slog.StlDmLogger().warning('tushare.get_industry_classified(%s) return none' % source)
+        else:
+            if STORAGE_MODE == USING_CSV:
+                file_path = '%s/industry.csv' % get_directory_path()
+                df.to_csv(file_path)
 
 
 def get_concept_classify_data():
@@ -63,22 +77,18 @@ def get_concept_classify_data():
     -------
         无
     '''
-    dir_path = DEFAULT_DIR_PATH
-    if not os.path.exists(dir_path):
-        os.makedirs(dir_path)
-    file_path = '%s/concept_classify.csv' % dir_path
-
-    tmp_data = pd.DataFrame()
     try:
         slog.StlDmLogger().debug('tushare.get_industry_classified()')
-        tmp_data = tushare.get_concept_classified()
+        df = tushare.get_concept_classified()
     except Exception as exception:
         slog.StlDmLogger().error('tushare.get_industry_classified() excpetion, args: %s' % (exception.args.__str__()))
-
-    if tmp_data is None:
-        slog.StlDmLogger().warning('tushare.get_industry_classified() return none')
     else:
-        tmp_data.to_csv(file_path)
+        if df is None:
+            slog.StlDmLogger().warning('tushare.get_industry_classified() return none')
+        else:
+            if STORAGE_MODE == USING_CSV:
+                file_path = '%s/concept.csv' % get_directory_path()
+                df.to_csv(file_path)
 
 
 def get_area_classify_data():
@@ -95,22 +105,18 @@ def get_area_classify_data():
     -------
         无
     '''
-    dir_path = DEFAULT_DIR_PATH
-    if not os.path.exists(dir_path):
-        os.makedirs(dir_path)
-    file_path = '%s/area_classify.csv' % dir_path
-
-    tmp_data = pd.DataFrame()
     try:
         slog.StlDmLogger().debug('tushare.get_area_classified()')
-        tmp_data = tushare.get_area_classified()
+        df = tushare.get_area_classified()
     except Exception as exception:
         slog.StlDmLogger().error('tushare.get_area_classified() excpetion, args: %s' % (exception.args.__str__()))
-
-    if tmp_data is None:
-        slog.StlDmLogger().warning('tushare.get_area_classified() return none')
     else:
-        tmp_data.to_csv(file_path)
+        if df is None:
+            slog.StlDmLogger().warning('tushare.get_area_classified() return none')
+        else:
+            if STORAGE_MODE == USING_CSV:
+                file_path = '%s/area.csv' % get_directory_path()
+                df.to_csv(file_path)
 
 
 def get_sme_classify_data():
@@ -126,22 +132,18 @@ def get_sme_classify_data():
     -------
         无
     '''
-    dir_path = DEFAULT_DIR_PATH
-    if not os.path.exists(dir_path):
-        os.makedirs(dir_path)
-    file_path = '%s/sme_classify.csv' % dir_path
-
-    tmp_data = pd.DataFrame()
     try:
         slog.StlDmLogger().debug('tushare.get_sme_classified()')
-        tmp_data = tushare.get_sme_classified()
+        df = tushare.get_sme_classified()
     except Exception as exception:
         slog.StlDmLogger().error('tushare.get_sme_classified() excpetion, args: %s' % (exception.args.__str__()))
-
-    if tmp_data is None:
-        slog.StlDmLogger().warning('tushare.get_sme_classified() return none')
     else:
-        tmp_data.to_csv(file_path)
+        if df is None:
+            slog.StlDmLogger().warning('tushare.get_sme_classified() return none')
+        else:
+            if STORAGE_MODE == USING_CSV:
+                file_path = '%s/sme.csv' % get_directory_path()
+                df.to_csv(file_path)
 
 
 def get_gem_classify_data():
@@ -157,22 +159,18 @@ def get_gem_classify_data():
     -------
         无
     '''
-    dir_path = DEFAULT_DIR_PATH
-    if not os.path.exists(dir_path):
-        os.makedirs(dir_path)
-    file_path = '%s/gem_classify.csv' % dir_path
-
-    tmp_data = pd.DataFrame()
     try:
         slog.StlDmLogger().debug('tushare.get_gem_classified()')
-        tmp_data = tushare.get_gem_classified()
+        df = tushare.get_gem_classified()
     except Exception as exception:
         slog.StlDmLogger().error('tushare.get_gem_classified() excpetion, args: %s' % (exception.args.__str__()))
-
-    if tmp_data is None:
-        slog.StlDmLogger().warning('tushare.get_gem_classified() return none')
     else:
-        tmp_data.to_csv(file_path)
+        if df is None:
+            slog.StlDmLogger().warning('tushare.get_gem_classified() return none')
+        else:
+            if STORAGE_MODE == USING_CSV:
+                file_path = '%s/gem.csv' % get_directory_path()
+                df.to_csv(file_path)
 
 
 def get_st_classify_data():
@@ -188,22 +186,18 @@ def get_st_classify_data():
     -------
         无
     '''
-    dir_path = DEFAULT_DIR_PATH
-    if not os.path.exists(dir_path):
-        os.makedirs(dir_path)
-    file_path = '%s/st_classify.csv' % dir_path
-
-    tmp_data = pd.DataFrame()
     try:
         slog.StlDmLogger().debug('tushare.get_st_classified()')
-        tmp_data = tushare.get_st_classified()
+        df = tushare.get_st_classified()
     except Exception as exception:
         slog.StlDmLogger().error('tushare.get_st_classified() excpetion, args: %s' % (exception.args.__str__()))
-
-    if tmp_data is None:
-        slog.StlDmLogger().warning('tushare.get_st_classified() return none')
     else:
-        tmp_data.to_csv(file_path)
+        if df is None:
+            slog.StlDmLogger().warning('tushare.get_st_classified() return none')
+        else:
+            if STORAGE_MODE == USING_CSV:
+                file_path = '%s/st.csv' % get_directory_path()
+                df.to_csv(file_path)
 
 
 def get_hs300_classify_data():
@@ -221,22 +215,18 @@ def get_hs300_classify_data():
     -------
         无
     '''
-    dir_path = DEFAULT_DIR_PATH
-    if not os.path.exists(dir_path):
-        os.makedirs(dir_path)
-    file_path = '%s/hs300_classify.csv' % dir_path
-
-    tmp_data = pd.DataFrame()
     try:
         slog.StlDmLogger().debug('tushare.get_hs300s')
-        tmp_data = tushare.get_hs300s()
+        df = tushare.get_hs300s()
     except Exception as exception:
         slog.StlDmLogger().error('tushare.get_hs300s() excpetion, args: %s' % (exception.args.__str__()))
-
-    if tmp_data is None:
-        slog.StlDmLogger().warning('tushare.get_hs300s() return none')
     else:
-        tmp_data.to_csv(file_path)
+        if df is None:
+            slog.StlDmLogger().warning('tushare.get_hs300s() return none')
+        else:
+            if STORAGE_MODE == USING_CSV:
+                file_path = '%s/hs300.csv' % get_directory_path()
+                df.to_csv(file_path)
 
 
 def get_sz50_classify_data():
@@ -252,22 +242,18 @@ def get_sz50_classify_data():
     -------
         无
     '''
-    dir_path = DEFAULT_DIR_PATH
-    if not os.path.exists(dir_path):
-        os.makedirs(dir_path)
-    file_path = '%s/sz50_classify.csv' % dir_path
-
-    tmp_data = pd.DataFrame()
     try:
         slog.StlDmLogger().debug('tushare.get_sz50s()')
-        tmp_data = tushare.get_sz50s()
+        df = tushare.get_sz50s()
     except Exception as exception:
         slog.StlDmLogger().error('tushare.get_sz50s() excpetion, args: %s' % (exception.args.__str__()))
-
-    if tmp_data is None:
-        slog.StlDmLogger().warning('tushare.get_sz50s() return none')
     else:
-        tmp_data.to_csv(file_path)
+        if df is None:
+            slog.StlDmLogger().warning('tushare.get_sz50s() return none')
+        else:
+            if STORAGE_MODE == USING_CSV:
+                file_path = '%s/sz50.csv' % get_directory_path()
+                df.to_csv(file_path)
 
 
 def get_zz500_classify_data():
@@ -283,22 +269,18 @@ def get_zz500_classify_data():
     -------
         无
     '''
-    dir_path = DEFAULT_DIR_PATH
-    if not os.path.exists(dir_path):
-        os.makedirs(dir_path)
-    file_path = '%s/zz500_classify.csv' % dir_path
-
-    tmp_data = pd.DataFrame()
     try:
         slog.StlDmLogger().debug('tushare.get_zz500s()')
-        tmp_data = tushare.get_zz500s()
+        df = tushare.get_zz500s()
     except Exception as exception:
         slog.StlDmLogger().error('tushare.get_zz500s() excpetion, args: %s' % (exception.args.__str__()))
-
-    if tmp_data is None:
-        slog.StlDmLogger().warning('tushare.get_zz500s() return none')
     else:
-        tmp_data.to_csv(file_path)
+        if df is None:
+            slog.StlDmLogger().warning('tushare.get_zz500s() return none')
+        else:
+            if STORAGE_MODE == USING_CSV:
+                file_path = '%s/zz500.csv' % get_directory_path()
+                df.to_csv(file_path)
 
 
 def get_terminated_classify_data():
@@ -314,22 +296,18 @@ def get_terminated_classify_data():
     -------
         无
     '''
-    dir_path = DEFAULT_DIR_PATH
-    if not os.path.exists(dir_path):
-        os.makedirs(dir_path)
-    file_path = '%s/terminated_classify.csv' % dir_path
-
-    tmp_data = pd.DataFrame()
     try:
         slog.StlDmLogger().debug('tushare.get_terminated()')
-        tmp_data = tushare.get_terminated()
+        df = tushare.get_terminated()
     except Exception as exception:
         slog.StlDmLogger().error('tushare.get_terminated() excpetion, args: %s' % (exception.args.__str__()))
-
-    if tmp_data is None:
-        slog.StlDmLogger().warning('tushare.get_terminated() return none')
     else:
-        tmp_data.to_csv(file_path)
+        if df is None:
+            slog.StlDmLogger().warning('tushare.get_terminated() return none')
+        else:
+            if STORAGE_MODE == USING_CSV:
+                file_path = '%s/terminated.csv' % get_directory_path()
+                df.to_csv(file_path)
 
 
 def get_suspended_classify_data():
@@ -345,22 +323,18 @@ def get_suspended_classify_data():
     -------
         无
     '''
-    dir_path = DEFAULT_DIR_PATH
-    if not os.path.exists(dir_path):
-        os.makedirs(dir_path)
-    file_path = '%s/suspended_classify.csv' % dir_path
-
-    tmp_data = pd.DataFrame()
     try:
         slog.StlDmLogger().debug('tushare.get_suspended()')
-        tmp_data = tushare.get_suspended()
+        df = tushare.get_suspended()
     except Exception as exception:
         slog.StlDmLogger().error('tushare.get_suspended() excpetion, args: %s' % (exception.args.__str__()))
-
-    if tmp_data is None:
-        slog.StlDmLogger().warning('tushare.get_suspended() return none')
     else:
-        tmp_data.to_csv(file_path)
+        if df is None:
+            slog.StlDmLogger().warning('tushare.get_suspended() return none')
+        else:
+            if STORAGE_MODE == USING_CSV:
+                file_path = '%s/suspended.csv' % get_directory_path()
+                df.to_csv(file_path)
 
 
 if __name__ == '__main__':

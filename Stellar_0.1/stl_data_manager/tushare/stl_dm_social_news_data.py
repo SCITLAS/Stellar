@@ -2,11 +2,11 @@
 __author__ = 'MoroJoJo'
 
 
-from stl_utils import stl_logger as slog
+import os
 
 import tushare
-import pandas as pd
-import os
+
+from stl_utils import stl_logger as slog
 
 
 '''
@@ -14,11 +14,29 @@ import os
 '''
 
 
+# Global Consts
+USING_CSV = 1
+USING_MY_SQL = 2
+USING_MONGO_DB = 3
+STORAGE_MODE = USING_CSV
+
+# TuShare Data Storage Path
+DEFAULT_CSV_PATH_TS = '../../../Data/csv/tushare'
+DEFAULT_MY_SQL_PATH_TS = '../../../Data/mysql/tushare'
+DEFAULT_MONGO_DB_PATH_TS = '../../../Data/mongodb/tushare'
+
 INFO_COUNT = 200              # 获取最新消息的条数
 RETRY_COUNT = 5               # 调用tushare接口失败重试次数
 RETRY_PAUSE = 0.1             # 调用tushare接口失败重试间隔时间
 
-DEFAULT_DIR_PATH = '../../../Data/origin/tushare/security_social_news_data'
+
+def get_directory_path():
+    dir_path = ''
+    if STORAGE_MODE == USING_CSV:
+        dir_path = '%s/social_news_data' % DEFAULT_CSV_PATH_TS
+        if not os.path.exists(dir_path):
+            os.makedirs(dir_path)
+    return dir_path
 
 
 def get_news_data(count):
@@ -38,22 +56,18 @@ def get_news_data(count):
     -------
         无
     '''
-    dir_path = DEFAULT_DIR_PATH
-    if not os.path.exists(dir_path):
-        os.makedirs(dir_path)
-    file_path = '%s/news.csv' % dir_path
-
-    tmp_data = pd.DataFrame()
     try:
         slog.StlDmLogger().debug('tushare.get_latest_news(%d)' % count)
-        tmp_data = tushare.get_latest_news(top=count, show_content=False)
+        df = tushare.get_latest_news(top=count, show_content=False)
     except Exception as exception:
         slog.StlDmLogger().error('tushare.get_deposit_rate(%d) excpetion, args: %s' % (count, exception.args.__str__()))
-
-    if tmp_data is None:
-        slog.StlDmLogger().warning('tushare.get_deposit_rate(%d) return none' % count)
     else:
-        tmp_data.to_csv(file_path)
+        if df is None:
+            slog.StlDmLogger().warning('tushare.get_deposit_rate(%d) return none' % count)
+        else:
+            if STORAGE_MODE == USING_CSV:
+                file_path = '%s/news/latest_%d.csv' % (get_directory_path(), count)
+                df.to_csv(file_path)
 
 
 def get_notice_data(code, date):
@@ -73,22 +87,18 @@ def get_notice_data(code, date):
     -------
         无
     '''
-    dir_path = '%s/notice' % DEFAULT_DIR_PATH
-    if not os.path.exists(dir_path):
-        os.makedirs(dir_path)
-    file_path = '%s/%s(%s).csv' % (dir_path, code, date)
-
-    tmp_data = pd.DataFrame()
     try:
         slog.StlDmLogger().debug('tushare.get_notices(%s, %s)' % (code, date))
-        tmp_data = tushare.get_notices(code=code, date=date)
+        df = tushare.get_notices(code=code, date=date)
     except Exception as exception:
         slog.StlDmLogger().error('tushare.get_notices(%s, %s) excpetion, args: %s' % (code, date, exception.args.__str__()))
-
-    if tmp_data is None:
-        slog.StlDmLogger().warning('tushare.get_notices(%s, %s) return none' % (code, date))
     else:
-        tmp_data.to_csv(file_path)
+        if df is None:
+            slog.StlDmLogger().warning('tushare.get_notices(%s, %s) return none' % (code, date))
+        else:
+            if STORAGE_MODE == USING_CSV:
+                file_path = '%s/notice/%s-%s.csv' % (get_directory_path(), code, date)
+                df.to_csv(file_path)
 
 
 def get_sina_guba_data():
@@ -107,22 +117,18 @@ def get_sina_guba_data():
     -------
         无
     '''
-    dir_path = DEFAULT_DIR_PATH
-    if not os.path.exists(dir_path):
-        os.makedirs(dir_path)
-    file_path = '%s/sina_guba.csv' % dir_path
-
-    tmp_data = pd.DataFrame()
     try:
         slog.StlDmLogger().debug('tushare.guba_sina(%s, %s)')
-        tmp_data = tushare.guba_sina(show_content=False)
+        df = tushare.guba_sina(show_content=False)
     except Exception as exception:
         slog.StlDmLogger().error('tushare.guba_sina() excpetion, args: %s' % exception.args.__str__())
-
-    if tmp_data is None:
-        slog.StlDmLogger().warning('tushare.guba_sina() return none')
     else:
-        tmp_data.to_csv(file_path)
+        if df is None:
+            slog.StlDmLogger().warning('tushare.guba_sina() return none')
+        else:
+            if STORAGE_MODE == USING_CSV:
+                file_path = '%s/sina_guba/data.csv' % get_directory_path()
+                df.to_csv(file_path)
 
 
 if __name__ == '__main__':

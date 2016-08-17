@@ -2,11 +2,11 @@
 __author__ = 'MoroJoJo'
 
 
-from stl_utils import stl_logger as slog
-
 import os
-import pandas as pd
+
 import tushare
+
+from stl_utils import stl_logger as slog
 
 
 '''
@@ -14,7 +14,25 @@ import tushare
 '''
 
 
-DEFAULT_DIR_PATH = '../../../Data/origin/tushare/security_trade_data/trade/current_day'
+# Global Consts
+USING_CSV = 1
+USING_MY_SQL = 2
+USING_MONGO_DB = 3
+STORAGE_MODE = USING_CSV
+
+# TuShare Data Storage Path
+DEFAULT_CSV_PATH_TS = '../../../Data/csv/tushare'
+DEFAULT_MY_SQL_PATH_TS = '../../../Data/mysql/tushare'
+DEFAULT_MONGO_DB_PATH_TS = '../../../Data/mongodb/tushare'
+
+
+def get_directory_path():
+    dir_path = ''
+    if STORAGE_MODE == USING_CSV:
+        dir_path = '%s/security_trade_data/trade/current_day' % DEFAULT_CSV_PATH_TS
+        if not os.path.exists(dir_path):
+            os.makedirs(dir_path)
+    return dir_path
 
 
 def get_all_security_current_day_data():
@@ -41,24 +59,20 @@ def get_all_security_current_day_data():
     -------
         无
     '''
-    slog.StlDmLogger().debug('get_all_security_current_day_data begin...')
-
-    dir_path = DEFAULT_DIR_PATH
-    if not os.path.exists(dir_path):
-        os.makedirs(dir_path)
-    file_path = '%s/trade.csv' % dir_path
-    tmp_data = pd.DataFrame()
-    try:
-        tmp_data = tushare.get_today_all()
-    except Exception as exception:
-        slog.StlDmLogger().error('tushare.get_today_all() excpetion, args: %s' % exception.args.__str__())
-
-    if tmp_data is None:
-        slog.StlDmLogger().warning('tushare.get_today_all() return none')
-    else:
-        tmp_data.to_csv(file_path)
-
-    slog.StlDmLogger().debug('get_all_security_current_day_data Finish...')
+    if STORAGE_MODE == USING_CSV:
+        slog.StlDmLogger().debug('get_all_security_current_day_data begin...')
+        file_path = '%s/trade.csv' % get_directory_path()
+        try:
+            slog.StlDmLogger().debug('tushare.get_today_all()')
+            df = tushare.get_today_all()
+        except Exception as exception:
+            slog.StlDmLogger().error('tushare.get_today_all() excpetion, args: %s' % exception.args.__str__())
+        else:
+            if df is None:
+                slog.StlDmLogger().warning('tushare.get_today_all() return none')
+            else:
+                df.to_csv(file_path)
+            slog.StlDmLogger().debug('get_all_security_current_day_data Finish...')
 
 
 if __name__ == "__main__":

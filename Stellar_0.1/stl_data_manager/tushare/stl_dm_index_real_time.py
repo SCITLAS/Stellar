@@ -2,12 +2,12 @@
 __author__ = 'MoroJoJo'
 
 
-from stl_utils import stl_logger as slog
+import time
 from apscheduler.schedulers.background import BackgroundScheduler
 
-import time
-import pandas as pd
 import tushare
+
+from stl_utils import stl_logger as slog
 
 
 '''
@@ -50,19 +50,18 @@ def get_index_real_time_data():
                                       ......
                                      23: '创业板R'}
     '''
-    tmp_data = pd.DataFrame()
     try:
         tmp_data = tushare.get_index()
     except Exception as exception:
         slog.StlDmLogger().error('tushare.get_index() excpetion, args: %s' % exception.args.__str__())
-
-    if tmp_data is None:
-        slog.StlDmLogger().warning('tushare.get_index() return none')
-        return None
     else:
-        data_dict =tmp_data.to_dict()
-        slog.StlDmLogger().debug('tushare.get_index() data: %s' % data_dict)
-        return data_dict
+        if tmp_data is None:
+            slog.StlDmLogger().warning('tushare.get_index() return none')
+            return None
+        else:
+            data_dict =tmp_data.to_dict()
+            slog.StlDmLogger().debug('tushare.get_index() data: %s' % data_dict)
+            return data_dict
 
 
 def start_get_index_real_time_data():

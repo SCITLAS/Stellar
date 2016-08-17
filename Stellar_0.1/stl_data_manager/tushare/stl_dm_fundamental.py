@@ -2,16 +2,29 @@
 __author__ = 'MoroJoJo'
 
 
-from stl_utils import stl_logger as slog
 import os
-import tushare
 import pandas as pd
+
+import tushare
+
+from stl_utils import stl_logger as slog
 
 
 '''
 获取证券股票的基本面信息
 '''
 
+
+# Global Consts
+USING_CSV = 1
+USING_MY_SQL = 2
+USING_MONGO_DB = 3
+STORAGE_MODE = USING_CSV
+
+# TuShare Data Storage Path
+DEFAULT_CSV_PATH_TS = '../../../Data/csv/tushare'
+DEFAULT_MY_SQL_PATH_TS = '../../../Data/mysql/tushare'
+DEFAULT_MONGO_DB_PATH_TS = '../../../Data/mongodb/tushare'
 
 PROFIT_INFO_COUNT = 200       # 获取的分配预案数据条数
 DATA_YEAR = 2016              # 获取数据的年份
@@ -21,7 +34,14 @@ DATA_MONTH = 1                # 获取数据的月份
 RETRY_COUNT = 5               # 调用tushare接口失败重试次数
 RETRY_PAUSE = 0.1             # 调用tushare接口失败重试间隔时间
 
-DEFAULT_DIR_PATH = '../../../Data/origin/tushare/security_fundamental_data'
+
+def get_directory_path():
+    dir_path = ''
+    if STORAGE_MODE == USING_CSV:
+        dir_path = '%s/security_fundamental_data' % DEFAULT_CSV_PATH_TS
+        if not os.path.exists(dir_path):
+            os.makedirs(dir_path)
+    return dir_path
 
 
 def get_all_security_basic_info(refresh=False):
@@ -46,24 +66,46 @@ def get_all_security_basic_info(refresh=False):
     -------
         code_list: 股票代码列表
     '''
-    dir_path = DEFAULT_DIR_PATH
-    if not os.path.exists(dir_path):
-        os.makedirs(dir_path)
-    file_path = '%s/basics.csv' % dir_path
+    if STORAGE_MODE == USING_CSV:
+        return get_all_security_basic_info_csv(refresh)
 
+
+def get_all_security_basic_info_csv(refresh=False):
+    '''
+    获取所有A股所有股票的基本信息存入csv
+
+    调用tushare.get_stock_basics()方法获得所有股票的基本信息，并存入对应的csv文件中
+
+    实测结果：
+    CPU：Intel Core i5-4300U 1.9GHz
+    内存：4G
+    线程数：50
+
+    完整获取所交易历史有数据，耗时287分钟，具体信息如下：
+    获取7类近3年的数据数据耗时：20分钟
+    获取2000年1月1日至今所有历史行情耗时：267分钟
+
+    Parameters
+    ------
+        refresh: 是否刷新
+    return
+    -------
+        code_list: 股票代码列表
+    '''
+    file_path = '%s/basic.csv' % get_directory_path()
     if refresh:
         # 强制从tushare获取数据刷新
-        basic_data = pd.DataFrame()
         try:
             basic_data = tushare.get_stock_basics()
         except Exception as exception:
             slog.StlDmLogger().error('tushare.get_stock_basics() excpetion, args: %s' % exception.args.__str__())
-        if basic_data is None:
-            slog.StlDmLogger().warning('tushare.get_stock_basics() return none')
-            return []
         else:
-            basic_data.to_csv(file_path)
-            return basic_data.index.tolist()
+            if basic_data is None:
+                slog.StlDmLogger().warning('tushare.get_stock_basics() return none')
+                return []
+            else:
+                basic_data.to_csv(file_path)
+                return basic_data.index.tolist()
     else:
         # 不强制刷新
         if os.path.exists(file_path):
@@ -73,17 +115,17 @@ def get_all_security_basic_info(refresh=False):
             return old_data['code'].tolist()
         else:
             # 文件不存在, 从tushare获取数据
-            basic_data = pd.DataFrame()
             try:
                 basic_data = tushare.get_stock_basics()
             except Exception as exception:
                 slog.StlDmLogger().error('tushare.get_stock_basics() excpetion, args: %s' % exception.args.__str__())
-            if basic_data is None:
-                slog.StlDmLogger().warning('tushare.get_stock_basics() return none')
-                return []
             else:
-                basic_data.to_csv(file_path)
-                return basic_data.index.tolist()
+                if basic_data is None:
+                    slog.StlDmLogger().warning('tushare.get_stock_basics() return none')
+                    return []
+                else:
+                    basic_data.to_csv(file_path)
+                    return basic_data.index.tolist()
 
 
 def get_report_data(year, quarter):
@@ -110,22 +152,18 @@ def get_report_data(year, quarter):
     -------
         无
     '''
-    dir_path = DEFAULT_DIR_PATH
-    if not os.path.exists(dir_path):
-        os.makedirs(dir_path)
-    file_path = '%s/report(%dQ%d).csv' % (dir_path, year, quarter)
-
-    tmp_data = pd.DataFrame()
     try:
         slog.StlDmLogger().debug('tushare.get_report_data: year=%d, quarter=%d' % (year, quarter))
-        tmp_data = tushare.get_report_data(year=year, quarter=quarter)
+        df = tushare.get_report_data(year=year, quarter=quarter)
     except Exception as exception:
         slog.StlDmLogger().error('tushare.get_report_data(%d, %d) excpetion, args: %s' % (year, quarter, exception.args.__str__()))
-
-    if tmp_data is None:
-        slog.StlDmLogger().warning('tushare.get_report_data(%d, %d) return none' % (year, quarter))
     else:
-        tmp_data.to_csv(file_path)
+        if df is None:
+            slog.StlDmLogger().warning('tushare.get_report_data(%d, %d) return none' % (year, quarter))
+        else:
+            if STORAGE_MODE == USING_CSV:
+                file_path = '%s/report/%dQ%d.csv' % (get_directory_path(), year, quarter)
+                df.to_csv(file_path)
 
 
 def get_profit_data(year, quarter):
@@ -150,22 +188,18 @@ def get_profit_data(year, quarter):
     -------
         无
     '''
-    dir_path = DEFAULT_DIR_PATH
-    if not os.path.exists(dir_path):
-        os.makedirs(dir_path)
-    file_path = '%s/profit(%dQ%d).csv' % (dir_path, year, quarter)
-
-    tmp_data = pd.DataFrame()
     try:
         slog.StlDmLogger().debug('tushare.get_profit_data: year=%d, quarter=%d' % (year, quarter))
-        tmp_data = tushare.get_profit_data(year=year, quarter=quarter)
+        df = tushare.get_profit_data(year=year, quarter=quarter)
     except Exception as exception:
         slog.StlDmLogger().error('tushare.get_profit_data(%d, %d) excpetion, args: %s' % (year, quarter, exception.args.__str__()))
-
-    if tmp_data is None:
-        slog.StlDmLogger().warning('tushare.get_profit_data(%d, %d) return none' % (year, quarter))
     else:
-        tmp_data.to_csv(file_path)
+        if df is None:
+            slog.StlDmLogger().warning('tushare.get_profit_data(%d, %d) return none' % (year, quarter))
+        else:
+            if STORAGE_MODE == USING_CSV:
+                file_path = '%s/profit/%dQ%d.csv' % (get_directory_path(), year, quarter)
+                df.to_csv(file_path)
 
 
 def get_operation_data(year, quarter):
@@ -189,22 +223,18 @@ def get_operation_data(year, quarter):
     -------
         无
     '''
-    dir_path = DEFAULT_DIR_PATH
-    if not os.path.exists(dir_path):
-        os.makedirs(dir_path)
-    file_path = '%s/operation(%dQ%d).csv' % (dir_path, year, quarter)
-
-    tmp_data = pd.DataFrame()
     try:
         slog.StlDmLogger().debug('tushare.get_operation_data: year=%d, quarter=%d' % (year, quarter))
-        tmp_data = tushare.get_operation_data(year=year, quarter=quarter)
+        df = tushare.get_operation_data(year=year, quarter=quarter)
     except Exception as exception:
         slog.StlDmLogger().error('tushare.get_operation_data(%d, %d) excpetion, args: %s' % (year, quarter, exception.args.__str__()))
-
-    if tmp_data is None:
-        slog.StlDmLogger().warning('tushare.get_operation_data(%d, %d) return none' % (year, quarter))
     else:
-        tmp_data.to_csv(file_path)
+        if df is None:
+            slog.StlDmLogger().warning('tushare.get_operation_data(%d, %d) return none' % (year, quarter))
+        else:
+            if STORAGE_MODE == USING_CSV:
+                file_path = '%s/operation/%dQ%d.csv' % (get_directory_path(), year, quarter)
+                df.to_csv(file_path)
 
 
 def get_growth_data(year, quarter):
@@ -228,22 +258,18 @@ def get_growth_data(year, quarter):
     -------
         无
     '''
-    dir_path = DEFAULT_DIR_PATH
-    if not os.path.exists(dir_path):
-        os.makedirs(dir_path)
-    file_path = '%s/growth(%dQ%d).csv' % (dir_path, year, quarter)
-
-    tmp_data = pd.DataFrame()
     try:
         slog.StlDmLogger().debug('tushare.get_growth_data: year=%d, quarter=%d' % (year, quarter))
-        tmp_data = tushare.get_growth_data(year=year, quarter=quarter)
+        df = tushare.get_growth_data(year=year, quarter=quarter)
     except Exception as exception:
         slog.StlDmLogger().error('tushare.get_growth_data(%d, %d) excpetion, args: %s' % (year, quarter, exception.args.__str__()))
-
-    if tmp_data is None:
-        slog.StlDmLogger().warning('tushare.get_growth_data(%d, %d) return none' % (year, quarter))
     else:
-        tmp_data.to_csv(file_path)
+        if df is None:
+            slog.StlDmLogger().warning('tushare.get_growth_data(%d, %d) return none' % (year, quarter))
+        else:
+            if STORAGE_MODE == USING_CSV:
+                file_path = '%s/growth/%dQ%d.csv' % (get_directory_path(), year, quarter)
+                df.to_csv(file_path)
 
 
 def get_debt_data(year, quarter):
@@ -267,22 +293,18 @@ def get_debt_data(year, quarter):
     -------
         无
     '''
-    dir_path = DEFAULT_DIR_PATH
-    if not os.path.exists(dir_path):
-        os.makedirs(dir_path)
-    file_path = '%s/debt(%dQ%d).csv' % (dir_path, year, quarter)
-
-    tmp_data = pd.DataFrame()
     try:
         slog.StlDmLogger().debug('tushare.get_debtpaying_data: year=%d, quarter=%d' % (year, quarter))
-        tmp_data = tushare.get_debtpaying_data(year=year, quarter=quarter)
+        df = tushare.get_debtpaying_data(year=year, quarter=quarter)
     except Exception as exception:
         slog.StlDmLogger().error('tushare.get_debtpaying_data(%d, %d) excpetion, args: %s' % (year, quarter, exception.args.__str__()))
-
-    if tmp_data is None:
-        slog.StlDmLogger().warning('tushare.get_debtpaying_data(%d, %d) return none' % (year, quarter))
     else:
-        tmp_data.to_csv(file_path)
+        if df is None:
+            slog.StlDmLogger().warning('tushare.get_debtpaying_data(%d, %d) return none' % (year, quarter))
+        else:
+            if STORAGE_MODE == USING_CSV:
+                file_path = '%s/debt_pay/%dQ%d.csv' % (get_directory_path(), year, quarter)
+                df.to_csv(file_path)
 
 
 def get_cashflow_data(year, quarter):
@@ -305,22 +327,18 @@ def get_cashflow_data(year, quarter):
     -------
         无
     '''
-    dir_path = DEFAULT_DIR_PATH
-    if not os.path.exists(dir_path):
-        os.makedirs(dir_path)
-    file_path = '%s/cashflow(%dQ%d).csv' % (dir_path, year, quarter)
-
-    tmp_data = pd.DataFrame()
     try:
         slog.StlDmLogger().debug('tushare.get_cashflow_data: year=%d, quarter=%d' % (year, quarter))
-        tmp_data = tushare.get_cashflow_data(year=year, quarter=quarter)
+        df = tushare.get_cashflow_data(year=year, quarter=quarter)
     except Exception as exception:
         slog.StlDmLogger().error('tushare.get_cashflow_data(%d, %d) excpetion, args: %s' % (year, quarter, exception.args.__str__()))
-
-    if tmp_data is None:
-        slog.StlDmLogger().warning('tushare.get_cashflow_data(%d, %d) return none' % (year, quarter))
     else:
-        tmp_data.to_csv(file_path)
+        if df is None:
+            slog.StlDmLogger().warning('tushare.get_cashflow_data(%d, %d) return none' % (year, quarter))
+        else:
+            if STORAGE_MODE == USING_CSV:
+                file_path = '%s/cashflow/%dQ%d.csv' % (get_directory_path(), year, quarter)
+                df.to_csv(file_path)
 
 
 if __name__ == "__main__":

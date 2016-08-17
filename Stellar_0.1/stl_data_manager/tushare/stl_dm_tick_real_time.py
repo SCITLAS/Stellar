@@ -2,13 +2,13 @@
 __author__ = 'MoroJoJo'
 
 
+import time
+
+import tushare
+
 from stl_utils import stl_logger as slog
 from stl_data_manager.tushare import stl_dm_fundamental as sfund
 from apscheduler.schedulers.background import BackgroundScheduler
-
-import time
-import pandas as pd
-import tushare
 
 
 '''
@@ -87,19 +87,18 @@ def get_real_time_tick_data(code):
         data_dict 或者 None: 异常或没有查到数据返回None, 否则返回由dataframe.to_dict()方法传出的字典对象,
                             key为dataframe的列名, value为字典{0:列值}, 比如: 'name': {0: '朗姿股份'}
     '''
-    tmp_data = pd.DataFrame()
     try:
-        tmp_data = tushare.get_realtime_quotes(code)
+        df = tushare.get_realtime_quotes(code)
     except Exception as exception:
         slog.StlDmLogger().error('tushare.get_real_time_tick_data(%s) excpetion, args: %s' % (code, exception.args.__str__()))
-
-    if tmp_data is None:
-        slog.StlDmLogger().warning('tushare.get_real_time_tick_data(%s) return none' % code)
-        return None
     else:
-        data_dict =tmp_data.to_dict()
-        slog.StlDmLogger().debug('tushare.get_real_time_tick_data(%s) data: %s' % (code, data_dict))
-        return data_dict
+        if df is None:
+            slog.StlDmLogger().warning('tushare.get_real_time_tick_data(%s) return none' % code)
+            return []
+        else:
+            data_dict =df.to_dict()
+            slog.StlDmLogger().debug('tushare.get_real_time_tick_data(%s) data: %s' % (code, data_dict))
+            return data_dict
 
 
 def start_get_real_time_tick(code):
@@ -120,10 +119,11 @@ def start_get_real_time_tick(code):
     try:
         scheduler.add_job(get_real_time_tick_data, args=[code], trigger='cron', second='*/3', hour='*')
         scheduler.start()
-        return (scheduler, code)
     except (Exception):
         scheduler.shutdown()
         return None
+    else:
+        return (scheduler, code)
 
 
 if __name__ == "__main__":

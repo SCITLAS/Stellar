@@ -2,17 +2,28 @@ __author__ = 'MoroJoJo'
 # coding = utf-8
 
 
-from stl_utils import stl_logger as slog
+import os
 
 import tushare
-import pandas as pd
-import os
+
+from stl_utils import stl_logger as slog
 
 
 '''
 获取龙虎榜数据
 '''
 
+
+# Global Consts
+USING_CSV = 1
+USING_MY_SQL = 2
+USING_MONGO_DB = 3
+STORAGE_MODE = USING_CSV
+
+# TuShare Data Storage Path
+DEFAULT_CSV_PATH_TS = '../../../Data/csv/tushare'
+DEFAULT_MY_SQL_PATH_TS = '../../../Data/mysql/tushare'
+DEFAULT_MONGO_DB_PATH_TS = '../../../Data/mongodb/tushare'
 
 PROFIT_INFO_COUNT = 200       # 获取的分配预案数据条数
 DATA_YEAR = 2016              # 获取数据的年份
@@ -22,7 +33,14 @@ DATA_MONTH = 1                # 获取数据的月份
 RETRY_COUNT = 5               # 调用tushare接口失败重试次数
 RETRY_PAUSE = 0.1             # 调用tushare接口失败重试间隔时间
 
-DEFAULT_DIR_PATH = '../../../Data/origin/tushare/security_rank_data'
+
+def get_directory_path():
+    dir_path = ''
+    if STORAGE_MODE == USING_CSV:
+        dir_path = '%s/security_rank_data' % DEFAULT_CSV_PATH_TS
+        if not os.path.exists(dir_path):
+            os.makedirs(dir_path)
+    return dir_path
 
 
 def get_rank_top_data(date):
@@ -47,22 +65,18 @@ def get_rank_top_data(date):
     -------
         无
     '''
-    dir_path = '%s/top_list/' % DEFAULT_DIR_PATH
-    if not os.path.exists(dir_path):
-        os.makedirs(dir_path)
-    file_path = '%s/top_list(%s).csv' % (dir_path, date)
-
-    tmp_data = pd.DataFrame()
     try:
         slog.StlDmLogger().debug('tushare.top_list(%s)' % date)
-        tmp_data = tushare.top_list(date=date, retry_count=RETRY_COUNT, pause=RETRY_PAUSE)
+        df = tushare.top_list(date=date, retry_count=RETRY_COUNT, pause=RETRY_PAUSE)
     except Exception as exception:
         slog.StlDmLogger().error('tushare.top_list(%s) excpetion, args: %s' % (date, exception.args.__str__()))
-
-    if tmp_data is None:
-        slog.StlDmLogger().warning('tushare.top_list(%s) return none' % date)
     else:
-        tmp_data.to_csv(file_path)
+        if df is None:
+            slog.StlDmLogger().warning('tushare.top_list(%s) return none' % date)
+        else:
+            if STORAGE_MODE == USING_CSV:
+                file_path = '%s/top_list/%s.csv' % (get_directory_path(), date)
+                df.to_csv(file_path)
 
 
 def get_cap_top_data(days):
@@ -85,22 +99,18 @@ def get_cap_top_data(days):
     -------
         无
     '''
-    dir_path = '%s/cap_tops' % DEFAULT_DIR_PATH
-    if not os.path.exists(dir_path):
-        os.makedirs(dir_path)
-    file_path = '%s/cap_tops(%d).csv' % (dir_path, days)
-
-    tmp_data = pd.DataFrame()
     try:
         slog.StlDmLogger().debug('tushare.cap_tops(%d)' % days)
-        tmp_data = tushare.cap_tops(days=days, retry_count=RETRY_COUNT, pause=RETRY_PAUSE)
+        df = tushare.cap_tops(days=days, retry_count=RETRY_COUNT, pause=RETRY_PAUSE)
     except Exception as exception:
         slog.StlDmLogger().error('tushare.cap_tops(%d) excpetion, args: %s' % (days, exception.args.__str__()))
-
-    if tmp_data is None:
-        slog.StlDmLogger().warning('tushare.cap_tops(%d) return none' % days)
     else:
-        tmp_data.to_csv(file_path)
+        if df is None:
+            slog.StlDmLogger().warning('tushare.cap_tops(%d) return none' % days)
+        else:
+            if STORAGE_MODE == USING_CSV:
+                file_path = '%s/top_statistics/%ddays.csv' % (get_directory_path(), days)
+                df.to_csv(file_path)
 
 
 def get_broker_tops_data(days):
@@ -122,22 +132,18 @@ def get_broker_tops_data(days):
     -------
         无
     '''
-    dir_path = '%s/broker_tops' % DEFAULT_DIR_PATH
-    if not os.path.exists(dir_path):
-        os.makedirs(dir_path)
-    file_path = '%s/broker_tops(%d).csv' % (dir_path, days)
-
-    tmp_data = pd.DataFrame()
     try:
         slog.StlDmLogger().debug('tushare.broker_tops(%d)' % days)
-        tmp_data = tushare.broker_tops(days=days, retry_count=RETRY_COUNT, pause=RETRY_PAUSE)
+        df = tushare.broker_tops(days=days, retry_count=RETRY_COUNT, pause=RETRY_PAUSE)
     except Exception as exception:
         slog.StlDmLogger().error('tushare.broker_tops(%d) excpetion, args: %s' % (days, exception.args.__str__()))
-
-    if tmp_data is None:
-        slog.StlDmLogger().warning('tushare.broker_tops(%d) return none' % days)
     else:
-        tmp_data.to_csv(file_path)
+        if df is None:
+            slog.StlDmLogger().warning('tushare.broker_tops(%d) return none' % days)
+        else:
+            if STORAGE_MODE == USING_CSV:
+                file_path = '%s/broker/top_%ddays.csv' % (get_directory_path(), days)
+                df.to_csv(file_path)
 
 
 def get_inst_tops_data(days):
@@ -159,22 +165,18 @@ def get_inst_tops_data(days):
     -------
         无
     '''
-    dir_path = '%s/inst_tops' % DEFAULT_DIR_PATH
-    if not os.path.exists(dir_path):
-        os.makedirs(dir_path)
-    file_path = '%s/inst_tops(%d).csv' % (dir_path, days)
-
-    tmp_data = pd.DataFrame()
     try:
         slog.StlDmLogger().debug('tushare.inst_tops(%d)' % days)
-        tmp_data = tushare.inst_tops(days=days, retry_count=RETRY_COUNT, pause=RETRY_PAUSE)
+        df = tushare.inst_tops(days=days, retry_count=RETRY_COUNT, pause=RETRY_PAUSE)
     except Exception as exception:
         slog.StlDmLogger().error('tushare.inst_tops(%d) excpetion, args: %s' % (days, exception.args.__str__()))
-
-    if tmp_data is None:
-        slog.StlDmLogger().warning('tushare.inst_tops(%d) return none' % days)
     else:
-        tmp_data.to_csv(file_path)
+        if df is None:
+            slog.StlDmLogger().warning('tushare.inst_tops(%d) return none' % days)
+        else:
+            if STORAGE_MODE == USING_CSV:
+                file_path = '%s/institution/top_%ddays.csv' % (get_directory_path(), days)
+                df.to_csv(file_path)
 
 
 def get_inst_detail_data():
@@ -195,22 +197,18 @@ def get_inst_detail_data():
     -------
         无
     '''
-    dir_path = DEFAULT_DIR_PATH
-    if not os.path.exists(dir_path):
-        os.makedirs(dir_path)
-    file_path = '%s/inst_detail.csv' % dir_path
-
-    tmp_data = pd.DataFrame()
     try:
         slog.StlDmLogger().debug('tushare.inst_detail()')
-        tmp_data = tushare.inst_detail(retry_count=RETRY_COUNT, pause=RETRY_PAUSE)
+        df = tushare.inst_detail(retry_count=RETRY_COUNT, pause=RETRY_PAUSE)
     except Exception as exception:
         slog.StlDmLogger().error('tushare.inst_detail() excpetion, args: %s' % exception.args.__str__())
-
-    if tmp_data is None:
-        slog.StlDmLogger().warning('tushare.inst_detail() return none')
     else:
-        tmp_data.to_csv(file_path)
+        if df is None:
+            slog.StlDmLogger().warning('tushare.inst_detail() return none')
+        else:
+            if STORAGE_MODE == USING_CSV:
+                file_path = '%s/institution/detail.csv' % get_directory_path()
+                df.to_csv(file_path)
 
 
 if __name__ == '__main__':

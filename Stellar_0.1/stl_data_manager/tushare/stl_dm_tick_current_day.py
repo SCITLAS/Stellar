@@ -2,20 +2,31 @@
 __author__ = 'MoroJoJo'
 
 
+import os
+import time
+
+import tushare
+
 from stl_utils import stl_logger as slog
 from stl_utils import stl_thread_pool as stp
 from stl_data_manager.tushare import stl_dm_fundamental as sfund
-
-import os
-import time
-import pandas as pd
-import tushare
 
 
 '''
 获取证券股票最新一个交易日的分笔(TICK)行情信息
 '''
 
+
+# Global Consts
+USING_CSV = 1
+USING_MY_SQL = 2
+USING_MONGO_DB = 3
+STORAGE_MODE = USING_CSV
+
+# TuShare Data Storage Path
+DEFAULT_CSV_PATH_TS = '../../../Data/csv/tushare'
+DEFAULT_MY_SQL_PATH_TS = '../../../Data/mysql/tushare'
+DEFAULT_MONGO_DB_PATH_TS = '../../../Data/mongodb/tushare'
 
 THREAD_COUNT = 50    # 查询交易数据的并行线程数
 RETRY_COUNT = 5      # 调用tushare接口失败重试次数
@@ -24,7 +35,14 @@ RETRY_PAUSE = 0.1    # 调用tushare接口失败重试间隔时间
 TICK_FORWARD = 0
 TICK_BACKWARD = 1
 
-DEFAULT_DIR_PATH = '../../../Data/origin/tushare/security_trade_data/tick/current_day'
+
+def get_directory_path():
+    dir_path = ''
+    if STORAGE_MODE == USING_CSV:
+        dir_path = '%s/security_trade_data/tick/current_day' % DEFAULT_CSV_PATH_TS
+        if not os.path.exists(dir_path):
+            os.makedirs(dir_path)
+    return dir_path
 
 
 def get_all_security_current_day_tick_data_no_multi_thread():
@@ -100,25 +118,22 @@ def get_current_day_tick_data(code):
     -------
         无
     '''
-    tick_dir_path = DEFAULT_DIR_PATH
-    if not os.path.exists(tick_dir_path):
-        os.makedirs(tick_dir_path)
-
-    file_path = '%s/%s.csv' % (tick_dir_path, code)
-    if not os.path.exists(file_path):
-        try:
-            tmp_data = pd.DataFrame()
-            slog.StlDmLogger().debug('tushare.get_today_ticks: %s' % code)
-            tmp_data = tushare.get_today_ticks(code, retry_count=RETRY_COUNT, pause=RETRY_PAUSE)
-        except Exception as exception:
-            slog.StlDmLogger().error('tushare.get_today_ticks(%s) excpetion, args: %s' % (code, exception.args.__str__()))
-
-        if tmp_data is None:
-            slog.StlDmLogger().warning('tushare.get_today_ticks(%s) return none' % code)
+    if STORAGE_MODE == USING_CSV:
+        file_path = '%s/%s.csv' % (get_directory_path(), code)
+        if not os.path.exists(file_path):
+            try:
+                slog.StlDmLogger().debug('tushare.get_today_ticks: %s' % code)
+                df = tushare.get_today_ticks(code, retry_count=RETRY_COUNT, pause=RETRY_PAUSE)
+            except Exception as exception:
+                slog.StlDmLogger().error('tushare.get_today_ticks(%s) excpetion, args: %s' % (code, exception.args.__str__()))
+            else:
+                if df is None:
+                    slog.StlDmLogger().warning('tushare.get_today_ticks(%s) return none' % code)
+                else:
+                    df.to_csv(file_path)
         else:
-            tmp_data.to_csv(file_path)
-    else:
-        slog.StlDmLogger().debug('%s already exists' % file_path)
+            slog.StlDmLogger().debug('%s already exists' % file_path)
+
 
 
 if __name__ == "__main__":
