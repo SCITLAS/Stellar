@@ -10,10 +10,10 @@ import pandas as pd
 
 import tushare
 
-from stl_utils import stl_logger as slog
-from stl_utils import stl_thread_pool as stp
-from stl_utils import stl_file_utils as sfu
-from stl_data_manager.tushare import stl_dm_fundamental as sfund
+from stl_utils.logger import dm_logger
+from stl_utils import thread_pool as stp
+from stl_utils import file_utils as sfu
+from stl_data_manager.tushare import fundamental as sfund
 
 
 '''
@@ -93,7 +93,7 @@ def get_all_security_recent_data_no_multi_thread():
     -------
         无
     '''
-    slog.StlDmLogger().debug('get_all_security_history_no_multi_thread Begin...')
+    dm_logger().debug('get_all_security_history_no_multi_thread Begin...')
 
     code_list = sfund.get_all_security_basic_info()
     for code in code_list:
@@ -105,7 +105,7 @@ def get_all_security_recent_data_no_multi_thread():
         get_recent_data_of_code(code, '30')   # 获取最近3年所有股票的30分钟线数据
         get_recent_data_of_code(code, '60')   # 获取最近3年所有股票的60分钟线数据
 
-    slog.StlDmLogger().debug('get_all_security_history_no_multi_thread Finish...')
+    dm_logger().debug('get_all_security_history_no_multi_thread Finish...')
 
 
 def get_all_security_recent_data_multi_thread():
@@ -119,7 +119,7 @@ def get_all_security_recent_data_multi_thread():
     -------
         无
     '''
-    slog.StlDmLogger().debug('get_all_security_recent_data_multi_thread (%d threads) Begin...' % THREAD_COUNT)
+    dm_logger().debug('get_all_security_recent_data_multi_thread (%d threads) Begin...' % THREAD_COUNT)
 
     code_list = sfund.get_all_security_basic_info()              # 获取所有股票的基本信息
     get_recent_data_in_code_list_multi_thread(code_list, 'D', THREAD_COUNT)   # 获取最近3年所有股票的日线数据
@@ -130,7 +130,7 @@ def get_all_security_recent_data_multi_thread():
     get_recent_data_in_code_list_multi_thread(code_list, '30', THREAD_COUNT)  # 获取最近3年所有股票的30分钟线数据
     get_recent_data_in_code_list_multi_thread(code_list, '60', THREAD_COUNT)  # 获取最近3年所有股票的60分钟线数据
 
-    slog.StlDmLogger().debug('get_all_security_recent_data_multi_thread (%d threads)Finish...' % THREAD_COUNT)
+    dm_logger().debug('get_all_security_recent_data_multi_thread (%d threads)Finish...' % THREAD_COUNT)
 
 
 def get_recent_data_in_code_list_multi_thread(code_list, type, thread_count):
@@ -150,14 +150,14 @@ def get_recent_data_in_code_list_multi_thread(code_list, type, thread_count):
     for code in code_list:
         req = stp.StlWorkRequest(get_recent_data_of_code, args=[code, type], callback=print_result)
         sh_thread_pool.putRequest(req)
-        slog.StlDmLogger().debug('work request #%s added to sh_thread_pool' % req.requestID)
+        dm_logger().debug('work request #%s added to sh_thread_pool' % req.requestID)
 
     while True:
         try:
             time.sleep(0.5)
             sh_thread_pool.poll()
         except stp.StlNoResultsPendingException:
-            slog.StlDmLogger().debug('No Pending Results')
+            dm_logger().debug('No Pending Results')
             break
     sh_thread_pool.stop()
 
@@ -195,16 +195,16 @@ def get_recent_data_of_code(code, type):
         file_path = get_csv_path(code, type)
         (is_update, start_date_str, end_date_str) = get_input_para(file_path)
         if start_date_str == end_date_str:
-            slog.StlDmLogger().debug('%s data is already up-to-date.' % file_path)
+            dm_logger().debug('%s data is already up-to-date.' % file_path)
         else:
             try:
-                slog.StlDmLogger().debug('tushare.get_hist_data: %s, start=%s, end=%s' % (code, start_date_str, end_date_str))
+                dm_logger().debug('tushare.get_hist_data: %s, start=%s, end=%s' % (code, start_date_str, end_date_str))
                 df = tushare.get_hist_data(code, start=start_date_str, end=end_date_str, ktype=type, retry_count=RETRY_COUNT, pause=RETRY_PAUSE)
             except Exception as exception:
-                slog.StlDmLogger().error('tushare.get_hist_data(%s) excpetion, args: %s' % (code, exception.args.__str__()))
+                dm_logger().error('tushare.get_hist_data(%s) excpetion, args: %s' % (code, exception.args.__str__()))
             else:
                 if df is None:
-                    slog.StlDmLogger().warning('tushare.get_hist_data(%s) return none' % code)
+                    dm_logger().warning('tushare.get_hist_data(%s) return none' % code)
                 else:
                     if is_update:
                         old_data = pd.read_csv(file_path, index_col=0)
@@ -231,7 +231,7 @@ def get_input_para(file_path):
     end_date_str = time.strftime('%Y-%m-%d')
     is_update = False
     if os.path.exists(file_path):
-        slog.StlDmLogger().debug('%s exists, do update task' % file_path)
+        dm_logger().debug('%s exists, do update task' % file_path)
         line = linecache.getline(file_path, 2)
         if line is None:
             is_update = False
@@ -250,7 +250,7 @@ def get_input_para(file_path):
             else:
                 start_date_str = end_date_str
     else:
-        slog.StlDmLogger().debug('%s does not exist, do get all task' % file_path)
+        dm_logger().debug('%s does not exist, do get all task' % file_path)
 
     return (is_update, start_date_str, end_date_str)
 
@@ -274,10 +274,10 @@ def check_data_integrity(data_path):
     try:
         basic_data = tushare.get_stock_basics()
     except Exception as exception:
-        slog.StlDmLogger().error('tushare.get_stock_basics() excpetion, args: %s' % exception.args.__str__())
+        dm_logger().error('tushare.get_stock_basics() excpetion, args: %s' % exception.args.__str__())
     else:
         if basic_data is None:
-            slog.StlDmLogger().warning('tushare.get_stock_basics() return none')
+            dm_logger().warning('tushare.get_stock_basics() return none')
             return []
         else:
             missing_code_list = []

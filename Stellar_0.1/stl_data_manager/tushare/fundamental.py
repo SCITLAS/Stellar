@@ -7,7 +7,7 @@ import pandas as pd
 
 import tushare
 
-from stl_utils import stl_logger as slog
+from stl_utils.logger import dm_logger
 
 
 '''
@@ -98,10 +98,10 @@ def get_all_security_basic_info_csv(refresh=False):
         try:
             basic_data = tushare.get_stock_basics()
         except Exception as exception:
-            slog.StlDmLogger().error('tushare.get_stock_basics() excpetion, args: %s' % exception.args.__str__())
+            dm_logger().error('tushare.get_stock_basics() excpetion, args: %s' % exception.args.__str__())
         else:
             if basic_data is None:
-                slog.StlDmLogger().warning('tushare.get_stock_basics() return none')
+                dm_logger().warning('tushare.get_stock_basics() return none')
                 return []
             else:
                 basic_data.to_csv(file_path)
@@ -118,10 +118,10 @@ def get_all_security_basic_info_csv(refresh=False):
             try:
                 basic_data = tushare.get_stock_basics()
             except Exception as exception:
-                slog.StlDmLogger().error('tushare.get_stock_basics() excpetion, args: %s' % exception.args.__str__())
+                dm_logger().error('tushare.get_stock_basics() excpetion, args: %s' % exception.args.__str__())
             else:
                 if basic_data is None:
-                    slog.StlDmLogger().warning('tushare.get_stock_basics() return none')
+                    dm_logger().warning('tushare.get_stock_basics() return none')
                     return []
                 else:
                     basic_data.to_csv(file_path)
@@ -153,13 +153,13 @@ def get_report_data(year, quarter):
         无
     '''
     try:
-        slog.StlDmLogger().debug('tushare.get_report_data: year=%d, quarter=%d' % (year, quarter))
+        dm_logger().debug('tushare.get_report_data: year=%d, quarter=%d' % (year, quarter))
         df = tushare.get_report_data(year=year, quarter=quarter)
     except Exception as exception:
-        slog.StlDmLogger().error('tushare.get_report_data(%d, %d) excpetion, args: %s' % (year, quarter, exception.args.__str__()))
+        dm_logger().error('tushare.get_report_data(%d, %d) excpetion, args: %s' % (year, quarter, exception.args.__str__()))
     else:
         if df is None:
-            slog.StlDmLogger().warning('tushare.get_report_data(%d, %d) return none' % (year, quarter))
+            dm_logger().warning('tushare.get_report_data(%d, %d) return none' % (year, quarter))
         else:
             if STORAGE_MODE == USING_CSV:
                 file_path = '%s/report/%dQ%d.csv' % (get_directory_path(), year, quarter)
@@ -189,13 +189,13 @@ def get_profit_data(year, quarter):
         无
     '''
     try:
-        slog.StlDmLogger().debug('tushare.get_profit_data: year=%d, quarter=%d' % (year, quarter))
+        dm_logger().debug('tushare.get_profit_data: year=%d, quarter=%d' % (year, quarter))
         df = tushare.get_profit_data(year=year, quarter=quarter)
     except Exception as exception:
-        slog.StlDmLogger().error('tushare.get_profit_data(%d, %d) excpetion, args: %s' % (year, quarter, exception.args.__str__()))
+        dm_logger().error('tushare.get_profit_data(%d, %d) excpetion, args: %s' % (year, quarter, exception.args.__str__()))
     else:
         if df is None:
-            slog.StlDmLogger().warning('tushare.get_profit_data(%d, %d) return none' % (year, quarter))
+            dm_logger().warning('tushare.get_profit_data(%d, %d) return none' % (year, quarter))
         else:
             if STORAGE_MODE == USING_CSV:
                 file_path = '%s/profit/%dQ%d.csv' % (get_directory_path(), year, quarter)
@@ -224,13 +224,13 @@ def get_operation_data(year, quarter):
         无
     '''
     try:
-        slog.StlDmLogger().debug('tushare.get_operation_data: year=%d, quarter=%d' % (year, quarter))
+        dm_logger().debug('tushare.get_operation_data: year=%d, quarter=%d' % (year, quarter))
         df = tushare.get_operation_data(year=year, quarter=quarter)
     except Exception as exception:
-        slog.StlDmLogger().error('tushare.get_operation_data(%d, %d) excpetion, args: %s' % (year, quarter, exception.args.__str__()))
+        dm_logger().error('tushare.get_operation_data(%d, %d) excpetion, args: %s' % (year, quarter, exception.args.__str__()))
     else:
         if df is None:
-            slog.StlDmLogger().warning('tushare.get_operation_data(%d, %d) return none' % (year, quarter))
+            dm_logger().warning('tushare.get_operation_data(%d, %d) return none' % (year, quarter))
         else:
             if STORAGE_MODE == USING_CSV:
                 file_path = '%s/operation/%dQ%d.csv' % (get_directory_path(), year, quarter)
@@ -259,13 +259,13 @@ def get_growth_data(year, quarter):
         无
     '''
     try:
-        slog.StlDmLogger().debug('tushare.get_growth_data: year=%d, quarter=%d' % (year, quarter))
+        dm_logger().debug('tushare.get_growth_data: year=%d, quarter=%d' % (year, quarter))
         df = tushare.get_growth_data(year=year, quarter=quarter)
     except Exception as exception:
-        slog.StlDmLogger().error('tushare.get_growth_data(%d, %d) excpetion, args: %s' % (year, quarter, exception.args.__str__()))
+        dm_logger().error('tushare.get_growth_data(%d, %d) excpetion, args: %s' % (year, quarter, exception.args.__str__()))
     else:
         if df is None:
-            slog.StlDmLogger().warning('tushare.get_growth_data(%d, %d) return none' % (year, quarter))
+            dm_logger().warning('tushare.get_growth_data(%d, %d) return none' % (year, quarter))
         else:
             if STORAGE_MODE == USING_CSV:
                 file_path = '%s/growth/%dQ%d.csv' % (get_directory_path(), year, quarter)
@@ -294,13 +294,13 @@ def get_debt_data(year, quarter):
         无
     '''
     try:
-        slog.StlDmLogger().debug('tushare.get_debtpaying_data: year=%d, quarter=%d' % (year, quarter))
+        dm_logger().debug('tushare.get_debtpaying_data: year=%d, quarter=%d' % (year, quarter))
         df = tushare.get_debtpaying_data(year=year, quarter=quarter)
     except Exception as exception:
-        slog.StlDmLogger().error('tushare.get_debtpaying_data(%d, %d) excpetion, args: %s' % (year, quarter, exception.args.__str__()))
+        dm_logger().error('tushare.get_debtpaying_data(%d, %d) excpetion, args: %s' % (year, quarter, exception.args.__str__()))
     else:
         if df is None:
-            slog.StlDmLogger().warning('tushare.get_debtpaying_data(%d, %d) return none' % (year, quarter))
+            dm_logger().warning('tushare.get_debtpaying_data(%d, %d) return none' % (year, quarter))
         else:
             if STORAGE_MODE == USING_CSV:
                 file_path = '%s/debt_pay/%dQ%d.csv' % (get_directory_path(), year, quarter)
@@ -328,13 +328,13 @@ def get_cashflow_data(year, quarter):
         无
     '''
     try:
-        slog.StlDmLogger().debug('tushare.get_cashflow_data: year=%d, quarter=%d' % (year, quarter))
+        dm_logger().debug('tushare.get_cashflow_data: year=%d, quarter=%d' % (year, quarter))
         df = tushare.get_cashflow_data(year=year, quarter=quarter)
     except Exception as exception:
-        slog.StlDmLogger().error('tushare.get_cashflow_data(%d, %d) excpetion, args: %s' % (year, quarter, exception.args.__str__()))
+        dm_logger().error('tushare.get_cashflow_data(%d, %d) excpetion, args: %s' % (year, quarter, exception.args.__str__()))
     else:
         if df is None:
-            slog.StlDmLogger().warning('tushare.get_cashflow_data(%d, %d) return none' % (year, quarter))
+            dm_logger().warning('tushare.get_cashflow_data(%d, %d) return none' % (year, quarter))
         else:
             if STORAGE_MODE == USING_CSV:
                 file_path = '%s/cashflow/%dQ%d.csv' % (get_directory_path(), year, quarter)

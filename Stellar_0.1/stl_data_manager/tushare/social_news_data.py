@@ -6,7 +6,7 @@ import os
 
 import tushare
 
-from stl_utils import stl_logger as slog
+from stl_utils.logger import dm_logger
 
 
 '''
@@ -57,13 +57,13 @@ def get_news_data(count):
         无
     '''
     try:
-        slog.StlDmLogger().debug('tushare.get_latest_news(%d)' % count)
+        dm_logger().debug('tushare.get_latest_news(%d)' % count)
         df = tushare.get_latest_news(top=count, show_content=False)
     except Exception as exception:
-        slog.StlDmLogger().error('tushare.get_deposit_rate(%d) excpetion, args: %s' % (count, exception.args.__str__()))
+        dm_logger().error('tushare.get_deposit_rate(%d) excpetion, args: %s' % (count, exception.args.__str__()))
     else:
         if df is None:
-            slog.StlDmLogger().warning('tushare.get_deposit_rate(%d) return none' % count)
+            dm_logger().warning('tushare.get_deposit_rate(%d) return none' % count)
         else:
             if STORAGE_MODE == USING_CSV:
                 file_path = '%s/news/latest_%d.csv' % (get_directory_path(), count)
@@ -88,13 +88,13 @@ def get_notice_data(code, date):
         无
     '''
     try:
-        slog.StlDmLogger().debug('tushare.get_notices(%s, %s)' % (code, date))
+        dm_logger().debug('tushare.get_notices(%s, %s)' % (code, date))
         df = tushare.get_notices(code=code, date=date)
     except Exception as exception:
-        slog.StlDmLogger().error('tushare.get_notices(%s, %s) excpetion, args: %s' % (code, date, exception.args.__str__()))
+        dm_logger().error('tushare.get_notices(%s, %s) excpetion, args: %s' % (code, date, exception.args.__str__()))
     else:
         if df is None:
-            slog.StlDmLogger().warning('tushare.get_notices(%s, %s) return none' % (code, date))
+            dm_logger().warning('tushare.get_notices(%s, %s) return none' % (code, date))
         else:
             if STORAGE_MODE == USING_CSV:
                 file_path = '%s/notice/%s-%s.csv' % (get_directory_path(), code, date)
@@ -118,13 +118,13 @@ def get_sina_guba_data():
         无
     '''
     try:
-        slog.StlDmLogger().debug('tushare.guba_sina(%s, %s)')
+        dm_logger().debug('tushare.guba_sina(%s, %s)')
         df = tushare.guba_sina(show_content=False)
     except Exception as exception:
-        slog.StlDmLogger().error('tushare.guba_sina() excpetion, args: %s' % exception.args.__str__())
+        dm_logger().error('tushare.guba_sina() excpetion, args: %s' % exception.args.__str__())
     else:
         if df is None:
-            slog.StlDmLogger().warning('tushare.guba_sina() return none')
+            dm_logger().warning('tushare.guba_sina() return none')
         else:
             if STORAGE_MODE == USING_CSV:
                 file_path = '%s/sina_guba/data.csv' % get_directory_path()

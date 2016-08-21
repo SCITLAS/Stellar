@@ -6,8 +6,8 @@ import time
 
 import tushare
 
-from stl_utils import stl_logger as slog
-from stl_data_manager.tushare import stl_dm_fundamental as sfund
+from stl_utils.logger import dm_logger
+from stl_data_manager.tushare import fundamental as sfund
 from apscheduler.schedulers.background import BackgroundScheduler
 
 
@@ -34,14 +34,14 @@ def get_all_security_real_time_tick_data_no_multi_thread():
     -------
         无
     '''
-    slog.StlDmLogger().debug('get_all_security_real_time_tick_data_no_multi_thread Begin...')
+    dm_logger().debug('get_all_security_real_time_tick_data_no_multi_thread Begin...')
 
     code_list = sfund.get_all_security_basic_info()              # 获取所有股票的基本信息
     for code in code_list:
-        slog.StlDmLogger().debug('get_realtime_tick_data, code: %s, tick_date: %s' % code)
+        dm_logger().debug('get_realtime_tick_data, code: %s, tick_date: %s' % code)
         get_real_time_tick_data(code)
 
-    slog.StlDmLogger().debug('get_all_security_real_time_tick_data_no_multi_thread Finish...')
+    dm_logger().debug('get_all_security_real_time_tick_data_no_multi_thread Finish...')
 
 
 def get_real_time_tick_data(code):
@@ -90,14 +90,14 @@ def get_real_time_tick_data(code):
     try:
         df = tushare.get_realtime_quotes(code)
     except Exception as exception:
-        slog.StlDmLogger().error('tushare.get_real_time_tick_data(%s) excpetion, args: %s' % (code, exception.args.__str__()))
+        dm_logger().error('tushare.get_real_time_tick_data(%s) excpetion, args: %s' % (code, exception.args.__str__()))
     else:
         if df is None:
-            slog.StlDmLogger().warning('tushare.get_real_time_tick_data(%s) return none' % code)
+            dm_logger().warning('tushare.get_real_time_tick_data(%s) return none' % code)
             return []
         else:
             data_dict =df.to_dict()
-            slog.StlDmLogger().debug('tushare.get_real_time_tick_data(%s) data: %s' % (code, data_dict))
+            dm_logger().debug('tushare.get_real_time_tick_data(%s) data: %s' % (code, data_dict))
             return data_dict
 
 
@@ -127,8 +127,8 @@ def start_get_real_time_tick(code):
 
 
 if __name__ == "__main__":
-    slog.StlDmLogger().debug('start get real time tick data of 002612')
+    dm_logger().debug('start get real time tick data of 002612')
     (scheduler, code) = start_get_real_time_tick('002612')
     time.sleep(20)  # 经测试发现, 网速一般的环境下, 3秒调一次get_realtime_tick_data(), 20秒能查6到7次
-    slog.StlDmLogger().debug('finish get real time tick data of 002612')
+    dm_logger().debug('finish get real time tick data of 002612')
     scheduler.shutdown()

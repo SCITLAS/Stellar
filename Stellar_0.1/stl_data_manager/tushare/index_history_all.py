@@ -10,7 +10,7 @@ import pandas as pd
 
 import tushare
 
-from stl_utils import stl_logger as slog
+from stl_utils.logger import dm_logger
 
 
 '''
@@ -102,18 +102,18 @@ def get_index_data(code, start_date):
         file_path = '%s/%s.csv' % (get_directory_path(), code)
         (is_update, start_date_str, end_date_str) = get_input_para(file_path)
         if start_date_str == end_date_str:
-            slog.StlDmLogger().debug('%s data is already up-to-date.' % file_path)
+            dm_logger().debug('%s data is already up-to-date.' % file_path)
         else:
             try:
                 if start_date_str == '2000-01-01':
                     start_date_str = start_date
-                slog.StlDmLogger().debug('tushare.get_h_data: %s, start=%s, end=%s' % (code, start_date_str, end_date_str))
+                dm_logger().debug('tushare.get_h_data: %s, start=%s, end=%s' % (code, start_date_str, end_date_str))
                 df = tushare.get_h_data(code, start=start_date_str, end=end_date_str, index=True, retry_count=RETRY_COUNT, pause=RETRY_PAUSE, drop_factor=DROP_FACTOR)
             except Exception as exception:
-                slog.StlDmLogger().error('tushare.get_hist_data(%s) excpetion, args: %s' % (code, exception.args.__str__()))
+                dm_logger().error('tushare.get_hist_data(%s) excpetion, args: %s' % (code, exception.args.__str__()))
             else:
                 if df is None:
-                    slog.StlDmLogger().warning('tushare.get_hist_data(%s) return none' % code)
+                    dm_logger().warning('tushare.get_hist_data(%s) return none' % code)
                 else:
                     if is_update:
                         old_data = pd.read_csv(file_path, index_col=0)
@@ -140,7 +140,7 @@ def get_input_para(file_path):
     end_date_str = time.strftime('%Y-%m-%d')
     is_update = False
     if os.path.exists(file_path):
-        slog.StlDmLogger().debug('%s exists, do update task' % file_path)
+        dm_logger().debug('%s exists, do update task' % file_path)
         line = linecache.getline(file_path, 2)
         if line is None:
             is_update = False
@@ -159,7 +159,7 @@ def get_input_para(file_path):
             else:
                 start_date_str = end_date_str
     else:
-        slog.StlDmLogger().debug('%s does not exist, do get all task' % file_path)
+        dm_logger().debug('%s does not exist, do get all task' % file_path)
 
     return (is_update, start_date_str, end_date_str)
 

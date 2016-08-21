@@ -7,7 +7,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 
 import tushare
 
-from stl_utils import stl_logger as slog
+from stl_utils.logger import dm_logger
 
 
 '''
@@ -51,16 +51,16 @@ def get_index_real_time_data():
                                      23: '创业板R'}
     '''
     try:
-        tmp_data = tushare.get_index()
+        df = tushare.get_index()
     except Exception as exception:
-        slog.StlDmLogger().error('tushare.get_index() excpetion, args: %s' % exception.args.__str__())
+        dm_logger().error('tushare.get_index() excpetion, args: %s' % exception.args.__str__())
     else:
-        if tmp_data is None:
-            slog.StlDmLogger().warning('tushare.get_index() return none')
+        if df is None:
+            dm_logger().warning('tushare.get_index() return none')
             return None
         else:
-            data_dict =tmp_data.to_dict()
-            slog.StlDmLogger().debug('tushare.get_index() data: %s' % data_dict)
+            data_dict = df.to_dict()
+            dm_logger().debug('tushare.get_index() data: %s' % data_dict)
             return data_dict
 
 
@@ -88,9 +88,9 @@ def start_get_index_real_time_data():
         return scheduler
 
 if __name__ == "__main__":
-    slog.StlDmLogger().debug('start get real time index data')
+    dm_logger().debug('start get real time index data')
     scheduler = start_get_index_real_time_data()
     time.sleep(20)  # 经测试发现, 网速一般的环境下, get_index_real_time_data(), 20秒能查6到7次
-    slog.StlDmLogger().debug('finish get real time index data')
+    dm_logger().debug('finish get real time index data')
     scheduler.shutdown()
 

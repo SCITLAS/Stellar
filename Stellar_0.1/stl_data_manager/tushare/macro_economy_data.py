@@ -6,7 +6,7 @@ import os
 
 import tushare
 
-from stl_utils import stl_logger as slog
+from stl_utils.logger import dm_logger
 
 
 '''
@@ -51,13 +51,13 @@ def get_deposit_rate_data():
         无
     '''
     try:
-        slog.StlDmLogger().debug('tushare.get_deposit_rate()')
+        dm_logger().debug('tushare.get_deposit_rate()')
         df = tushare.get_deposit_rate()
     except Exception as exception:
-        slog.StlDmLogger().error('tushare.get_deposit_rate() excpetion, args: %s' % exception.args.__str__())
+        dm_logger().error('tushare.get_deposit_rate() excpetion, args: %s' % exception.args.__str__())
     else:
         if df is None:
-            slog.StlDmLogger().warning('tushare.get_deposit_rate() return none')
+            dm_logger().warning('tushare.get_deposit_rate() return none')
         else:
             if STORAGE_MODE == USING_CSV:
                 file_path = '%s/deposit_rate.csv' % get_directory_path()
@@ -80,13 +80,13 @@ def get_loan_rate_data():
         无
     '''
     try:
-        slog.StlDmLogger().debug('tushare.get_loan_rate()')
+        dm_logger().debug('tushare.get_loan_rate()')
         df = tushare.get_loan_rate()
     except Exception as exception:
-        slog.StlDmLogger().error('tushare.get_loan_rate() excpetion, args: %s' % exception.args.__str__())
+        dm_logger().error('tushare.get_loan_rate() excpetion, args: %s' % exception.args.__str__())
     else:
         if df is None:
-            slog.StlDmLogger().warning('tushare.get_loan_rate() return none')
+            dm_logger().warning('tushare.get_loan_rate() return none')
         else:
             if STORAGE_MODE == USING_CSV:
                 file_path = '%s/loan_rate.csv' % get_directory_path()
@@ -110,13 +110,13 @@ def get_rrr_data():
         无
     '''
     try:
-        slog.StlDmLogger().debug('tushare.get_rrr()')
+        dm_logger().debug('tushare.get_rrr()')
         df = tushare.get_rrr()
     except Exception as exception:
-        slog.StlDmLogger().error('tushare.get_rrr() excpetion, args: %s' % exception.args.__str__())
+        dm_logger().error('tushare.get_rrr() excpetion, args: %s' % exception.args.__str__())
     else:
         if df is None:
-            slog.StlDmLogger().warning('tushare.get_rrr() return none')
+            dm_logger().warning('tushare.get_rrr() return none')
         else:
             if STORAGE_MODE == USING_CSV:
                 file_path = '%s/rrr.csv' % get_directory_path()
@@ -153,13 +153,13 @@ def get_money_supply_data():
         无
     '''
     try:
-        slog.StlDmLogger().debug('tushare.get_money_supply()')
+        dm_logger().debug('tushare.get_money_supply()')
         df = tushare.get_money_supply()
     except Exception as exception:
-        slog.StlDmLogger().error('tushare.get_money_supply() excpetion, args: %s' % exception.args.__str__())
+        dm_logger().error('tushare.get_money_supply() excpetion, args: %s' % exception.args.__str__())
     else:
         if df is None:
-            slog.StlDmLogger().warning('tushare.get_money_supply() return none')
+            dm_logger().warning('tushare.get_money_supply() return none')
         else:
             if STORAGE_MODE == USING_CSV:
                 file_path = '%s/money_supply.csv' % get_directory_path()
@@ -188,13 +188,13 @@ def get_money_supply_bal_data():
         无
     '''
     try:
-        slog.StlDmLogger().debug('tushare.get_money_supply_bal()')
+        dm_logger().debug('tushare.get_money_supply_bal()')
         df = tushare.get_money_supply_bal()
     except Exception as exception:
-        slog.StlDmLogger().error('tushare.get_money_supply_bal() excpetion, args: %s' % exception.args.__str__())
+        dm_logger().error('tushare.get_money_supply_bal() excpetion, args: %s' % exception.args.__str__())
     else:
         if df is None:
-            slog.StlDmLogger().warning('tushare.get_money_supply_bal() return none')
+            dm_logger().warning('tushare.get_money_supply_bal() return none')
         else:
             if STORAGE_MODE == USING_CSV:
                 file_path = '%s/money_supply_bal.csv' % get_directory_path()
@@ -225,13 +225,13 @@ def get_gdp_year_data():
         无
     '''
     try:
-        slog.StlDmLogger().debug('tushare.get_gdp_year()')
+        dm_logger().debug('tushare.get_gdp_year()')
         df = tushare.get_gdp_year()
     except Exception as exception:
-        slog.StlDmLogger().error('tushare.get_gdp_year() excpetion, args: %s' % exception.args.__str__())
+        dm_logger().error('tushare.get_gdp_year() excpetion, args: %s' % exception.args.__str__())
     else:
         if df is None:
-            slog.StlDmLogger().warning('tushare.get_gdp_year() return none')
+            dm_logger().warning('tushare.get_gdp_year() return none')
         else:
             if STORAGE_MODE == USING_CSV:
                 file_path = '%s/gdp_year.csv' % get_directory_path()
@@ -260,13 +260,13 @@ def get_gdp_quarter_data():
         无
     '''
     try:
-        slog.StlDmLogger().debug('tushare.get_gdp_quarter()')
+        dm_logger().debug('tushare.get_gdp_quarter()')
         df = tushare.get_gdp_quarter()
     except Exception as exception:
-        slog.StlDmLogger().error('tushare.get_gdp_quarter() excpetion, args: %s' % exception.args.__str__())
+        dm_logger().error('tushare.get_gdp_quarter() excpetion, args: %s' % exception.args.__str__())
     else:
         if df is None:
-            slog.StlDmLogger().warning('tushare.get_gdp_quarter() return none')
+            dm_logger().warning('tushare.get_gdp_quarter() return none')
         else:
             if STORAGE_MODE == USING_CSV:
                 file_path = '%s/gdp_quarter.csv' % get_directory_path()
@@ -293,13 +293,13 @@ def get_gdp_for_data():
         无
     '''
     try:
-        slog.StlDmLogger().debug('tushare.get_gdp_for()')
+        dm_logger().debug('tushare.get_gdp_for()')
         df = tushare.get_gdp_for()
     except Exception as exception:
-        slog.StlDmLogger().error('tushare.get_gdp_for() excpetion, args: %s' % exception.args.__str__())
+        dm_logger().error('tushare.get_gdp_for() excpetion, args: %s' % exception.args.__str__())
     else:
         if df is None:
-            slog.StlDmLogger().warning('tushare.get_gdp_for() return none')
+            dm_logger().warning('tushare.get_gdp_for() return none')
         else:
             if STORAGE_MODE == USING_CSV:
                 file_path = '%s/gdp_for.csv' % get_directory_path()
@@ -325,13 +325,13 @@ def get_gdp_pull_data():
         无
     '''
     try:
-        slog.StlDmLogger().debug('tushare.get_gdp_pull()')
+        dm_logger().debug('tushare.get_gdp_pull()')
         df = tushare.get_gdp_pull()
     except Exception as exception:
-        slog.StlDmLogger().error('tushare.get_gdp_pull() excpetion, args: %s' % exception.args.__str__())
+        dm_logger().error('tushare.get_gdp_pull() excpetion, args: %s' % exception.args.__str__())
     else:
         if df is None:
-            slog.StlDmLogger().warning('tushare.get_gdp_pull() return none')
+            dm_logger().warning('tushare.get_gdp_pull() return none')
         else:
             if STORAGE_MODE == USING_CSV:
                 file_path = '%s/gdp_pull.csv' % get_directory_path()
@@ -357,13 +357,13 @@ def get_gdp_contribution_data():
         无
     '''
     try:
-        slog.StlDmLogger().debug('tushare.get_gdp_contrib()')
+        dm_logger().debug('tushare.get_gdp_contrib()')
         df = tushare.get_gdp_contrib()
     except Exception as exception:
-        slog.StlDmLogger().error('tushare.get_gdp_contrib() excpetion, args: %s' % exception.args.__str__())
+        dm_logger().error('tushare.get_gdp_contrib() excpetion, args: %s' % exception.args.__str__())
     else:
         if df is None:
-            slog.StlDmLogger().warning('tushare.get_gdp_contrib() return none')
+            dm_logger().warning('tushare.get_gdp_contrib() return none')
         else:
             if STORAGE_MODE == USING_CSV:
                 file_path = '%s/gdp_contribution.csv' % get_directory_path()
@@ -385,13 +385,13 @@ def get_gdp_cpi_data():
         无
     '''
     try:
-        slog.StlDmLogger().debug('tushare.get_cpi()')
+        dm_logger().debug('tushare.get_cpi()')
         df = tushare.get_cpi()
     except Exception as exception:
-        slog.StlDmLogger().error('tushare.get_cpi() excpetion, args: %s' % exception.args.__str__())
+        dm_logger().error('tushare.get_cpi() excpetion, args: %s' % exception.args.__str__())
     else:
         if df is None:
-            slog.StlDmLogger().warning('tushare.get_cpi() return none')
+            dm_logger().warning('tushare.get_cpi() return none')
         else:
             if STORAGE_MODE == USING_CSV:
                 file_path = '%s/cpi.csv' % get_directory_path()
@@ -422,13 +422,13 @@ def get_gdp_ppi_data():
         无
     '''
     try:
-        slog.StlDmLogger().debug('tushare.get_ppi()')
+        dm_logger().debug('tushare.get_ppi()')
         df = tushare.get_ppi()
     except Exception as exception:
-        slog.StlDmLogger().error('tushare.get_ppi() excpetion, args: %s' % exception.args.__str__())
+        dm_logger().error('tushare.get_ppi() excpetion, args: %s' % exception.args.__str__())
     else:
         if df is None:
-            slog.StlDmLogger().warning('tushare.get_ppi() return none')
+            dm_logger().warning('tushare.get_ppi() return none')
         else:
             if STORAGE_MODE == USING_CSV:
                 file_path = '%s/ppi.csv' % get_directory_path()
