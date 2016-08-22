@@ -4,6 +4,7 @@ __author__ = 'MoroJoJo'
 
 import logging
 import sys
+import os
 
 from logbook import Logger, StreamHandler
 from logbook.more import ColorizedStderrHandler
@@ -13,6 +14,9 @@ from logbook.more import ColorizedStderrHandler
 日志工具模块
 '''
 
+
+DATA_MGR_LOG = 0
+TEST_BACK_LOG = 1
 
 DM_LOG_FILE = '../../logs/data_manager_log.log'
 LOG_LEVEL = logging.DEBUG
@@ -44,30 +48,20 @@ LOG_LEVEL = logging.DEBUG
 #     return logger
 
 
-# def user_log_formatter(record, handler):
-#     return "{level}: {msg}".format(
-#         level=record.level_name,
-#         msg=record.message,
-#     )
+
+def user_log_formatter(record, handler):
+    return "{level}: {msg}".format(
+        level=record.level_name,
+        msg=record.message,
+    )
 
 
-# handler = StreamHandler(sys.stdout)
 handler = ColorizedStderrHandler()
 # handler.formatter = user_log_formatter
 handler.push_application()
-
-StreamHandler(sys.stdout).push_application()
-dm_log = Logger(name='dm_log')
+dm_log = Logger(name='DATA_MGR')
 
 
-
-def user_print(*args, **kwargs):
-    sep = kwargs.get("sep", " ")
-    end = kwargs.get("end", "")
-
-    message = sep.join(map(str, args)) + end
-
-    dm_log.info(message)
 
 
 if __name__ == '__main__':
