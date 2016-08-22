@@ -6,7 +6,7 @@ import os
 
 import tushare
 
-from stl_utils.logger import dm_logger
+from stl_utils.logger import dm_log
 
 
 '''
@@ -64,13 +64,13 @@ def get_profit_data(year, top):
         无
     '''
     try:
-        dm_logger().debug('tushare.profit_data: year=%s, count=%d' % (year, PROFIT_INFO_COUNT))
+        dm_log.debug('tushare.profit_data: year=%s, count=%d' % (year, PROFIT_INFO_COUNT))
         df = tushare.profit_data(year=year, top=1, retry_count=RETRY_COUNT, pause=RETRY_PAUSE)
     except Exception as exception:
-        dm_logger().error('tushare.profit_data(%s) excpetion, args: %s' % (year, exception.args.__str__()))
+        dm_log.error('tushare.profit_data(%s) excpetion, args: %s' % (year, exception.args.__str__()))
     else:
         if df is None:
-            dm_logger().warning('tushare.profit_data(%s) return none' % year)
+            dm_log.warning('tushare.profit_data(%s) return none' % year)
         else:
             if STORAGE_MODE == USING_CSV:
                 file_path = '%s/profit_%d.csv' % (get_directory_path(), year)
@@ -97,13 +97,13 @@ def get_forcast_data(year, quarter):
         无
     '''
     try:
-        dm_logger().debug('tushare.forecast_data: year=%d, quarter=%d' % (year, quarter))
+        dm_log.debug('tushare.forecast_data: year=%d, quarter=%d' % (year, quarter))
         df = tushare.forecast_data(year=year, quarter=quarter)
     except Exception as exception:
-        dm_logger().error('tushare.forecast_data(%d, %d) excpetion, args: %s' % (year, quarter, exception.args.__str__()))
+        dm_log.error('tushare.forecast_data(%d, %d) excpetion, args: %s' % (year, quarter, exception.args.__str__()))
     else:
         if df is None:
-            dm_logger().warning('tushare.forecast_data(%d, %d) return none' % (year, quarter))
+            dm_log.warning('tushare.forecast_data(%d, %d) return none' % (year, quarter))
         else:
             if STORAGE_MODE == USING_CSV:
                 file_path = '%s/forecast_%dQ%d.csv' % (get_directory_path(), year, quarter)
@@ -129,13 +129,13 @@ def get_restricted_stock_data(year, month):
         无
     '''
     try:
-        dm_logger().debug('tushare.xsg_data: year=%d, month=%d' % (year, month))
+        dm_log.debug('tushare.xsg_data: year=%d, month=%d' % (year, month))
         df = tushare.xsg_data(year=year, month=month, retry_count=RETRY_COUNT, pause=RETRY_PAUSE)
     except Exception as exception:
-        dm_logger().error('tushare.xsg_data(%d, %d) excpetion, args: %s' % (year, month, exception.args.__str__()))
+        dm_log.error('tushare.xsg_data(%d, %d) excpetion, args: %s' % (year, month, exception.args.__str__()))
     else:
         if df is None:
-            dm_logger().warning('tushare.xsg_data(%d, %d) return none' % (year, month))
+            dm_log.warning('tushare.xsg_data(%d, %d) return none' % (year, month))
         else:
             if STORAGE_MODE == USING_CSV:
                 file_path = '%s/restricted_share_%d_%d.csv' % (get_directory_path(), year, month)
@@ -165,13 +165,13 @@ def get_fund_holding_data(year, quarter):
         无
     '''
     try:
-        dm_logger().debug('tushare.fund_holdings: year=%d, quarter=%d' % (year, quarter))
+        dm_log.debug('tushare.fund_holdings: year=%d, quarter=%d' % (year, quarter))
         df = tushare.fund_holdings(year=year, quarter=quarter, retry_count=RETRY_COUNT, pause=RETRY_PAUSE)
     except Exception as exception:
-        dm_logger().error('tushare.fund_holdings(%d, %d) excpetion, args: %s' % (year, quarter, exception.args.__str__()))
+        dm_log.error('tushare.fund_holdings(%d, %d) excpetion, args: %s' % (year, quarter, exception.args.__str__()))
     else:
         if df is None:
-            dm_logger().warning('tushare.get_fund_holding_data(%d, %d) return none' % (year, quarter))
+            dm_log.warning('tushare.get_fund_holding_data(%d, %d) return none' % (year, quarter))
         else:
             if STORAGE_MODE == USING_CSV:
                 file_path = '%s/fund_holding_%dQ%d.csv' % (get_directory_path(), year, quarter)
@@ -202,13 +202,13 @@ def get_new_security_data():
         无
     '''
     try:
-        dm_logger().debug('tushare.new_stocks')
+        dm_log.debug('tushare.new_stocks')
         df = tushare.new_stocks(retry_count=RETRY_COUNT, pause=RETRY_PAUSE)
     except Exception as exception:
-        dm_logger().error('tushare.new_stocks excpetion, args: %s' % exception.args.__str__())
+        dm_log.error('tushare.new_stocks excpetion, args: %s' % exception.args.__str__())
     else:
         if df is None:
-            dm_logger().warning('tushare.new_stocks return none')
+            dm_log.warning('tushare.new_stocks return none')
         else:
             if STORAGE_MODE == USING_CSV:
                 file_path = '%s/new_security.csv' % get_directory_path()
@@ -236,13 +236,13 @@ def get_margin_trade_data_sh(start_date, end_date):
         无
     '''
     try:
-        dm_logger().debug('tushare.sh_margins, start=%s, end=%s' % (start_date, end_date))
+        dm_log.debug('tushare.sh_margins, start=%s, end=%s' % (start_date, end_date))
         df = tushare.sh_margins(start=start_date, end=end_date, retry_count=RETRY_COUNT, pause=RETRY_PAUSE)
     except Exception as exception:
-        dm_logger().error('tushare.sh_margins, start=%s, end=%s, excpetion, args: %s' % (start_date, end_date, exception.args.__str__()))
+        dm_log.error('tushare.sh_margins, start=%s, end=%s, excpetion, args: %s' % (start_date, end_date, exception.args.__str__()))
     else:
         if df is None:
-            dm_logger().warning('tushare.sh_margins, start=%s, end=%s return none' % (start_date, end_date))
+            dm_log.warning('tushare.sh_margins, start=%s, end=%s return none' % (start_date, end_date))
         else:
             if STORAGE_MODE == USING_CSV:
                 file_path = '%s/sh_margin_%s_%s.csv' % (get_directory_path(), start_date, end_date)
@@ -273,13 +273,13 @@ def get_margin_trade_detail_data_sh(start_date, end_date, code):
         无
     '''
     try:
-        dm_logger().debug('tushare.sh_margin_details, code=%s, start=%s, end=%s' % (code, start_date, end_date))
+        dm_log.debug('tushare.sh_margin_details, code=%s, start=%s, end=%s' % (code, start_date, end_date))
         df = tushare.sh_margin_details(start=start_date, end=end_date, symbol=code, retry_count=RETRY_COUNT, pause=RETRY_PAUSE)
     except Exception as exception:
-        dm_logger().error('tushare.sh_margin_details, cod=%s, start=%s, end=%s, excpetion, args: %s' % (code, start_date, end_date, exception.args.__str__()))
+        dm_log.error('tushare.sh_margin_details, cod=%s, start=%s, end=%s, excpetion, args: %s' % (code, start_date, end_date, exception.args.__str__()))
     else:
         if df is None:
-            dm_logger().warning('tushare.sh_margin_details, code=%s, start=%s, end=%s return none' % (code, start_date, end_date))
+            dm_log.warning('tushare.sh_margin_details, code=%s, start=%s, end=%s return none' % (code, start_date, end_date))
         else:
             if STORAGE_MODE == USING_CSV:
                 file_path = '%s/sh_margin_detail_%s_%s.csv' % (get_directory_path(), start_date, end_date)
@@ -307,13 +307,13 @@ def get_margin_trade_data_sz(start_date, end_date):
         无
     '''
     try:
-        dm_logger().debug('tushare.sz_margins, start=%s, end=%s' % (start_date, end_date))
+        dm_log.debug('tushare.sz_margins, start=%s, end=%s' % (start_date, end_date))
         df = tushare.sz_margins(start=start_date, end=end_date, retry_count=RETRY_COUNT, pause=RETRY_PAUSE)
     except Exception as exception:
-        dm_logger().error('tushare.sz_margins, start=%s, end=%s, excpetion, args: %s' % (start_date, end_date, exception.args.__str__()))
+        dm_log.error('tushare.sz_margins, start=%s, end=%s, excpetion, args: %s' % (start_date, end_date, exception.args.__str__()))
     else:
         if df is None:
-            dm_logger().warning('tushare.sz_margins, start=%s, end=%s return none' % (start_date, end_date))
+            dm_log.warning('tushare.sz_margins, start=%s, end=%s return none' % (start_date, end_date))
         else:
             if STORAGE_MODE == USING_CSV:
                 file_path = '%s/sz_margin_%s_%s.csv' % (get_directory_path(), start_date, end_date)
@@ -344,13 +344,13 @@ def get_margin_trade_detail_data_sz(start_date, end_date, code):
         无
     '''
     try:
-        dm_logger().debug('tushare.sh_margin_details, code=%s, start=%s, end=%s' % (code, start_date, end_date))
+        dm_log.debug('tushare.sh_margin_details, code=%s, start=%s, end=%s' % (code, start_date, end_date))
         df = tushare.sh_margin_details(start=start_date, end=end_date, symbol=code, retry_count=RETRY_COUNT, pause=RETRY_PAUSE)
     except Exception as exception:
-        dm_logger().error('tushare.sh_margin_details, cod=%s, start=%s, end=%s, excpetion, args: %s' % (code, start_date, end_date, exception.args.__str__()))
+        dm_log.error('tushare.sh_margin_details, cod=%s, start=%s, end=%s, excpetion, args: %s' % (code, start_date, end_date, exception.args.__str__()))
     else:
         if df is None:
-            dm_logger().warning('tushare.sh_margin_details, code=%s, start=%s, end=%s return none' % (code, start_date, end_date))
+            dm_log.warning('tushare.sh_margin_details, code=%s, start=%s, end=%s return none' % (code, start_date, end_date))
         else:
             if STORAGE_MODE == USING_CSV:
                 file_path = '%s/sz_margin_detail_%s_%s.csv' % (get_directory_path(), start_date, end_date)

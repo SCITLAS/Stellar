@@ -24,14 +24,54 @@ def to_bytes(bytes_or_str):
     return value  # instance of bytes
 
 
+# 文件读取迭代类, 返回一个生成器
 class StlReadVisits(object):
     def __init__(self, data_path):
+        '''
+
+        Parameters
+        ----------
+            data_path: 需要读取的数据文件路径
+
+        Returns
+        -------
+            无
+        '''
         self.data_path = data_path
 
     def __iter__(self):
+        '''
+
+        Returns
+        -------
+            line: 逐行迭代生成器
+        '''
         with open(self.data_path) as f:
             for line in f:
                 yield line
+
+
+def data_handle_defensive(datas):
+    '''
+
+    处理datas容器中的数据, 要求输入参数datas是一个把__iter__实现为生成器的容器类.
+
+    Parameters
+    ----------
+        datas: 数据容器
+
+    Returns
+    -------
+        无
+    Exception
+        TypeError('Must supply a container')
+    '''
+    if iter(datas) is iter(datas):
+        raise TypeError('Must supply a container')
+
+    # TODO: 需要对数据做的处理都写在下面
+    for line in datas:
+        print(line)
 
 
 if __name__ == '__main__':

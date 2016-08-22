@@ -6,7 +6,7 @@ import os
 
 import tushare
 
-from stl_utils.logger import dm_logger
+from stl_utils.logger import dm_log
 
 
 '''
@@ -60,19 +60,19 @@ def get_all_security_current_day_data():
         无
     '''
     if STORAGE_MODE == USING_CSV:
-        dm_logger().debug('get_all_security_current_day_data begin...')
+        dm_log.debug('get_all_security_current_day_data begin...')
         file_path = '%s/trade.csv' % get_directory_path()
         try:
-            dm_logger().debug('tushare.get_today_all()')
+            dm_log.debug('tushare.get_today_all()')
             df = tushare.get_today_all()
         except Exception as exception:
-            dm_logger().error('tushare.get_today_all() excpetion, args: %s' % exception.args.__str__())
+            dm_log.error('tushare.get_today_all() excpetion, args: %s' % exception.args.__str__())
         else:
             if df is None:
-                dm_logger().warning('tushare.get_today_all() return none')
+                dm_log.warning('tushare.get_today_all() return none')
             else:
                 df.to_csv(file_path)
-            dm_logger().debug('get_all_security_current_day_data Finish...')
+            dm_log.debug('get_all_security_current_day_data Finish...')
 
 
 if __name__ == "__main__":

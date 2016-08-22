@@ -2,11 +2,20 @@
 __author__ = 'MoroJoJo'
 
 
+from time import time
+from threading import Thread
+
+import pandas as pd
+import threadpool
+import tushare as ts
+
+
 '''
 轻量级的试验场地
 '''
 
 
+# dataframe test
 def dataframe2csv_test():
 
     '''
@@ -66,6 +75,11 @@ def _1map(data, exp):
     return _data
 
 
+
+
+
+
+# mysql test
 def mysql_test():
     import mysql.connector
 
@@ -118,6 +132,151 @@ def mysql_test_2():
 
 
 
+
+
+
+# Multi thread and no multi thread performance test
+def factorize(number):
+    for i in range(1, number+1):
+        if number % i == 0:
+            yield i
+
+
+def factorize_no_multi_thread_test():
+    numbers = [2139079, 1214759, 1516637, 1852285]
+    start = time()
+    for number in numbers:
+        list(factorize(number))
+    end = time()
+    print('No multi thread test took %.3f seconds' % (end - start))
+
+
+class FactorizeThread(Thread):
+    def __init__(self, number):
+        super().__init__()
+        self.number = number
+
+    def run(self):
+        self.factors = list(factorize(self.number))
+
+
+def factorize_multi_thread_test():
+    numbers = [2139079, 1214759, 1516637, 1852285]
+    start = time()
+    threads = []
+    for number in numbers:
+        thread = FactorizeThread(number)
+        thread.start()
+        threads.append(thread)
+
+    for thread in threads:
+        thread.join()
+    end = time()
+    print('Multi thread test took %.3f seconds' % (end - start))
+
+
+def do_factorize_thread_test():
+    factorize_no_multi_thread_test()
+    factorize_multi_thread_test()
+
+
+
+
+
+
+# Tushare thread and no multi thread performance test
+def get_trade_history(code):
+    df = ts.get_hist_data(code, start='2000-01-01', end='2016-08-20')
+    print(len(df))
+
+
+def ts_no_multi_thread_test():
+    codes = ['000951', '600036', '600100', '600577']
+    start = time()
+    for code in codes:
+        get_trade_history(code)
+    end = time()
+    print('Tushare no multi thread test took %.3f seconds' % (end - start))
+
+
+class TushareThread(Thread):
+    def __init__(self, code):
+        super().__init__()
+        self.code = code
+
+    def run(self):
+        get_trade_history(self.code)
+
+
+def ts_multi_thread_test():
+    codes = ['000951', '600036', '600100', '600577']
+    start = time()
+    threads = []
+    for code in codes:
+        thread = TushareThread(code)
+        thread.start()
+        threads.append(thread)
+
+    for thread in threads:
+        thread.join()
+    end = time()
+    print('Tushare multi thread test took %.3f seconds' % (end - start))
+
+
+def do_ts_thread_test():
+    ts_no_multi_thread_test()
+    ts_multi_thread_test()
+
+
+
+
+
+
+# thread pool test
+def do_ts_threadpool_test():
+    # ts_no_multi_thread_test()
+    ts_threadpool_test()
+
+
+def ts_single_thread_test():
+    code_list = ['000951', '600036', '600100', '600577']
+    start = time()
+    for code in code_list:
+        get_day_data(code)
+    end = time()
+    print('Tushare single thread test took %.3f seconds' % (end - start))
+
+
+def ts_threadpool_test():
+    code_list = ['000951', '600036', '600100', '600577']
+    start = time()
+    pool = threadpool.ThreadPool(10)
+    requests = threadpool.makeRequests(callable_=get_day_data, args_list=code_list, callback=print_result)
+    [pool.putRequest(req) for req in requests]
+    pool.wait()
+
+    pool2 = threadpool.ThreadPool(10)
+    requests2 = threadpool.makeRequests(callable_=get_week_data, args_list=code_list, callback=print_result)
+    [pool2.putRequest(req) for req in requests2]
+    pool2.wait()
+
+    end = time()
+    print('Tushare threadpool test took %.3f seconds' % (end - start))
+
+
+def get_day_data(code):
+    df = ts.get_hist_data(code=code, ktype='D')
+    print(len(df))
+
+def get_week_data(code):
+    df = ts.get_hist_data(code=code, ktype='W')
+    print(len(df))
+
+
+def print_result(request, result):
+    print("the result is %s %r"%(request.requestID, result))
+
+
 if __name__ == '__main__':
     # dataframe2csv_test()
     # dataframe2list_test()
@@ -134,5 +293,13 @@ if __name__ == '__main__':
     # print(res_data)
 
     # mysql_test()
-    mysql_test_2()
+    # mysql_test_2()
+
+    # do_factorize_thread_test()
+    # do_ts_thread_test()
+
+    do_ts_threadpool_test()
+
+
+
 

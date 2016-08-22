@@ -8,7 +8,7 @@ import time
 
 import tushare
 
-from stl_utils.logger import dm_logger
+from stl_utils.logger import dm_log
 from stl_utils import thread_pool as stp
 from stl_data_manager.tushare import fundamental as sfund
 
@@ -29,7 +29,7 @@ DEFAULT_CSV_PATH_TS = '../../../Data/csv/tushare'
 DEFAULT_MY_SQL_PATH_TS = '../../../Data/mysql/tushare'
 DEFAULT_MONGO_DB_PATH_TS = '../../../Data/mongodb/tushare'
 
-THREAD_COUNT = 50    # 查询交易数据的并行线程数
+THREAD_COUNT = 50    # 查询交易数据的并发线程数
 RETRY_COUNT = 5      # 调用tushare接口失败重试次数
 RETRY_PAUSE = 0.1    # 调用tushare接口失败重试间隔时间
 
@@ -37,10 +37,10 @@ TICK_FORWARD = 0
 TICK_BACKWARD = 1
 
 
-def get_directory_path():
+def get_directory_path(tick_date):
     dir_path = ''
     if STORAGE_MODE == USING_CSV:
-        dir_path = '%s/security_trade_data/tick/history' % DEFAULT_CSV_PATH_TS
+        dir_path = '%s/security_trade_data/tick/history/%s' % (DEFAULT_CSV_PATH_TS, tick_date)
         if not os.path.exists(dir_path):
             os.makedirs(dir_path)
     return dir_path
@@ -59,13 +59,13 @@ def get_all_security_tick_data_no_multi_thread(start_date_str, during, direction
     -------
         无
     '''
-    dm_logger().debug('get_all_security_tick_data_no_multi_thread Begin...')
+    dm_log.debug('get_all_security_tick_data_no_multi_thread Begin...')
 
     code_list = sfund.get_all_security_basic_info()              # 获取所有股票的基本信息
     tick_date_str = start_date_str
     for offset in range(1, during):
         for code in code_list:
-            dm_logger().debug('get_tick_data, code: %s, tick_date: %s' % (code, tick_date_str))
+            dm_log.debug('get_tick_data, code: %s, tick_date: %s' % (code, tick_date_str))
             get_tick_data(code, tick_date_str)
         if direction == TICK_BACKWARD:
             tick_step = -1
@@ -76,7 +76,7 @@ def get_all_security_tick_data_no_multi_thread(start_date_str, during, direction
         next_day = star_date + datetime.timedelta(days=tick_step)
         tick_date_str = datetime.datetime.strftime(next_day, '%Y-%m-%d')
 
-    dm_logger().debug('get_all_security_tick_data_no_multi_thread Finish...')
+    dm_log.debug('get_all_security_tick_data_no_multi_thread Finish...')
 
 
 def get_all_security_tick_data_multi_thread(start_date_str, during, direction):
@@ -98,10 +98,10 @@ def get_all_security_tick_data_multi_thread(start_date_str, during, direction):
     sh_thread_pool = stp.StlThreadPool(THREAD_COUNT)
     for offset in range(1, during):
         for code in code_list:
-            dm_logger().debug('get_tick_data, code: %s, tick_date: %s' % (code, tick_date_str))
+            dm_log.debug('get_tick_data, code: %s, tick_date: %s' % (code, tick_date_str))
             req = stp.StlWorkRequest(get_tick_data, args=[code, tick_date_str], callback=print_result)
             sh_thread_pool.putRequest(req)
-            dm_logger().debug('work request #%s added to sh_thread_pool' % req.requestID)
+            dm_log.debug('work request #%s added to sh_thread_pool' % req.requestID)
         if direction == TICK_BACKWARD:
             tick_step = -1
         else:
@@ -116,7 +116,7 @@ def get_all_security_tick_data_multi_thread(start_date_str, during, direction):
             time.sleep(0.5)
             sh_thread_pool.poll()
         except stp.StlNoResultsPendingException:
-            dm_logger().debug('No Pending Results')
+            dm_log.debug('No Pending Results')
             break
     sh_thread_pool.stop()
 
@@ -145,20 +145,20 @@ def get_tick_data(code, tick_date):
         无
     '''
     if STORAGE_MODE == USING_CSV:
-        file_path = '%s/%s/%s.csv' % (get_directory_path(), tick_date, code)
+        file_path = '%s/%s.csv' % (get_directory_path(tick_date), code)
         if not os.path.exists(file_path):
             try:
-                dm_logger().debug('tushare.get_tick_data: %s, tick_date=%s' % (code, tick_date))
+                dm_log.debug('tushare.get_tick_data: %s, tick_date=%s' % (code, tick_date))
                 df = tushare.get_tick_data(code, tick_date, retry_count=RETRY_COUNT, pause=RETRY_PAUSE)
             except Exception as exception:
-                dm_logger().error('tushare.get_tick_data(%s) excpetion, args: %s' % (code, exception.args.__str__()))
+                dm_log.error('tushare.get_tick_data(%s) excpetion, args: %s' % (code, exception.args.__str__()))
             else:
                 if df is None:
-                    dm_logger().warning('tushare.get_tick_data(%s) return none' % code)
+                    dm_log.warning('tushare.get_tick_data(%s) return none' % code)
                 else:
-                    df.to_csv(file_path)
+                    df.to_csv(path_or_buf=file_path, mode='w')
         else:
-            dm_logger().debug('%s already exists' % file_path)
+            dm_log.debug('%s already exists' % file_path)
 
 
 if __name__ == "__main__":
@@ -166,6 +166,6 @@ if __name__ == "__main__":
     start_date_str = datetime.datetime.strftime(today, '%Y-%m-%d')
     get_all_security_tick_data_multi_thread(start_date_str=start_date_str, during=10, direction=TICK_BACKWARD)
     # get_all_security_tick_data_no_multi_thread(start_date_str=start_date_str, during=10, direction=TICK_BACKWARD)
-    # get_tick_data('002612', today)
+    # get_tick_data('002612', start_date_str)
 
 

@@ -7,7 +7,7 @@ import time
 
 import tushare
 
-from stl_utils.logger import dm_logger
+from stl_utils.logger import dm_log
 from stl_utils import thread_pool as stp
 from stl_data_manager.tushare import fundamental as sfund
 
@@ -56,14 +56,14 @@ def get_all_security_current_day_tick_data_no_multi_thread():
     -------
         无
     '''
-    dm_logger().debug('get_all_security_current_day_tick_data_no_multi_thread Begin...')
+    dm_log.debug('get_all_security_current_day_tick_data_no_multi_thread Begin...')
 
     code_list = sfund.get_all_security_basic_info()              # 获取所有股票的基本信息
     for code in code_list:
-        dm_logger().debug('get_current_day_tick_data, code: %s' % code)
+        dm_log.debug('get_current_day_tick_data, code: %s' % code)
         get_current_day_tick_data(code)
 
-    dm_logger().debug('get_all_security_current_day_tick_data_no_multi_thread Finish...')
+    dm_log.debug('get_all_security_current_day_tick_data_no_multi_thread Finish...')
 
 
 def get_all_security_current_day_tick_data_multi_thread():
@@ -80,17 +80,17 @@ def get_all_security_current_day_tick_data_multi_thread():
     code_list = sfund.get_all_security_basic_info()              # 获取所有股票的基本信息
     sh_thread_pool = stp.StlThreadPool(THREAD_COUNT)
     for code in code_list:
-        dm_logger().debug('get_current_day_tick_data, code: %s' % code)
+        dm_log.debug('get_current_day_tick_data, code: %s' % code)
         req = stp.StlWorkRequest(get_current_day_tick_data, args=[code], callback=print_result)
         sh_thread_pool.putRequest(req)
-        dm_logger().debug('work request #%s added to sh_thread_pool' % req.requestID)
+        dm_log.debug('work request #%s added to sh_thread_pool' % req.requestID)
 
     while True:
         try:
             time.sleep(0.5)
             sh_thread_pool.poll()
         except stp.StlNoResultsPendingException:
-            dm_logger().debug('No Pending Results')
+            dm_log.debug('No Pending Results')
             break
     sh_thread_pool.stop()
 
@@ -122,17 +122,17 @@ def get_current_day_tick_data(code):
         file_path = '%s/%s.csv' % (get_directory_path(), code)
         if not os.path.exists(file_path):
             try:
-                dm_logger().debug('tushare.get_today_ticks: %s' % code)
+                dm_log.debug('tushare.get_today_ticks: %s' % code)
                 df = tushare.get_today_ticks(code, retry_count=RETRY_COUNT, pause=RETRY_PAUSE)
             except Exception as exception:
-                dm_logger().error('tushare.get_today_ticks(%s) excpetion, args: %s' % (code, exception.args.__str__()))
+                dm_log.error('tushare.get_today_ticks(%s) excpetion, args: %s' % (code, exception.args.__str__()))
             else:
                 if df is None:
-                    dm_logger().warning('tushare.get_today_ticks(%s) return none' % code)
+                    dm_log.warning('tushare.get_today_ticks(%s) return none' % code)
                 else:
                     df.to_csv(file_path)
         else:
-            dm_logger().debug('%s already exists' % file_path)
+            dm_log.debug('%s already exists' % file_path)
 
 
 

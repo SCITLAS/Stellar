@@ -8,7 +8,7 @@ import time
 
 import tushare
 
-from stl_utils.logger import dm_logger
+from stl_utils.logger import dm_log
 from stl_utils import thread_pool as stp
 from stl_data_manager.tushare import fundamental as sfund
 
@@ -38,10 +38,10 @@ DEAL_FORWARD = 0
 DEAL_BACKWARD = 1
 
 
-def get_directory_path():
+def get_directory_path(vol):
     dir_path = ''
     if STORAGE_MODE == USING_CSV:
-        dir_path = '%s/security_trade_data/big_deal/current_day' % DEFAULT_CSV_PATH_TS
+        dir_path = '%s/security_trade_data/big_deal/current_day/vol_%s' % (DEFAULT_CSV_PATH_TS, vol)
         if not os.path.exists(dir_path):
             os.makedirs(dir_path)
     return dir_path
@@ -58,16 +58,16 @@ def get_all_security_current_day_big_deal_no_multi_thread(vol=VOL):
     -------
         无
     '''
-    dm_logger().debug('get_all_security_current_day_big_deal_no_multi_thread Begin...')
+    dm_log.debug('get_all_security_current_day_big_deal_no_multi_thread Begin...')
 
     today = datetime.datetime.today()
     today_str = datetime.datetime.strftime(today, '%Y-%m-%d')
     code_list = sfund.get_all_security_basic_info()              # 获取所有股票的基本信息
     for code in code_list:
-        dm_logger().debug('get_big_deal_data, code: %s, deal_date: %s' % (code, today_str))
+        dm_log.debug('get_big_deal_data, code: %s, deal_date: %s' % (code, today_str))
         get_big_deal_data(code, today_str, vol)
 
-    dm_logger().debug('get_all_security_current_day_big_deal_no_multi_thread Finish...')
+    dm_log.debug('get_all_security_current_day_big_deal_no_multi_thread Finish...')
 
 
 def get_all_security_current_day_big_deal_multi_thread(vol=VOL):
@@ -87,17 +87,17 @@ def get_all_security_current_day_big_deal_multi_thread(vol=VOL):
 
     sh_thread_pool = stp.StlThreadPool(THREAD_COUNT)
     for code in code_list:
-        dm_logger().debug('get_big_deal_data, code: %s, deal_date: %s' % (code, today_str))
+        dm_log.debug('get_big_deal_data, code: %s, deal_date: %s' % (code, today_str))
         req = stp.StlWorkRequest(get_big_deal_data, args=[code, today_str, vol], callback=print_result)
         sh_thread_pool.putRequest(req)
-        dm_logger().debug('work request #%s added to sh_thread_pool' % req.requestID)
+        dm_log.debug('work request #%s added to sh_thread_pool' % req.requestID)
 
     while True:
         try:
             time.sleep(0.5)
             sh_thread_pool.poll()
         except stp.StlNoResultsPendingException:
-            dm_logger().debug('No Pending Results')
+            dm_log.debug('No Pending Results')
             break
     sh_thread_pool.stop()
 
@@ -128,20 +128,20 @@ def get_big_deal_data(code, deal_date, vol=VOL):
         无
     '''
     if STORAGE_MODE == USING_CSV:
-        file_path = '%s/%s/vol_%s.csv' % (get_directory_path(), deal_date, vol)
+        file_path = '%s/%s.csv' % (get_directory_path(vol), code)
         if not os.path.exists(file_path):
             try:
-                dm_logger().debug('tushare.get_sina_dd: %s, tick_date=%s' % (code, deal_date))
+                dm_log.debug('tushare.get_sina_dd: %s, tick_date=%s' % (code, deal_date))
                 df = tushare.get_sina_dd(code, date=deal_date, vol=vol, retry_count=RETRY_COUNT, pause=RETRY_PAUSE)
             except Exception as exception:
-                dm_logger().error('tushare.get_sina_dd(%s) excpetion, args: %s' % (code, exception.args.__str__()))
+                dm_log.error('tushare.get_sina_dd(%s) excpetion, args: %s' % (code, exception.args.__str__()))
             else:
                 if df is None:
-                    dm_logger().warning('tushare.get_sina_dd(%s) return none' % code)
+                    dm_log.warning('tushare.get_sina_dd(%s) return none' % code)
                 else:
                     df.to_csv(file_path)
         else:
-            dm_logger().debug('%s already exists' % file_path)
+            dm_log.debug('%s already exists' % file_path)
 
 
 if __name__ == "__main__":
