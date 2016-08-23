@@ -4,12 +4,13 @@ __author__ = 'MoroJoJo'
 
 import os
 import datetime
-import time
+from concurrent.futures import ThreadPoolExecutor
 
 import tushare
 
 from stl_utils.logger import dm_log
-from stl_utils import thread_pool as stp
+from stl_utils.data_utils import is_market_closed
+from stl_utils.data_utils import need_data_file_refresh
 from stl_data_manager.tushare import fundamental as sfund
 
 
@@ -65,7 +66,7 @@ def get_all_security_current_day_big_deal_no_multi_thread(vol=VOL):
     code_list = sfund.get_all_security_basic_info()              # 获取所有股票的基本信息
     for code in code_list:
         dm_log.debug('get_big_deal_data, code: %s, deal_date: %s' % (code, today_str))
-        get_big_deal_data(code, today_str, vol)
+        get_big_deal_data((code, today_str, vol))
 
     dm_log.debug('get_all_security_current_day_big_deal_no_multi_thread Finish...')
 
@@ -83,30 +84,24 @@ def get_all_security_current_day_big_deal_multi_thread(vol=VOL):
     '''
     today = datetime.datetime.today()
     today_str = datetime.datetime.strftime(today, '%Y-%m-%d')
+
+    if tushare.is_holiday(today_str):
+        dm_log.debug('get_all_security_current_day_big_deal_multi_thread() deal_date: %s skipped, cause this day is a holiday' % today_str)
+        return
+
     code_list = sfund.get_all_security_basic_info()              # 获取所有股票的基本信息
-
-    sh_thread_pool = stp.StlThreadPool(THREAD_COUNT)
+    para_list = []
     for code in code_list:
-        dm_log.debug('get_big_deal_data, code: %s, deal_date: %s' % (code, today_str))
-        req = stp.StlWorkRequest(get_big_deal_data, args=[code, today_str, vol], callback=print_result)
-        sh_thread_pool.putRequest(req)
-        dm_log.debug('work request #%s added to sh_thread_pool' % req.requestID)
-
-    while True:
-        try:
-            time.sleep(0.5)
-            sh_thread_pool.poll()
-        except stp.StlNoResultsPendingException:
-            dm_log.debug('No Pending Results')
-            break
-    sh_thread_pool.stop()
+        para_list.append((code, today_str, vol))
+    pool = ThreadPoolExecutor(max_workers=THREAD_COUNT)
+    pool.map(get_big_deal_data, para_list)
 
 
 def print_result(request, result):
     print("---Result from request %s : %r" % (request.requestID, result))
 
 
-def get_big_deal_data(code, deal_date, vol=VOL):
+def get_big_deal_data(para):
     '''
     获取code对应股票在指定时间长度内的大单交易数据
 
@@ -127,21 +122,33 @@ def get_big_deal_data(code, deal_date, vol=VOL):
     -------
         无
     '''
+    code = para[0]
+    deal_date = para[1]
+    vol = para[2]
+    if not is_market_closed():
+        # now is too early for refresh, current day data is not ready.
+        dm_log.debug('Now is too early for refresh, current day data is not ready.')
+        return
+
     if STORAGE_MODE == USING_CSV:
         file_path = '%s/%s.csv' % (get_directory_path(vol), code)
-        if not os.path.exists(file_path):
-            try:
-                dm_log.debug('tushare.get_sina_dd: %s, tick_date=%s' % (code, deal_date))
-                df = tushare.get_sina_dd(code, date=deal_date, vol=vol, retry_count=RETRY_COUNT, pause=RETRY_PAUSE)
-            except Exception as exception:
-                dm_log.error('tushare.get_sina_dd(%s) excpetion, args: %s' % (code, exception.args.__str__()))
-            else:
-                if df is None:
-                    dm_log.warning('tushare.get_sina_dd(%s) return none' % code)
-                else:
-                    df.to_csv(file_path)
+
+        if not need_data_file_refresh(file_path):
+            # the file is already refreshed some time current day after valid date, no need to refresh
+            dm_log.debug('%s is already up-to-date, no need to refresh.' % file_path)
+            return
+
+        try:
+            dm_log.debug('tushare.get_sina_dd: %s, tick_date=%s called' % (code, deal_date))
+            df = tushare.get_sina_dd(code, date=deal_date, vol=vol, retry_count=RETRY_COUNT, pause=RETRY_PAUSE)
+        except Exception as exception:
+            dm_log.error('tushare.get_sina_dd(%s) excpetion, args: %s' % (code, exception.args.__str__()))
         else:
-            dm_log.debug('%s already exists' % file_path)
+            if df is None:
+                dm_log.warning('tushare.get_sina_dd: %s, tick_date=%s return none' % (code, deal_date))
+            else:
+                dm_log.debug('tushare.get_sina_dd: %s, tick_date=%s done, got %d rows' % (code, deal_date, len(df)))
+                df.to_csv(file_path)
 
 
 if __name__ == "__main__":

@@ -66,7 +66,7 @@ def get_rank_top_data(date):
         无
     '''
     try:
-        dm_log.debug('tushare.top_list(%s)' % date)
+        dm_log.debug('tushare.top_list(%s) called' % date)
         df = tushare.top_list(date=date, retry_count=RETRY_COUNT, pause=RETRY_PAUSE)
     except Exception as exception:
         dm_log.error('tushare.top_list(%s) excpetion, args: %s' % (date, exception.args.__str__()))
@@ -74,6 +74,7 @@ def get_rank_top_data(date):
         if df is None:
             dm_log.warning('tushare.top_list(%s) return none' % date)
         else:
+            dm_log.debug('tushare.top_list(%s) done, got %d rows' % (date, len(df)))
             if STORAGE_MODE == USING_CSV:
                 file_path = '%s/top_list/%s.csv' % (get_directory_path(), date)
                 df.to_csv(file_path)
@@ -100,7 +101,7 @@ def get_cap_top_data(days):
         无
     '''
     try:
-        dm_log.debug('tushare.cap_tops(%d)' % days)
+        dm_log.debug('tushare.cap_tops(%d) called' % days)
         df = tushare.cap_tops(days=days, retry_count=RETRY_COUNT, pause=RETRY_PAUSE)
     except Exception as exception:
         dm_log.error('tushare.cap_tops(%d) excpetion, args: %s' % (days, exception.args.__str__()))
@@ -108,6 +109,7 @@ def get_cap_top_data(days):
         if df is None:
             dm_log.warning('tushare.cap_tops(%d) return none' % days)
         else:
+            dm_log.debug('tushare.cap_tops(%d) done, got %d rows' % (days, len(df)))
             if STORAGE_MODE == USING_CSV:
                 file_path = '%s/top_statistics/%ddays.csv' % (get_directory_path(), days)
                 df.to_csv(file_path)
@@ -133,7 +135,7 @@ def get_broker_tops_data(days):
         无
     '''
     try:
-        dm_log.debug('tushare.broker_tops(%d)' % days)
+        dm_log.debug('tushare.broker_tops(%d) called' % days)
         df = tushare.broker_tops(days=days, retry_count=RETRY_COUNT, pause=RETRY_PAUSE)
     except Exception as exception:
         dm_log.error('tushare.broker_tops(%d) excpetion, args: %s' % (days, exception.args.__str__()))
@@ -141,6 +143,7 @@ def get_broker_tops_data(days):
         if df is None:
             dm_log.warning('tushare.broker_tops(%d) return none' % days)
         else:
+            dm_log.debug('tushare.broker_tops(%d) done, got %d rows' % (days, len(df)))
             if STORAGE_MODE == USING_CSV:
                 file_path = '%s/broker/top_%ddays.csv' % (get_directory_path(), days)
                 df.to_csv(file_path)
@@ -166,7 +169,7 @@ def get_inst_tops_data(days):
         无
     '''
     try:
-        dm_log.debug('tushare.inst_tops(%d)' % days)
+        dm_log.debug('tushare.inst_tops(%d) called' % days)
         df = tushare.inst_tops(days=days, retry_count=RETRY_COUNT, pause=RETRY_PAUSE)
     except Exception as exception:
         dm_log.error('tushare.inst_tops(%d) excpetion, args: %s' % (days, exception.args.__str__()))
@@ -174,6 +177,7 @@ def get_inst_tops_data(days):
         if df is None:
             dm_log.warning('tushare.inst_tops(%d) return none' % days)
         else:
+            dm_log.debug('tushare.inst_tops(%d) done, got %d rows' % (days, len(df)))
             if STORAGE_MODE == USING_CSV:
                 file_path = '%s/institution/top_%ddays.csv' % (get_directory_path(), days)
                 df.to_csv(file_path)
@@ -198,7 +202,7 @@ def get_inst_detail_data():
         无
     '''
     try:
-        dm_log.debug('tushare.inst_detail()')
+        dm_log.debug('tushare.inst_detail() called')
         df = tushare.inst_detail(retry_count=RETRY_COUNT, pause=RETRY_PAUSE)
     except Exception as exception:
         dm_log.error('tushare.inst_detail() excpetion, args: %s' % exception.args.__str__())
@@ -206,6 +210,7 @@ def get_inst_detail_data():
         if df is None:
             dm_log.warning('tushare.inst_detail() return none')
         else:
+            dm_log.debug('tushare.inst_detail() done, got %d rows' % len(df))
             if STORAGE_MODE == USING_CSV:
                 file_path = '%s/institution/detail.csv' % get_directory_path()
                 df.to_csv(file_path)

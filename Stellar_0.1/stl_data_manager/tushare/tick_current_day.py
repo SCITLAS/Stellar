@@ -3,12 +3,13 @@ __author__ = 'MoroJoJo'
 
 
 import os
-import time
+from concurrent.futures import ThreadPoolExecutor
 
 import tushare
 
 from stl_utils.logger import dm_log
-from stl_utils import thread_pool as stp
+from stl_utils.data_utils import is_market_closed
+from stl_utils.data_utils import need_data_file_refresh
 from stl_data_manager.tushare import fundamental as sfund
 
 
@@ -28,7 +29,7 @@ DEFAULT_CSV_PATH_TS = '../../../Data/csv/tushare'
 DEFAULT_MY_SQL_PATH_TS = '../../../Data/mysql/tushare'
 DEFAULT_MONGO_DB_PATH_TS = '../../../Data/mongodb/tushare'
 
-THREAD_COUNT = 50    # 查询交易数据的并行线程数
+THREAD_COUNT = 100    # 查询交易数据的并行线程数
 RETRY_COUNT = 5      # 调用tushare接口失败重试次数
 RETRY_PAUSE = 0.1    # 调用tushare接口失败重试间隔时间
 
@@ -78,21 +79,8 @@ def get_all_security_current_day_tick_data_multi_thread():
         无
     '''
     code_list = sfund.get_all_security_basic_info()              # 获取所有股票的基本信息
-    sh_thread_pool = stp.StlThreadPool(THREAD_COUNT)
-    for code in code_list:
-        dm_log.debug('get_current_day_tick_data, code: %s' % code)
-        req = stp.StlWorkRequest(get_current_day_tick_data, args=[code], callback=print_result)
-        sh_thread_pool.putRequest(req)
-        dm_log.debug('work request #%s added to sh_thread_pool' % req.requestID)
-
-    while True:
-        try:
-            time.sleep(0.5)
-            sh_thread_pool.poll()
-        except stp.StlNoResultsPendingException:
-            dm_log.debug('No Pending Results')
-            break
-    sh_thread_pool.stop()
+    pool = ThreadPoolExecutor(max_workers=THREAD_COUNT)
+    pool.map(get_current_day_tick_data, code_list)
 
 
 def print_result(request, result):
@@ -118,27 +106,37 @@ def get_current_day_tick_data(code):
     -------
         无
     '''
+    if not is_market_closed():
+        # now is too early for refresh, current day data is not ready.
+        dm_log.debug('Now is too early for refresh, current day data is not ready.')
+        return
+
     if STORAGE_MODE == USING_CSV:
         file_path = '%s/%s.csv' % (get_directory_path(), code)
-        if not os.path.exists(file_path):
-            try:
-                dm_log.debug('tushare.get_today_ticks: %s' % code)
-                df = tushare.get_today_ticks(code, retry_count=RETRY_COUNT, pause=RETRY_PAUSE)
-            except Exception as exception:
-                dm_log.error('tushare.get_today_ticks(%s) excpetion, args: %s' % (code, exception.args.__str__()))
-            else:
-                if df is None:
-                    dm_log.warning('tushare.get_today_ticks(%s) return none' % code)
-                else:
-                    df.to_csv(file_path)
+
+        if not need_data_file_refresh(file_path):
+            # the file is already refreshed some time current day after valid date, no need to refresh
+            dm_log.debug('%s is already up-to-date, no need to refresh.' % file_path)
+            return
+
+        try:
+            dm_log.debug('tushare.get_today_ticks: %s called' % code)
+            df = tushare.get_today_ticks(code, retry_count=RETRY_COUNT, pause=RETRY_PAUSE)
+        except Exception as exception:
+            dm_log.error('tushare.get_today_ticks(%s) excpetion, args: %s' % (code, exception.args.__str__()))
         else:
-            dm_log.debug('%s already exists' % file_path)
+            if df is None:
+                dm_log.warning('tushare.get_today_ticks(%s) return none' % code)
+            else:
+                dm_log.debug('tushare.get_today_ticks: %s done, got %d rows' % (code, len(df)))
+                df.to_csv(file_path)
 
 
 
 if __name__ == "__main__":
-    # get_all_security_current_day_tick_data_multi_thread()
-    get_all_security_current_day_tick_data_no_multi_thread()
+    get_all_security_current_day_tick_data_multi_thread()
+    # get_all_security_current_day_tick_data_no_multi_thread()
     # get_current_day_tick_data('002612')
+    # get_current_day_tick_data('100005')
 
 

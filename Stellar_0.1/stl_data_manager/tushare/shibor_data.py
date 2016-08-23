@@ -65,7 +65,7 @@ def get_shibor_data(year):
         无
     '''
     try:
-        dm_log.debug('tushare.shibor_data(year=%s)' % year)
+        dm_log.debug('tushare.shibor_data(year=%s) called' % year)
         df = tushare.shibor_data(year=year)
     except Exception as exception:
         dm_log.error('tushare.shibor_data(%s) excpetion, args: %s' % (year, exception.args.__str__()))
@@ -73,6 +73,7 @@ def get_shibor_data(year):
         if df is None:
             dm_log.warning('tushare.shibor_data(%s) return none' % year)
         else:
+            dm_log.debug('tushare.shibor_data(year=%s) done, got %d rows' % (year, len(df)))
             if STORAGE_MODE == USING_CSV:
                 file_path = '%s/shibor/%d.csv' % (get_directory_path(), year)
                 df.to_csv(file_path)
@@ -110,7 +111,7 @@ def get_shibor_quote_data(year):
         无
     '''
     try:
-        dm_log.debug('tushare.shibor_quote_data(year=%s)' % year)
+        dm_log.debug('tushare.shibor_quote_data(year=%s) called' % year)
         df = tushare.shibor_quote_data(year=year)
     except Exception as exception:
         dm_log.error('tushare.shibor_quote_data(%s) excpetion, args: %s' % (year, exception.args.__str__()))
@@ -118,6 +119,7 @@ def get_shibor_quote_data(year):
         if df is None:
             dm_log.warning('tushare.shibor_quote_data(%s) return none' % year)
         else:
+            dm_log.debug('tushare.shibor_quote_data(year=%s) done, got %d rows' % (year, len(df)))
             if STORAGE_MODE == USING_CSV:
                 file_path = '%s/shibor_quote/%d.csv' % (get_directory_path(), year)
                 df.to_csv(file_path)
@@ -161,7 +163,7 @@ def get_shibor_ma_data(year):
         无
     '''
     try:
-        dm_log.debug('tushare.shibor_ma_data(year=%s)' % year)
+        dm_log.debug('tushare.shibor_ma_data(year=%s) called' % year)
         df = tushare.shibor_ma_data(year=year)
     except Exception as exception:
         dm_log.error('tushare.shibor_ma_data(%s) excpetion, args: %s' % (year, exception.args.__str__()))
@@ -169,6 +171,7 @@ def get_shibor_ma_data(year):
         if df is None:
             dm_log.warning('tushare.shibor_ma_data(%s) return none' % year)
         else:
+            dm_log.debug('tushare.shibor_ma_data(year=%s) done, got %d rows' % (year, len(df)))
             if STORAGE_MODE == USING_CSV:
                 file_path = '%s/shibor_ma/%d.csv' % (get_directory_path(), year)
                 df.to_csv(file_path)
@@ -189,7 +192,7 @@ def get_lpr_data(year):
         无
     '''
     try:
-        dm_log.debug('tushare.lpr_data(year=%s)' % year)
+        dm_log.debug('tushare.lpr_data(year=%s) called' % year)
         df = tushare.lpr_data(year=year)
     except Exception as exception:
         dm_log.error('tushare.lpr_data(%s) excpetion, args: %s' % (year, exception.args.__str__()))
@@ -197,6 +200,7 @@ def get_lpr_data(year):
         if df is None:
             dm_log.warning('tushare.lpr_data(%s) return none' % year)
         else:
+            dm_log.debug('tushare.lpr_data(year=%s) done, got %d rows' % (year, len(df)))
             if STORAGE_MODE == USING_CSV:
                 file_path = '%s/lpr/%d.csv' % (get_directory_path(), year)
                 df.to_csv(file_path)
@@ -217,7 +221,7 @@ def get_lpr_ma_data(year):
         无
     '''
     try:
-        dm_log.debug('tushare.lpr_ma_data(year=%s)' % year)
+        dm_log.debug('tushare.lpr_ma_data(year=%s) called' % year)
         df = tushare.lpr_ma_data(year=year)
     except Exception as exception:
         dm_log.error('tushare.lpr_ma_data(%s) excpetion, args: %s' % (year, exception.args.__str__()))
@@ -225,6 +229,7 @@ def get_lpr_ma_data(year):
         if df is None:
             dm_log.warning('tushare.lpr_ma_data(%s) return none' % year)
         else:
+            dm_log.debug('tushare.lpr_ma_data(year=%s) done, got %d rows' % (year, len(df)))
             if STORAGE_MODE == USING_CSV:
                 file_path = '%s/lpr_ma/%d.csv' % (get_directory_path(), year)
                 df.to_csv(file_path)

@@ -4,12 +4,11 @@ __author__ = 'MoroJoJo'
 
 import os
 import datetime
-import time
+from concurrent.futures import ThreadPoolExecutor
 
 import tushare
 
 from stl_utils.logger import dm_log
-from stl_utils import thread_pool as stp
 from stl_data_manager.tushare import fundamental as sfund
 
 
@@ -64,9 +63,14 @@ def get_all_security_tick_data_no_multi_thread(start_date_str, during, direction
     code_list = sfund.get_all_security_basic_info()              # 获取所有股票的基本信息
     tick_date_str = start_date_str
     for offset in range(1, during):
+        if tushare.is_holiday(tick_date_str):
+            star_date = datetime.datetime.strptime(tick_date_str, '%Y-%m-%d')
+            next_day = star_date + datetime.timedelta(days=tick_step)
+            tick_date_str = datetime.datetime.strftime(next_day, '%Y-%m-%d')
+            continue
         for code in code_list:
             dm_log.debug('get_tick_data, code: %s, tick_date: %s' % (code, tick_date_str))
-            get_tick_data(code, tick_date_str)
+            get_tick_data((code, tick_date_str))
         if direction == TICK_BACKWARD:
             tick_step = -1
         else:
@@ -95,13 +99,19 @@ def get_all_security_tick_data_multi_thread(start_date_str, during, direction):
     code_list = sfund.get_all_security_basic_info()              # 获取所有股票的基本信息
     tick_date_str = start_date_str
 
-    sh_thread_pool = stp.StlThreadPool(THREAD_COUNT)
     for offset in range(1, during):
+        if tushare.is_holiday(tick_date_str):
+            star_date = datetime.datetime.strptime(tick_date_str, '%Y-%m-%d')
+            next_day = star_date + datetime.timedelta(days=tick_step)
+            tick_date_str = datetime.datetime.strftime(next_day, '%Y-%m-%d')
+            continue
+
+        para_list = []
         for code in code_list:
-            dm_log.debug('get_tick_data, code: %s, tick_date: %s' % (code, tick_date_str))
-            req = stp.StlWorkRequest(get_tick_data, args=[code, tick_date_str], callback=print_result)
-            sh_thread_pool.putRequest(req)
-            dm_log.debug('work request #%s added to sh_thread_pool' % req.requestID)
+            para_list.append((code, tick_date_str))
+        pool = ThreadPoolExecutor(max_workers=THREAD_COUNT)
+        pool.map(get_tick_data, para_list)
+
         if direction == TICK_BACKWARD:
             tick_step = -1
         else:
@@ -111,21 +121,12 @@ def get_all_security_tick_data_multi_thread(start_date_str, during, direction):
         next_day = star_date + datetime.timedelta(days=tick_step)
         tick_date_str = datetime.datetime.strftime(next_day, '%Y-%m-%d')
 
-    while True:
-        try:
-            time.sleep(0.5)
-            sh_thread_pool.poll()
-        except stp.StlNoResultsPendingException:
-            dm_log.debug('No Pending Results')
-            break
-    sh_thread_pool.stop()
-
 
 def print_result(request, result):
     print("---Result from request %s : %r" % (request.requestID, result))
 
 
-def get_tick_data(code, tick_date):
+def get_tick_data(para):
     '''
     获取code对应股票在指定时间长度内的分笔交易信息
 
@@ -144,11 +145,13 @@ def get_tick_data(code, tick_date):
     -------
         无
     '''
+    code = para[0]
+    tick_date = para[1]
     if STORAGE_MODE == USING_CSV:
         file_path = '%s/%s.csv' % (get_directory_path(tick_date), code)
         if not os.path.exists(file_path):
             try:
-                dm_log.debug('tushare.get_tick_data: %s, tick_date=%s' % (code, tick_date))
+                dm_log.debug('tushare.get_tick_data: %s, tick_date=%s called' % (code, tick_date))
                 df = tushare.get_tick_data(code, tick_date, retry_count=RETRY_COUNT, pause=RETRY_PAUSE)
             except Exception as exception:
                 dm_log.error('tushare.get_tick_data(%s) excpetion, args: %s' % (code, exception.args.__str__()))
@@ -156,6 +159,7 @@ def get_tick_data(code, tick_date):
                 if df is None:
                     dm_log.warning('tushare.get_tick_data(%s) return none' % code)
                 else:
+                    dm_log.debug('tushare.get_tick_data: %s, tick_date=%s done, got %d rows' % (code, tick_date, len(df)))
                     df.to_csv(path_or_buf=file_path, mode='w')
         else:
             dm_log.debug('%s already exists' % file_path)
@@ -164,7 +168,7 @@ def get_tick_data(code, tick_date):
 if __name__ == "__main__":
     today = datetime.datetime.today()
     start_date_str = datetime.datetime.strftime(today, '%Y-%m-%d')
-    get_all_security_tick_data_multi_thread(start_date_str=start_date_str, during=10, direction=TICK_BACKWARD)
+    get_all_security_tick_data_multi_thread(start_date_str=start_date_str, during=30, direction=TICK_BACKWARD)
     # get_all_security_tick_data_no_multi_thread(start_date_str=start_date_str, during=10, direction=TICK_BACKWARD)
     # get_tick_data('002612', start_date_str)
 

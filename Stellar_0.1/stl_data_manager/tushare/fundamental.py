@@ -96,6 +96,7 @@ def get_all_security_basic_info_csv(refresh=False):
     if refresh:
         # 强制从tushare获取数据刷新
         try:
+            dm_log.debug('tushare.get_stock_basics() called')
             basic_data = tushare.get_stock_basics()
         except Exception as exception:
             dm_log.error('tushare.get_stock_basics() excpetion, args: %s' % exception.args.__str__())
@@ -104,6 +105,7 @@ def get_all_security_basic_info_csv(refresh=False):
                 dm_log.warning('tushare.get_stock_basics() return none')
                 return []
             else:
+                dm_log.debug('tushare.get_stock_basics() done, got %d rows' % len(basic_data))
                 basic_data.to_csv(file_path)
                 return basic_data.index.tolist()
     else:
@@ -116,6 +118,7 @@ def get_all_security_basic_info_csv(refresh=False):
         else:
             # 文件不存在, 从tushare获取数据
             try:
+                dm_log.debug('tushare.get_stock_basics() called')
                 basic_data = tushare.get_stock_basics()
             except Exception as exception:
                 dm_log.error('tushare.get_stock_basics() excpetion, args: %s' % exception.args.__str__())
@@ -124,6 +127,7 @@ def get_all_security_basic_info_csv(refresh=False):
                     dm_log.warning('tushare.get_stock_basics() return none')
                     return []
                 else:
+                    dm_log.debug('tushare.get_stock_basics() done, got %d rows' % len(basic_data))
                     basic_data.to_csv(file_path)
                     return basic_data.index.tolist()
 
@@ -153,7 +157,7 @@ def get_report_data(year, quarter):
         无
     '''
     try:
-        dm_log.debug('tushare.get_report_data: year=%d, quarter=%d' % (year, quarter))
+        dm_log.debug('tushare.get_report_data: year=%d, quarter=%d called' % (year, quarter))
         df = tushare.get_report_data(year=year, quarter=quarter)
     except Exception as exception:
         dm_log.error('tushare.get_report_data(%d, %d) excpetion, args: %s' % (year, quarter, exception.args.__str__()))
@@ -161,6 +165,7 @@ def get_report_data(year, quarter):
         if df is None:
             dm_log.warning('tushare.get_report_data(%d, %d) return none' % (year, quarter))
         else:
+            dm_log.debug('tushare.get_report_data: year=%d, quarter=%d done, got %d rows' % (year, quarter, len(df)))
             if STORAGE_MODE == USING_CSV:
                 file_path = '%s/report/%dQ%d.csv' % (get_directory_path(), year, quarter)
                 df.to_csv(file_path)
@@ -189,7 +194,7 @@ def get_profit_data(year, quarter):
         无
     '''
     try:
-        dm_log.debug('tushare.get_profit_data: year=%d, quarter=%d' % (year, quarter))
+        dm_log.debug('tushare.get_profit_data: year=%d, quarter=%d called' % (year, quarter))
         df = tushare.get_profit_data(year=year, quarter=quarter)
     except Exception as exception:
         dm_log.error('tushare.get_profit_data(%d, %d) excpetion, args: %s' % (year, quarter, exception.args.__str__()))
@@ -197,6 +202,7 @@ def get_profit_data(year, quarter):
         if df is None:
             dm_log.warning('tushare.get_profit_data(%d, %d) return none' % (year, quarter))
         else:
+            dm_log.debug('tushare.get_profit_data: year=%d, quarter=%d done, got %d rows' % (year, quarter, len(df)))
             if STORAGE_MODE == USING_CSV:
                 file_path = '%s/profit/%dQ%d.csv' % (get_directory_path(), year, quarter)
                 df.to_csv(file_path)
@@ -224,7 +230,7 @@ def get_operation_data(year, quarter):
         无
     '''
     try:
-        dm_log.debug('tushare.get_operation_data: year=%d, quarter=%d' % (year, quarter))
+        dm_log.debug('tushare.get_operation_data: year=%d, quarter=%d called' % (year, quarter))
         df = tushare.get_operation_data(year=year, quarter=quarter)
     except Exception as exception:
         dm_log.error('tushare.get_operation_data(%d, %d) excpetion, args: %s' % (year, quarter, exception.args.__str__()))
@@ -232,6 +238,7 @@ def get_operation_data(year, quarter):
         if df is None:
             dm_log.warning('tushare.get_operation_data(%d, %d) return none' % (year, quarter))
         else:
+            dm_log.debug('tushare.get_operation_data: year=%d, quarter=%d done, got %d rows' % (year, quarter, len(df)))
             if STORAGE_MODE == USING_CSV:
                 file_path = '%s/operation/%dQ%d.csv' % (get_directory_path(), year, quarter)
                 df.to_csv(file_path)
@@ -259,7 +266,7 @@ def get_growth_data(year, quarter):
         无
     '''
     try:
-        dm_log.debug('tushare.get_growth_data: year=%d, quarter=%d' % (year, quarter))
+        dm_log.debug('tushare.get_growth_data: year=%d, quarter=%d called' % (year, quarter))
         df = tushare.get_growth_data(year=year, quarter=quarter)
     except Exception as exception:
         dm_log.error('tushare.get_growth_data(%d, %d) excpetion, args: %s' % (year, quarter, exception.args.__str__()))
@@ -267,6 +274,7 @@ def get_growth_data(year, quarter):
         if df is None:
             dm_log.warning('tushare.get_growth_data(%d, %d) return none' % (year, quarter))
         else:
+            dm_log.debug('tushare.get_growth_data: year=%d, quarter=%d done, got %d rows' % (year, quarter, len(df)))
             if STORAGE_MODE == USING_CSV:
                 file_path = '%s/growth/%dQ%d.csv' % (get_directory_path(), year, quarter)
                 df.to_csv(file_path)
@@ -294,7 +302,7 @@ def get_debt_data(year, quarter):
         无
     '''
     try:
-        dm_log.debug('tushare.get_debtpaying_data: year=%d, quarter=%d' % (year, quarter))
+        dm_log.debug('tushare.get_debtpaying_data: year=%d, quarter=%d called' % (year, quarter))
         df = tushare.get_debtpaying_data(year=year, quarter=quarter)
     except Exception as exception:
         dm_log.error('tushare.get_debtpaying_data(%d, %d) excpetion, args: %s' % (year, quarter, exception.args.__str__()))
@@ -302,6 +310,7 @@ def get_debt_data(year, quarter):
         if df is None:
             dm_log.warning('tushare.get_debtpaying_data(%d, %d) return none' % (year, quarter))
         else:
+            dm_log.debug('tushare.get_debtpaying_data: year=%d, quarter=%d done, got %d rows' % (year, quarter, len(df)))
             if STORAGE_MODE == USING_CSV:
                 file_path = '%s/debt_pay/%dQ%d.csv' % (get_directory_path(), year, quarter)
                 df.to_csv(file_path)
@@ -328,7 +337,7 @@ def get_cashflow_data(year, quarter):
         无
     '''
     try:
-        dm_log.debug('tushare.get_cashflow_data: year=%d, quarter=%d' % (year, quarter))
+        dm_log.debug('tushare.get_cashflow_data: year=%d, quarter=%d called' % (year, quarter))
         df = tushare.get_cashflow_data(year=year, quarter=quarter)
     except Exception as exception:
         dm_log.error('tushare.get_cashflow_data(%d, %d) excpetion, args: %s' % (year, quarter, exception.args.__str__()))
@@ -336,6 +345,7 @@ def get_cashflow_data(year, quarter):
         if df is None:
             dm_log.warning('tushare.get_cashflow_data(%d, %d) return none' % (year, quarter))
         else:
+            dm_log.debug('tushare.get_cashflow_data: year=%d, quarter=%d done, got %d rows' % (year, quarter, len(df)))
             if STORAGE_MODE == USING_CSV:
                 file_path = '%s/cashflow/%dQ%d.csv' % (get_directory_path(), year, quarter)
                 df.to_csv(file_path)

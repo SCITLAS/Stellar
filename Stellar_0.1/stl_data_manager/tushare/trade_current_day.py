@@ -63,7 +63,7 @@ def get_all_security_current_day_data():
         dm_log.debug('get_all_security_current_day_data begin...')
         file_path = '%s/trade.csv' % get_directory_path()
         try:
-            dm_log.debug('tushare.get_today_all()')
+            dm_log.debug('tushare.get_today_all() called')
             df = tushare.get_today_all()
         except Exception as exception:
             dm_log.error('tushare.get_today_all() excpetion, args: %s' % exception.args.__str__())
@@ -71,6 +71,7 @@ def get_all_security_current_day_data():
             if df is None:
                 dm_log.warning('tushare.get_today_all() return none')
             else:
+                dm_log.debug('tushare.get_today_all() done, got %d rows' % len(df))
                 df.to_csv(file_path)
             dm_log.debug('get_all_security_current_day_data Finish...')
 

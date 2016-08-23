@@ -96,7 +96,7 @@ def get_real_time_tick_data(code):
             dm_log.warning('tushare.get_real_time_tick_data(%s) return none' % code)
             return []
         else:
-            data_dict =df.to_dict()
+            data_dict = df.to_dict()
             dm_log.debug('tushare.get_real_time_tick_data(%s) data: %s' % (code, data_dict))
             return data_dict
 

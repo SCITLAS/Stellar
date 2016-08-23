@@ -107,7 +107,7 @@ def get_index_data(code, start_date):
             try:
                 if start_date_str == '2000-01-01':
                     start_date_str = start_date
-                dm_log.debug('tushare.get_h_data: %s, start=%s, end=%s' % (code, start_date_str, end_date_str))
+                dm_log.debug('tushare.get_h_data: %s, start=%s, end=%s called' % (code, start_date_str, end_date_str))
                 df = tushare.get_h_data(code, start=start_date_str, end=end_date_str, index=True, retry_count=RETRY_COUNT, pause=RETRY_PAUSE, drop_factor=DROP_FACTOR)
             except Exception as exception:
                 dm_log.error('tushare.get_hist_data(%s) excpetion, args: %s' % (code, exception.args.__str__()))
@@ -115,6 +115,7 @@ def get_index_data(code, start_date):
                 if df is None:
                     dm_log.warning('tushare.get_hist_data(%s) return none' % code)
                 else:
+                    dm_log.debug('tushare.get_h_data: %s, start=%s, end=%s done, got %d rows' % (code, start_date_str, end_date_str, len(df)))
                     if is_update:
                         old_data = pd.read_csv(file_path, index_col=0)
                         all_data = df.append(old_data)

@@ -51,7 +51,7 @@ def get_deposit_rate_data():
         无
     '''
     try:
-        dm_log.debug('tushare.get_deposit_rate()')
+        dm_log.debug('tushare.get_deposit_rate() called')
         df = tushare.get_deposit_rate()
     except Exception as exception:
         dm_log.error('tushare.get_deposit_rate() excpetion, args: %s' % exception.args.__str__())
@@ -59,6 +59,7 @@ def get_deposit_rate_data():
         if df is None:
             dm_log.warning('tushare.get_deposit_rate() return none')
         else:
+            dm_log.debug('tushare.get_deposit_rate() done, got %d rows' % len(df))
             if STORAGE_MODE == USING_CSV:
                 file_path = '%s/deposit_rate.csv' % get_directory_path()
                 df.to_csv(file_path)
@@ -80,7 +81,7 @@ def get_loan_rate_data():
         无
     '''
     try:
-        dm_log.debug('tushare.get_loan_rate()')
+        dm_log.debug('tushare.get_loan_rate() called')
         df = tushare.get_loan_rate()
     except Exception as exception:
         dm_log.error('tushare.get_loan_rate() excpetion, args: %s' % exception.args.__str__())
@@ -88,6 +89,7 @@ def get_loan_rate_data():
         if df is None:
             dm_log.warning('tushare.get_loan_rate() return none')
         else:
+            dm_log.debug('tushare.get_loan_rate() done, got %d rows' % len(df))
             if STORAGE_MODE == USING_CSV:
                 file_path = '%s/loan_rate.csv' % get_directory_path()
                 df.to_csv(file_path)
@@ -110,7 +112,7 @@ def get_rrr_data():
         无
     '''
     try:
-        dm_log.debug('tushare.get_rrr()')
+        dm_log.debug('tushare.get_rrr() called')
         df = tushare.get_rrr()
     except Exception as exception:
         dm_log.error('tushare.get_rrr() excpetion, args: %s' % exception.args.__str__())
@@ -118,6 +120,7 @@ def get_rrr_data():
         if df is None:
             dm_log.warning('tushare.get_rrr() return none')
         else:
+            dm_log.debug('tushare.get_rrr() done, got %d rows' % len(df))
             if STORAGE_MODE == USING_CSV:
                 file_path = '%s/rrr.csv' % get_directory_path()
                 df.to_csv(file_path)
@@ -153,7 +156,7 @@ def get_money_supply_data():
         无
     '''
     try:
-        dm_log.debug('tushare.get_money_supply()')
+        dm_log.debug('tushare.get_money_supply() called')
         df = tushare.get_money_supply()
     except Exception as exception:
         dm_log.error('tushare.get_money_supply() excpetion, args: %s' % exception.args.__str__())
@@ -161,6 +164,7 @@ def get_money_supply_data():
         if df is None:
             dm_log.warning('tushare.get_money_supply() return none')
         else:
+            dm_log.debug('tushare.get_money_supply() done, got %d rows' % len(df))
             if STORAGE_MODE == USING_CSV:
                 file_path = '%s/money_supply.csv' % get_directory_path()
                 df.to_csv(file_path)
@@ -188,7 +192,7 @@ def get_money_supply_bal_data():
         无
     '''
     try:
-        dm_log.debug('tushare.get_money_supply_bal()')
+        dm_log.debug('tushare.get_money_supply_bal() called')
         df = tushare.get_money_supply_bal()
     except Exception as exception:
         dm_log.error('tushare.get_money_supply_bal() excpetion, args: %s' % exception.args.__str__())
@@ -196,6 +200,7 @@ def get_money_supply_bal_data():
         if df is None:
             dm_log.warning('tushare.get_money_supply_bal() return none')
         else:
+            dm_log.debug('tushare.get_money_supply_bal() done, got %d rows' % len(df))
             if STORAGE_MODE == USING_CSV:
                 file_path = '%s/money_supply_bal.csv' % get_directory_path()
                 df.to_csv(file_path)
@@ -225,7 +230,7 @@ def get_gdp_year_data():
         无
     '''
     try:
-        dm_log.debug('tushare.get_gdp_year()')
+        dm_log.debug('tushare.get_gdp_year() called')
         df = tushare.get_gdp_year()
     except Exception as exception:
         dm_log.error('tushare.get_gdp_year() excpetion, args: %s' % exception.args.__str__())
@@ -233,6 +238,7 @@ def get_gdp_year_data():
         if df is None:
             dm_log.warning('tushare.get_gdp_year() return none')
         else:
+            dm_log.debug('tushare.get_gdp_year() done, got %d rows' % len(df))
             if STORAGE_MODE == USING_CSV:
                 file_path = '%s/gdp_year.csv' % get_directory_path()
                 df.to_csv(file_path)
@@ -260,7 +266,7 @@ def get_gdp_quarter_data():
         无
     '''
     try:
-        dm_log.debug('tushare.get_gdp_quarter()')
+        dm_log.debug('tushare.get_gdp_quarter() called')
         df = tushare.get_gdp_quarter()
     except Exception as exception:
         dm_log.error('tushare.get_gdp_quarter() excpetion, args: %s' % exception.args.__str__())
@@ -268,6 +274,7 @@ def get_gdp_quarter_data():
         if df is None:
             dm_log.warning('tushare.get_gdp_quarter() return none')
         else:
+            dm_log.debug('tushare.get_gdp_quarter() done, got %d rows' % len(df))
             if STORAGE_MODE == USING_CSV:
                 file_path = '%s/gdp_quarter.csv' % get_directory_path()
                 df.to_csv(file_path)
@@ -293,7 +300,7 @@ def get_gdp_for_data():
         无
     '''
     try:
-        dm_log.debug('tushare.get_gdp_for()')
+        dm_log.debug('tushare.get_gdp_for() called')
         df = tushare.get_gdp_for()
     except Exception as exception:
         dm_log.error('tushare.get_gdp_for() excpetion, args: %s' % exception.args.__str__())
@@ -301,6 +308,7 @@ def get_gdp_for_data():
         if df is None:
             dm_log.warning('tushare.get_gdp_for() return none')
         else:
+            dm_log.debug('tushare.get_gdp_for() done, got %d rows' % len(df))
             if STORAGE_MODE == USING_CSV:
                 file_path = '%s/gdp_for.csv' % get_directory_path()
                 df.to_csv(file_path)
@@ -325,7 +333,7 @@ def get_gdp_pull_data():
         无
     '''
     try:
-        dm_log.debug('tushare.get_gdp_pull()')
+        dm_log.debug('tushare.get_gdp_pull() called')
         df = tushare.get_gdp_pull()
     except Exception as exception:
         dm_log.error('tushare.get_gdp_pull() excpetion, args: %s' % exception.args.__str__())
@@ -333,6 +341,7 @@ def get_gdp_pull_data():
         if df is None:
             dm_log.warning('tushare.get_gdp_pull() return none')
         else:
+            dm_log.debug('tushare.get_gdp_pull() done, got %d rows' % len(df))
             if STORAGE_MODE == USING_CSV:
                 file_path = '%s/gdp_pull.csv' % get_directory_path()
                 df.to_csv(file_path)
@@ -357,7 +366,7 @@ def get_gdp_contribution_data():
         无
     '''
     try:
-        dm_log.debug('tushare.get_gdp_contrib()')
+        dm_log.debug('tushare.get_gdp_contrib() called')
         df = tushare.get_gdp_contrib()
     except Exception as exception:
         dm_log.error('tushare.get_gdp_contrib() excpetion, args: %s' % exception.args.__str__())
@@ -365,6 +374,7 @@ def get_gdp_contribution_data():
         if df is None:
             dm_log.warning('tushare.get_gdp_contrib() return none')
         else:
+            dm_log.debug('tushare.get_gdp_contrib() done, got %d rows' % len(df))
             if STORAGE_MODE == USING_CSV:
                 file_path = '%s/gdp_contribution.csv' % get_directory_path()
                 df.to_csv(file_path)
@@ -385,7 +395,7 @@ def get_gdp_cpi_data():
         无
     '''
     try:
-        dm_log.debug('tushare.get_cpi()')
+        dm_log.debug('tushare.get_cpi() called')
         df = tushare.get_cpi()
     except Exception as exception:
         dm_log.error('tushare.get_cpi() excpetion, args: %s' % exception.args.__str__())
@@ -393,6 +403,7 @@ def get_gdp_cpi_data():
         if df is None:
             dm_log.warning('tushare.get_cpi() return none')
         else:
+            dm_log.debug('tushare.get_cpi() done, got %d rows' % len(df))
             if STORAGE_MODE == USING_CSV:
                 file_path = '%s/cpi.csv' % get_directory_path()
                 df.to_csv(file_path)
@@ -422,7 +433,7 @@ def get_gdp_ppi_data():
         无
     '''
     try:
-        dm_log.debug('tushare.get_ppi()')
+        dm_log.debug('tushare.get_ppi() called')
         df = tushare.get_ppi()
     except Exception as exception:
         dm_log.error('tushare.get_ppi() excpetion, args: %s' % exception.args.__str__())
@@ -430,6 +441,7 @@ def get_gdp_ppi_data():
         if df is None:
             dm_log.warning('tushare.get_ppi() return none')
         else:
+            dm_log.debug('tushare.get_ppi() done, got %d rows' % len(df))
             if STORAGE_MODE == USING_CSV:
                 file_path = '%s/ppi.csv' % get_directory_path()
                 df.to_csv(file_path)

@@ -6,9 +6,9 @@ import os
 import datetime
 import time
 import linecache
+from concurrent.futures import ThreadPoolExecutor
 
 import pandas as pd
-import threadpool
 import tushare
 
 from stl_utils.logger import dm_log
@@ -162,10 +162,8 @@ def get_recent_data_multi_thread(code_list, type, thread_count):
     elif type == '60':
         callable_name = get_recent_60min_data
 
-    pool = threadpool.ThreadPool(thread_count)
-    requests = threadpool.makeRequests(callable_=callable_name, args_list=code_list, callback=print_result)
-    [pool.putRequest(req) for req in requests]
-    pool.wait()
+    pool = ThreadPoolExecutor(max_workers=thread_count)
+    pool.map(callable_name, code_list)
 
 
 def get_recent_day_data(code):
@@ -226,7 +224,7 @@ def get_recent_data(code, type):
             dm_log.debug('%s data is already up-to-date.' % file_path)
         else:
             try:
-                dm_log.debug('tushare.get_hist_data: %s, start=%s, end=%s' % (code, start_date_str, end_date_str))
+                dm_log.debug('tushare.get_hist_data: %s, %s, start=%s, end=%s called' % (type, code, start_date_str, end_date_str))
                 df = tushare.get_hist_data(code, start=start_date_str, end=end_date_str, ktype=type, retry_count=RETRY_COUNT, pause=RETRY_PAUSE)
             except Exception as exception:
                 dm_log.error('tushare.get_hist_data(%s) excpetion, args: %s' % (code, exception.args.__str__()))
@@ -234,6 +232,7 @@ def get_recent_data(code, type):
                 if df is None:
                     dm_log.warning('tushare.get_hist_data(%s) return none' % code)
                 else:
+                    dm_log.debug('tushare.get_hist_data: %s, %s, start=%s, end=%s done, get %d rows' % (type, code, start_date_str, end_date_str, len(df)))
                     if is_update:
                         old_data = pd.read_csv(file_path, index_col=0)
                         all_data = df.append(old_data)

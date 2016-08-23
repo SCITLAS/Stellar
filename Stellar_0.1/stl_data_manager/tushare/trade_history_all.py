@@ -6,6 +6,8 @@ import os
 import datetime
 import time
 import linecache
+from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ProcessPoolExecutor
 
 import threadpool
 import pandas as pd
@@ -43,9 +45,10 @@ DEFAULT_MY_SQL_PATH_TS = '../../../Data/mysql/tushare'
 DEFAULT_MONGO_DB_PATH_TS = '../../../Data/mongodb/tushare'
 
 THREAD_COUNT = 50    # 查询交易数据的并发线程数
+PROCESS_COUNT = 4    # 查询交易数据的并行进程数
 RETRY_COUNT = 5      # 调用tushare接口失败重试次数
 RETRY_PAUSE = 0.1    # 调用tushare接口失败重试间隔时间
-AUTYPE = 'qfq'        # 复权类型，qfq-前复权 hfq-后复权 None-不复权
+AUTYPE = 'qfq'       # 复权类型，qfq-前复权 hfq-后复权 None-不复权
 DROP_FACTOR = True   # 是否移除复权因子，在分析过程中可能复权因子意义不大，但是如需要先储存到数据库之后再分析的话，有该项目会更加灵活
 
 
@@ -89,10 +92,11 @@ def do_get_all_history_multi_thread(code_list, thread_count):
     -------
         无
     '''
-    pool = threadpool.ThreadPool(thread_count)
-    requests = threadpool.makeRequests(callable_=get_all_history, args_list=code_list, callback=print_result)
-    [pool.putRequest(req) for req in requests]
-    pool.wait()
+    # pool = ThreadPoolExecutor(max_workers=None)
+    # pool.map(get_all_history, code_list)
+
+    pool = ProcessPoolExecutor(max_workers=None)
+    pool.map(get_all_history, code_list)
 
 
 def get_all_history(code):
@@ -122,7 +126,7 @@ def get_all_history(code):
             dm_log.debug('%s data is already up-to-date.' % file_path)
         else:
             try:
-                dm_log.debug('tushare.get_h_data: %s, start=%s, end=%s' % (code, start_date_str, end_date_str))
+                dm_log.debug('tushare.get_h_data: %s, start=%s, end=%s called' % (code, start_date_str, end_date_str))
                 df = tushare.get_h_data(code, start=start_date_str, end=end_date_str, autype=AUTYPE, retry_count=RETRY_COUNT, pause=RETRY_PAUSE, drop_factor=DROP_FACTOR)
             except Exception as exception:
                 dm_log.error('tushare.get_hist_data(%s) excpetion, args: %s' % (code, exception.args.__str__()))
@@ -130,6 +134,7 @@ def get_all_history(code):
                 if df is None:
                     dm_log.warning('tushare.get_hist_data(%s) return none' % code)
                 else:
+                    dm_log.debug('tushare.get_h_data: %s, start=%s, end=%s done, get %d rows' % (code, start_date_str, end_date_str, len(df)))
                     if is_update:
                         old_data = pd.read_csv(file_path, index_col=0)
                         all_data = df.append(old_data)

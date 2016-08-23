@@ -57,7 +57,7 @@ def get_news_data(count):
         无
     '''
     try:
-        dm_log.debug('tushare.get_latest_news(%d)' % count)
+        dm_log.debug('tushare.get_latest_news(%d) called' % count)
         df = tushare.get_latest_news(top=count, show_content=False)
     except Exception as exception:
         dm_log.error('tushare.get_deposit_rate(%d) excpetion, args: %s' % (count, exception.args.__str__()))
@@ -65,6 +65,7 @@ def get_news_data(count):
         if df is None:
             dm_log.warning('tushare.get_deposit_rate(%d) return none' % count)
         else:
+            dm_log.debug('tushare.get_latest_news(%d) done, got %d rows' % (count, len(df)))
             if STORAGE_MODE == USING_CSV:
                 file_path = '%s/news/latest_%d.csv' % (get_directory_path(), count)
                 df.to_csv(file_path)
@@ -88,7 +89,7 @@ def get_notice_data(code, date):
         无
     '''
     try:
-        dm_log.debug('tushare.get_notices(%s, %s)' % (code, date))
+        dm_log.debug('tushare.get_notices(%s, %s) called' % (code, date))
         df = tushare.get_notices(code=code, date=date)
     except Exception as exception:
         dm_log.error('tushare.get_notices(%s, %s) excpetion, args: %s' % (code, date, exception.args.__str__()))
@@ -96,8 +97,12 @@ def get_notice_data(code, date):
         if df is None:
             dm_log.warning('tushare.get_notices(%s, %s) return none' % (code, date))
         else:
+            dm_log.debug('tushare.get_notices(%s, %s) done, got %d rows' % (code, date, len(df)))
             if STORAGE_MODE == USING_CSV:
-                file_path = '%s/notice/%s-%s.csv' % (get_directory_path(), code, date)
+                dir_path = '%s/notice/%s' % (get_directory_path(), code)
+                if not os.path.exists(dir_path):
+                    os.makedirs(dir_path)
+                file_path = '%s/%s.csv' % (dir_path, date)
                 df.to_csv(file_path)
 
 
@@ -118,7 +123,7 @@ def get_sina_guba_data():
         无
     '''
     try:
-        dm_log.debug('tushare.guba_sina(%s, %s)')
+        dm_log.debug('tushare.guba_sina() called')
         df = tushare.guba_sina(show_content=False)
     except Exception as exception:
         dm_log.error('tushare.guba_sina() excpetion, args: %s' % exception.args.__str__())
@@ -126,6 +131,7 @@ def get_sina_guba_data():
         if df is None:
             dm_log.warning('tushare.guba_sina() return none')
         else:
+            dm_log.debug('tushare.guba_sina() done, get %d rows' % len(df))
             if STORAGE_MODE == USING_CSV:
                 file_path = '%s/sina_guba/data.csv' % get_directory_path()
                 df.to_csv(file_path)

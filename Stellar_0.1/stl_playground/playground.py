@@ -4,6 +4,7 @@ __author__ = 'MoroJoJo'
 
 from time import time
 from threading import Thread
+from concurrent.futures import ThreadPoolExecutor
 
 import pandas as pd
 import threadpool
@@ -277,6 +278,68 @@ def print_result(request, result):
     print("the result is %s %r"%(request.requestID, result))
 
 
+
+
+
+
+# concurrent.futures test
+def do_ts_thread_pool_executor_test():
+    code_list = ['000951', '600036', '600100', '600577']
+    start = time()
+    pool = ThreadPoolExecutor(max_workers=2)
+    pool.map(get_day_data, code_list)
+    end = time()
+    print('Tushare threadpool test took %.3f seconds' % (end - start))
+
+
+
+
+
+
+# coroutine test
+# def coroutine_produce(consumer):
+#     code_list = ['000951', '600036', '600100', '600577']
+#     next(consumer)
+#     index = 0
+#     while index < len(code_list):
+#         print('[PRODUCER] Producing %s...' % index)
+#         result = consumer.send(code_list[index])
+#         print('[PRODUCER] Consumer return: %s' % result)
+#         index = index + 1
+#     consumer.close()
+#
+#
+# def coroutine_consume():
+#     result = 0
+#     while True:
+#         code = yield result
+#         if not code:
+#             return
+#         print('[CONSUMER] Consuming %s...' % code)
+#         df = ts.get_h_data(code)
+#         print(len(df))
+#
+# def do_ts_coroutine_test():
+#     start = time()
+#     c = coroutine_consume()
+#     coroutine_produce(c)
+#     end = time()
+#     print('Tushare coroutine test took %.3f seconds' % (end - start))
+
+def ts_coroutine():
+    while True:
+        code = yield
+        df = ts.get_h_data(code, '2000-01-01', '2016-08-10')
+        print(len(df))
+
+def do_ts_coroutine_test():
+    code_list = ['000951', '600036', '600100', '600577']
+    it = ts_coroutine()
+    next(it)
+    for code in code_list:
+        print('send code: %s' % code)
+        it.send(code)
+
 if __name__ == '__main__':
     # dataframe2csv_test()
     # dataframe2list_test()
@@ -298,8 +361,10 @@ if __name__ == '__main__':
     # do_factorize_thread_test()
     # do_ts_thread_test()
 
-    do_ts_threadpool_test()
+    # do_ts_threadpool_test()
+    # do_ts_thread_pool_executor_test()
 
+    do_ts_coroutine_test()
 
 
 

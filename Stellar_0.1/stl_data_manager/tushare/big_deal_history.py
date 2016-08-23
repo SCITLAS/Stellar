@@ -5,6 +5,7 @@ __author__ = 'MoroJoJo'
 import os
 import datetime
 import time
+from concurrent.futures import ThreadPoolExecutor
 
 import tushare
 
@@ -66,9 +67,14 @@ def get_all_security_big_deal_no_multi_thread(start_date_str, during, direction,
     code_list = sfund.get_all_security_basic_info()              # 获取所有股票的基本信息
     deal_date_str = start_date_str
     for offset in range(1, during):
+        if tushare.is_holiday(deal_date_str):
+            star_date = datetime.datetime.strptime(deal_date_str, '%Y-%m-%d')
+            next_day = star_date + datetime.timedelta(days=tick_step)
+            deal_date_str = datetime.datetime.strftime(next_day, '%Y-%m-%d')
+            continue
         for code in code_list:
             dm_log.debug('get_big_deal_data, code: %s, deal_date: %s' % (code, deal_date_str))
-            get_big_deal_data(code, deal_date_str, vol)
+            get_big_deal_data((code, deal_date_str, vol))
         if direction == DEAL_BACKWARD:
             tick_step = -offset
         else:
@@ -97,36 +103,33 @@ def get_all_security_big_deal_multi_thread(start_date_str, during, direction, vo
     code_list = sfund.get_all_security_basic_info()              # 获取所有股票的基本信息
     deal_date_str = start_date_str
 
-    sh_thread_pool = stp.StlThreadPool(THREAD_COUNT)
     for offset in range(1, during):
+        if tushare.is_holiday(deal_date_str):
+            star_date = datetime.datetime.strptime(deal_date_str, '%Y-%m-%d')
+            next_day = star_date + datetime.timedelta(days=tick_step)
+            deal_date_str = datetime.datetime.strftime(next_day, '%Y-%m-%d')
+            continue
+
+        para_list = []
         for code in code_list:
-            dm_log.debug('get_big_deal_data, code: %s, deal_date: %s' % (code, deal_date_str))
-            req = stp.StlWorkRequest(get_big_deal_data, args=[code, deal_date_str, vol], callback=print_result)
-            sh_thread_pool.putRequest(req)
-            dm_log.debug('work request #%s added to sh_thread_pool' % req.requestID)
+            para_list.append((code, deal_date_str, vol))
+        pool = ThreadPoolExecutor(max_workers=THREAD_COUNT)
+        pool.map(get_big_deal_data, para_list)
+
         if direction == DEAL_BACKWARD:
-            tick_step = -offset
+            tick_step = -1
         else:
-            tick_step = offset
+            tick_step = 1
         star_date = datetime.datetime.strptime(deal_date_str, '%Y-%m-%d')
         next_day = star_date + datetime.timedelta(days=tick_step)
         deal_date_str = datetime.datetime.strftime(next_day, '%Y-%m-%d')
-
-    while True:
-        try:
-            time.sleep(0.5)
-            sh_thread_pool.poll()
-        except stp.StlNoResultsPendingException:
-            dm_log.debug('No Pending Results')
-            break
-    sh_thread_pool.stop()
 
 
 def print_result(request, result):
     print("---Result from request %s : %r" % (request.requestID, result))
 
 
-def get_big_deal_data(code, deal_date, vol=VOL):
+def get_big_deal_data(para):
     '''
     获取code对应股票在指定时间长度内的大单交易数据
 
@@ -141,24 +144,28 @@ def get_big_deal_data(code, deal_date, vol=VOL):
     Parameters
     ------
         code: 股票代码
-        tick_date: 查询日期
+        deal_date: 查询日期
         vol: 大单手数
     return
     -------
         无
     '''
+    code = para[0]
+    deal_date = para[1]
+    vol = para[2]
     if STORAGE_MODE == USING_CSV:
         file_path = '%s/%s.csv' % (get_directory_path(deal_date, vol), code)
         if not os.path.exists(file_path):
             try:
-                dm_log.debug('tushare.get_sina_dd: %s, tick_date=%s' % (code, deal_date))
+                dm_log.debug('tushare.get_sina_dd: %s, tick_date=%s called' % (code, deal_date))
                 df = tushare.get_sina_dd(code, date=deal_date, vol=vol, retry_count=RETRY_COUNT, pause=RETRY_PAUSE)
             except Exception as exception:
                 dm_log.error('tushare.get_sina_dd(%s) excpetion, args: %s' % (code, exception.args.__str__()))
             else:
                 if df is None:
-                    dm_log.warning('tushare.get_sina_dd(%s) return none' % code)
+                    dm_log.warning('tushare.get_sina_dd: %s, tick_date=%s return none' % (code, deal_date))
                 else:
+                    dm_log.debug('tushare.get_sina_dd: %s, tick_date=%s done, got %d rows' % (code, deal_date, len(df)))
                     df.to_csv(file_path)
         else:
             dm_log.debug('%s already exists' % file_path)
@@ -166,7 +173,9 @@ def get_big_deal_data(code, deal_date, vol=VOL):
 
 if __name__ == "__main__":
     # get_all_security_big_deal_no_multi_thread(start_date_str='2016-08-19', during=10, direction=DEAL_BACKWARD, vol=400)
-    get_all_security_big_deal_multi_thread(start_date_str='2016-08-19', during=10, direction=DEAL_BACKWARD, vol=200)
+    today = datetime.datetime.today()
+    start_date_str = datetime.datetime.strftime(today, '%Y-%m-%d')
+    get_all_security_big_deal_multi_thread(start_date_str=start_date_str, during=30, direction=DEAL_BACKWARD, vol=200)
     # get_big_deal_data('002612', '2016-08-19', vol=200)
 
 

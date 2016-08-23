@@ -51,6 +51,7 @@ def get_index_real_time_data():
                                      23: '创业板R'}
     '''
     try:
+        dm_log.debug('tushare.get_index() called')
         df = tushare.get_index()
     except Exception as exception:
         dm_log.error('tushare.get_index() excpetion, args: %s' % exception.args.__str__())
