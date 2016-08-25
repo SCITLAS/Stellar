@@ -5,6 +5,9 @@ __author__ = 'MoroJoJo'
 from time import time
 from threading import Thread
 from concurrent.futures import ThreadPoolExecutor
+from functools import wraps
+from contextlib import contextmanager
+
 
 import pandas as pd
 import threadpool
@@ -340,6 +343,70 @@ def do_ts_coroutine_test():
         print('send code: %s' % code)
         it.send(code)
 
+
+
+
+
+
+
+def wrap_me(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        print('1.in wrapper, before call func')
+        result = func(*args, **kwargs)
+        print('3.in wrapper, after call func')
+        print('4.func result: %s' % result)
+        return result
+    return wrapper
+
+@wrap_me
+def some_func():
+    print('2.some_func called')
+    return 'some_func result'
+
+def wrap_test():
+    some_func()
+
+
+
+
+
+
+@contextmanager
+def do_something(para):
+    print('1.do_something with para:%s' % para)
+    try:
+        yield
+    finally:
+        print('3.do_something end')
+
+@contextmanager
+def do_something_2(para):
+    print('1.do_something with para:%s' % para)
+    ds = object
+    try:
+        yield ds
+    finally:
+        print('3.do_something end')
+
+def contextmanager_test():
+    print('---------------------------------------------')
+    with do_something('xxx'):
+        print('2.Inside')
+    print('4.Outside')
+
+    print('---------------------------------------------')
+
+    with do_something_2('xxx') as ds:
+        print('2.Inside, ds is %s' % ds)
+    print('4.Outside')
+    print('---------------------------------------------')
+
+
+
+
+
+
 if __name__ == '__main__':
     # dataframe2csv_test()
     # dataframe2list_test()
@@ -364,7 +431,9 @@ if __name__ == '__main__':
     # do_ts_threadpool_test()
     # do_ts_thread_pool_executor_test()
 
-    do_ts_coroutine_test()
+    # do_ts_coroutine_test()
 
+    # wrap_test()
+    contextmanager_test()
 
 

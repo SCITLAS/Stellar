@@ -4,7 +4,6 @@ __author__ = 'MoroJoJo'
 
 import os
 import datetime
-import time
 import linecache
 import pandas as pd
 
@@ -138,7 +137,7 @@ def get_input_para(file_path):
         end_date_str: 本次获取数据的结束日期
     '''
     start_date_str = '2000-01-01'
-    end_date_str = time.strftime('%Y-%m-%d')
+    end_date_str = datetime.date.strftime(datetime.date.today(), '%Y-%m-%d')
     is_update = False
     if os.path.exists(file_path):
         dm_log.debug('%s exists, do update task' % file_path)
@@ -156,7 +155,7 @@ def get_input_para(file_path):
             today = datetime.datetime.today()
             if (today - latest_date).days >= 1:
                 next_day = latest_date + datetime.timedelta(days=1)
-                start_date_str = datetime.datetime.strftime(next_day, '%Y-%m-%d')
+                start_date_str = datetime.date.strftime(next_day.date(), '%Y-%m-%d')
             else:
                 start_date_str = end_date_str
     else:

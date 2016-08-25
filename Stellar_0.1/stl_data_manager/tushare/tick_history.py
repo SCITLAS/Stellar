@@ -63,22 +63,25 @@ def get_all_security_tick_data_no_multi_thread(start_date_str, during, direction
     code_list = sfund.get_all_security_basic_info()              # 获取所有股票的基本信息
     tick_date_str = start_date_str
     for offset in range(1, during):
-        if tushare.is_holiday(tick_date_str):
-            star_date = datetime.datetime.strptime(tick_date_str, '%Y-%m-%d')
-            next_day = star_date + datetime.timedelta(days=tick_step)
-            tick_date_str = datetime.datetime.strftime(next_day, '%Y-%m-%d')
-            continue
-        for code in code_list:
-            dm_log.debug('get_tick_data, code: %s, tick_date: %s' % (code, tick_date_str))
-            get_tick_data((code, tick_date_str))
         if direction == TICK_BACKWARD:
             tick_step = -1
         else:
             tick_step = 1
+
+        if tushare.is_holiday(tick_date_str):
+            star_date = datetime.datetime.strptime(tick_date_str, '%Y-%m-%d')
+            next_day = star_date + datetime.timedelta(days=tick_step)
+            tick_date_str = datetime.date.strftime(next_day.date(), '%Y-%m-%d')
+            continue
+
+        for code in code_list:
+            dm_log.debug('get_tick_data, code: %s, tick_date: %s' % (code, tick_date_str))
+            get_tick_data((code, tick_date_str))
+
         print(tick_date_str)
         star_date = datetime.datetime.strptime(tick_date_str, '%Y-%m-%d')
         next_day = star_date + datetime.timedelta(days=tick_step)
-        tick_date_str = datetime.datetime.strftime(next_day, '%Y-%m-%d')
+        tick_date_str = datetime.date.strftime(next_day.date(), '%Y-%m-%d')
 
     dm_log.debug('get_all_security_tick_data_no_multi_thread Finish...')
 
@@ -100,10 +103,15 @@ def get_all_security_tick_data_multi_thread(start_date_str, during, direction):
     tick_date_str = start_date_str
 
     for offset in range(1, during):
+        if direction == TICK_BACKWARD:
+            tick_step = -1
+        else:
+            tick_step = 1
+
         if tushare.is_holiday(tick_date_str):
             star_date = datetime.datetime.strptime(tick_date_str, '%Y-%m-%d')
             next_day = star_date + datetime.timedelta(days=tick_step)
-            tick_date_str = datetime.datetime.strftime(next_day, '%Y-%m-%d')
+            tick_date_str = datetime.date.strftime(next_day.date(), '%Y-%m-%d')
             continue
 
         para_list = []
@@ -112,14 +120,10 @@ def get_all_security_tick_data_multi_thread(start_date_str, during, direction):
         pool = ThreadPoolExecutor(max_workers=THREAD_COUNT)
         pool.map(get_tick_data, para_list)
 
-        if direction == TICK_BACKWARD:
-            tick_step = -1
-        else:
-            tick_step = 1
         print(tick_date_str)
         star_date = datetime.datetime.strptime(tick_date_str, '%Y-%m-%d')
         next_day = star_date + datetime.timedelta(days=tick_step)
-        tick_date_str = datetime.datetime.strftime(next_day, '%Y-%m-%d')
+        tick_date_str = datetime.date.strftime(next_day.date(), '%Y-%m-%d')
 
 
 def print_result(request, result):
