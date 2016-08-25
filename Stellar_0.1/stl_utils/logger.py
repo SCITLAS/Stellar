@@ -15,6 +15,9 @@ from logbook.more import ColorizedStderrHandler
 '''
 
 
+__all__ = ['dm_log']
+
+
 DATA_MGR_LOG = 0
 TEST_BACK_LOG = 1
 

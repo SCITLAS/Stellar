@@ -170,8 +170,8 @@ def get_tick_data(para):
 
 
 if __name__ == "__main__":
-    today = datetime.datetime.today()
-    start_date_str = datetime.datetime.strftime(today, '%Y-%m-%d')
+    today = datetime.date.today()
+    start_date_str = datetime.date.strftime(today, '%Y-%m-%d')
     get_all_security_tick_data_multi_thread(start_date_str=start_date_str, during=30, direction=TICK_BACKWARD)
     # get_all_security_tick_data_no_multi_thread(start_date_str=start_date_str, during=10, direction=TICK_BACKWARD)
     # get_tick_data('002612', start_date_str)

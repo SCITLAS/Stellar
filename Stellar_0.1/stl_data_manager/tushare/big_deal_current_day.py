@@ -8,7 +8,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 import tushare
 
-from stl_utils.logger import dm_log
+from stl_utils.logger import *
 from stl_utils.data_utils import is_market_closed
 from stl_utils.data_utils import need_data_file_refresh
 from stl_data_manager.tushare import fundamental as sfund
@@ -61,8 +61,8 @@ def get_all_security_current_day_big_deal_no_multi_thread(vol=VOL):
     '''
     dm_log.debug('get_all_security_current_day_big_deal_no_multi_thread Begin...')
 
-    today = datetime.datetime.today()
-    today_str = datetime.datetime.strftime(today, '%Y-%m-%d')
+    today = datetime.date.today()
+    today_str = datetime.date.strftime(today, '%Y-%m-%d')
     code_list = sfund.get_all_security_basic_info()              # 获取所有股票的基本信息
     for code in code_list:
         dm_log.debug('get_big_deal_data, code: %s, deal_date: %s' % (code, today_str))
@@ -82,8 +82,8 @@ def get_all_security_current_day_big_deal_multi_thread(vol=VOL):
     -------
         无
     '''
-    today = datetime.datetime.today()
-    today_str = datetime.datetime.strftime(today, '%Y-%m-%d')
+    today = datetime.date.today()
+    today_str = datetime.date.strftime(today, '%Y-%m-%d')
 
     if tushare.is_holiday(today_str):
         dm_log.debug('get_all_security_current_day_big_deal_multi_thread() deal_date: %s skipped, cause this day is a holiday' % today_str)

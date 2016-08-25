@@ -113,7 +113,7 @@ def get_all_security_big_deal_multi_thread(start_date_str, during, direction, vo
         if tushare.is_holiday(deal_date_str):
             star_date = datetime.datetime.strptime(deal_date_str, '%Y-%m-%d')
             next_day = star_date + datetime.timedelta(days=tick_step)
-            deal_date_str = datetime.datetime.strftime(next_day.date(), '%Y-%m-%d')
+            deal_date_str = datetime.date.strftime(next_day.date(), '%Y-%m-%d')
             continue
 
         para_list = []
