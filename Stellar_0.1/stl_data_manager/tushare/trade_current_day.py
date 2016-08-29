@@ -7,7 +7,8 @@ import os
 import tushare
 
 from stl_utils.logger import dm_log
-
+from stl_utils.data import is_market_closed
+from stl_utils.data import need_data_file_refresh
 
 '''
 获取证券股票的最新一个交易日行情信息
@@ -26,6 +27,18 @@ DEFAULT_MY_SQL_PATH_TS = '../../../Data/mysql/tushare'
 DEFAULT_MONGO_DB_PATH_TS = '../../../Data/mongodb/tushare'
 
 
+class TradeException(Exception):
+    '''
+    Base-class for all exceptions raised by this module
+    '''
+
+
+class MarketNotCloseException(TradeException):
+    '''
+    Market has not closed yet, at this moment. Data is not available.
+    '''
+
+
 def get_directory_path():
     dir_path = ''
     if STORAGE_MODE == USING_CSV:
@@ -36,6 +49,16 @@ def get_directory_path():
 
 
 def get_all_security_current_day_data():
+    try:
+        _get_all_security_current_day_data()
+    except MarketNotCloseException:
+        dm_log.error('Market is not close yet, while getting current day trade data')
+    except Exception as e:
+        dm_log.error('Exception %s raised while while getting current day trade data' % e)
+        raise
+
+
+def _get_all_security_current_day_data():
     '''
     获取所有股票的最新一个交易日数据,并将结果保存到对应csv文件
 
@@ -59,9 +82,19 @@ def get_all_security_current_day_data():
     -------
         无
     '''
+    if not is_market_closed():
+        # now is too early for refresh, current day data is not ready.
+        dm_log.debug('Now is too early for refresh, current day data is not ready.')
+        raise MarketNotCloseException
+
     if STORAGE_MODE == USING_CSV:
-        dm_log.debug('get_all_security_current_day_data begin...')
         file_path = '%s/trade.csv' % get_directory_path()
+        if not need_data_file_refresh(file_path):
+            # the file is already refreshed some time current day after valid date, no need to refresh
+            dm_log.debug('%s is already up-to-date, no need to refresh.' % file_path)
+            return
+
+        dm_log.debug('get_all_security_current_day_data begin...')
         try:
             dm_log.debug('tushare.get_today_all() called')
             df = tushare.get_today_all()

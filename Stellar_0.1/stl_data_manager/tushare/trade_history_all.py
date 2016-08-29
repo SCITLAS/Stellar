@@ -12,7 +12,7 @@ import pandas as pd
 import tushare
 
 from stl_utils.logger import dm_log
-from stl_utils import file_utils as sfu
+from stl_utils import file as sfu
 from stl_data_manager.tushare import fundamental as sfund
 
 

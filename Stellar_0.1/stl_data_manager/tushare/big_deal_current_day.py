@@ -9,8 +9,8 @@ from concurrent.futures import ThreadPoolExecutor
 import tushare
 
 from stl_utils.logger import *
-from stl_utils.data_utils import is_market_closed
-from stl_utils.data_utils import need_data_file_refresh
+from stl_utils.data import is_market_closed
+from stl_utils.data import need_data_file_refresh
 from stl_data_manager.tushare import fundamental as sfund
 
 

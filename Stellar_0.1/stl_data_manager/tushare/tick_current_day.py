@@ -8,8 +8,8 @@ from concurrent.futures import ThreadPoolExecutor
 import tushare
 
 from stl_utils.logger import dm_log
-from stl_utils.data_utils import is_market_closed
-from stl_utils.data_utils import need_data_file_refresh
+from stl_utils.data import is_market_closed
+from stl_utils.data import need_data_file_refresh
 from stl_data_manager.tushare import fundamental as sfund
 
 
@@ -35,6 +35,18 @@ RETRY_PAUSE = 0.1    # 调用tushare接口失败重试间隔时间
 
 TICK_FORWARD = 0
 TICK_BACKWARD = 1
+
+
+class TickException(Exception):
+    '''
+    Base-class for all exceptions raised by this module
+    '''
+
+
+class MarketNotCloseException(TickException):
+    '''
+    Market has not closed yet, at this moment. Data is not available.
+    '''
 
 
 def get_directory_path():
@@ -88,6 +100,16 @@ def print_result(request, result):
 
 
 def get_current_day_tick_data(code):
+    try:
+        _get_current_day_tick_data(code)
+    except MarketNotCloseException:
+        dm_log.error('Market is not close yet, while getting current day tick data of %s' % code)
+    except Exception as e:
+        dm_log.error('Exception %s raised while while getting current day tick data of %s' % (e, code))
+        raise
+
+
+def _get_current_day_tick_data(code):
     '''
     获取code对应股票最新一个交易日的分笔交易信息
 
@@ -109,7 +131,7 @@ def get_current_day_tick_data(code):
     if not is_market_closed():
         # now is too early for refresh, current day data is not ready.
         dm_log.debug('Now is too early for refresh, current day data is not ready.')
-        return
+        raise MarketNotCloseException
 
     if STORAGE_MODE == USING_CSV:
         file_path = '%s/%s.csv' % (get_directory_path(), code)

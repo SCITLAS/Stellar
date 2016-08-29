@@ -9,6 +9,8 @@ from concurrent.futures import ThreadPoolExecutor
 import tushare
 
 from stl_utils.logger import dm_log
+from stl_utils.data import is_market_closed
+from stl_utils.data import need_data_file_refresh
 from stl_data_manager.tushare import fundamental as sfund
 
 
@@ -35,6 +37,18 @@ VOL = 400            # 定义为大单的手数
 
 DEAL_FORWARD = 0
 DEAL_BACKWARD = 1
+
+
+class BigDealException(Exception):
+    '''
+    Base-class for all exceptions raised by this module
+    '''
+
+
+class MarketNotCloseException(BigDealException):
+    '''
+    Market has not closed yet, at this moment. Data is not available.
+    '''
 
 
 def get_directory_path(date, vol):
@@ -132,6 +146,16 @@ def print_result(request, result):
 
 
 def get_big_deal_data(para):
+    try:
+        _get_big_deal_data(para)
+    except MarketNotCloseException:
+        dm_log.error('Market is not close yet, while getting current day big deal data for %s on %s with vol:%s' % (para[0], para[1], para[2]))
+    except Exception as e:
+        dm_log.error('Exception %s raised while getting current day big deal data for %s on %s with vol:%s' % (e, para[0], para[1], para[2]))
+        raise
+
+
+def _get_big_deal_data(para):
     '''
     获取code对应股票在指定时间长度内的大单交易数据
 
@@ -152,11 +176,21 @@ def get_big_deal_data(para):
     -------
         无
     '''
+    if not is_market_closed():
+        # now is too early for refresh, current day data is not ready.
+        dm_log.debug('Now is too early for refresh, current day data is not ready.')
+        raise MarketNotCloseException
+
     code = para[0]
     deal_date = para[1]
     vol = para[2]
     if STORAGE_MODE == USING_CSV:
         file_path = '%s/%s.csv' % (get_directory_path(deal_date, vol), code)
+        if not need_data_file_refresh(file_path):
+            # the file is already refreshed some time current day after valid date, no need to refresh
+            dm_log.debug('%s is already up-to-date, no need to refresh.' % file_path)
+            return
+
         if not os.path.exists(file_path):
             try:
                 dm_log.debug('tushare.get_sina_dd: %s, tick_date=%s called' % (code, deal_date))
