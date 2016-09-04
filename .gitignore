@@ -1,17 +1,4 @@
 
-
-Stellar_0.1/.idea/.name
-
-Stellar_0.1/.idea/encodings.xml
-
-Stellar_0.1/.idea/misc.xml
-
-Stellar_0.1/.idea/modules.xml
-
-Stellar_0.1/.idea/Stellar_0.1.iml
-
-Stellar_0.1/.idea/workspace.xml
-
 *.pyc
 
 *.log
@@ -23,3 +10,11 @@ Stellar_0.1/.idea/workspace.xml
 *.xlsx
 
 *.h5
+
+*.pkl
+
+
+Stellar_0.1/.idea/*
+Stellar_0.1/stl_test_back/rqalpha/data_bundle/*
+Stellar_0.1/stl_test_back/rqalpha/strategy/*
+
