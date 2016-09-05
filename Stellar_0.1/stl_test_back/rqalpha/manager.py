@@ -50,10 +50,17 @@ def _get_data_bundle_tmp_path():
     return ('%s/.rqalpha' % DEFAULT_DATA_BUNDLE_TMP_PATH)
 
 
-def _get_strategy_path(file_name):
-    if not os.path.exists(DEFAULT_STRATEGY_PATH):
-        os.makedirs(DEFAULT_STRATEGY_PATH)
-    return '%s/%s' % (DEFAULT_STRATEGY_PATH, file_name)
+def _get_strategy_path(type, file_name):
+    if type == 'rqalpha':
+        dir_path = '%s/%s' % (DEFAULT_STRATEGY_PATH, 'rqalpha')
+        if not os.path.exists(dir_path):
+            os.makedirs(dir_path)
+        return '%s/%s' % (dir_path, file_name)
+    else:
+        dir_path = '%s/%s' % (DEFAULT_STRATEGY_PATH, 'stellar')
+        if not os.path.exists(dir_path):
+            os.makedirs(dir_path)
+        return '%s/%s' % (dir_path, file_name)
 
 
 def _get_result_path(dir):
@@ -134,7 +141,7 @@ def run(para):
         source_code = f.read()
 
     results_df = run_strategy(source_code, strategy_file, start_date, end_date,
-                              init_cash, data_bundle_path, True)
+                              init_cash, data_bundle_path, need_plot)
 
     if output_file is not None:
         results_df.to_pickle(output_file)
@@ -142,6 +149,7 @@ def run(para):
     if need_plot:
         show_draw_result(strategy_file, results_df)
 
+    print(results_df)
     return results_df
 
 
@@ -162,9 +170,9 @@ def show_result(strategy_file, result_df):
 
 def run_simple_macd_strategy():
     para = {}
-    para['strategy_file'] = _get_strategy_path('simple_macd.py')
+    para['strategy_file'] = _get_strategy_path('rqalpha', 'simple_macd.py')
     para['start_date'] = '2014-01-01'
-    para['end_date'] = '2016-09-01'
+    para['end_date'] = '2016-10-01'
     para['output_file'] = '%s/%s' % (_get_result_path('simple_macd'), 'result.pkl')
     para['data_bundle_path'] = _get_data_bundle_path()
     para['init_cash'] = 100000
@@ -174,9 +182,9 @@ def run_simple_macd_strategy():
 
 def show_simple_macd_test_result():
     para = {}
-    para['strategy_file'] = _get_strategy_path('simple_macd.py')
+    para['strategy_file'] = _get_strategy_path('rqalpha', 'simple_macd.py')
     para['start_date'] = '2014-01-01'
-    para['end_date'] = '2016-09-01'
+    para['end_date'] = '2016-10-01'
     para['output_file'] = '%s/%s' % (_get_result_path('simple_macd'), 'result.pkl')
     para['data_bundle_path'] = _get_data_bundle_path()
     para['init_cash'] = 100000
@@ -189,6 +197,7 @@ if __name__ == '__main__':
     # update_data_bundle()
     # run_simple_macd_strategy()
     show_simple_macd_test_result()
+
 
 
 
