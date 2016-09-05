@@ -13,6 +13,7 @@
 
 *.pkl
 
+*.DS_Store
 
 Stellar_0.1/.idea/*
 Stellar_0.1/stl_test_back/rqalpha/data_bundle/*
