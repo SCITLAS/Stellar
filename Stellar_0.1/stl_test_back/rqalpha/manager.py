@@ -7,25 +7,15 @@ import sys
 import os
 import shutil
 import datetime
-import tempfile
 import tarfile
-import errno
-import csv
 
-import pandas as pd
 import click
 import requests
-from six import exec_, print_, StringIO, iteritems
+from six import print_
 
-from rqalpha import StrategyExecutor
-from rqalpha import api
-from rqalpha.data import LocalDataProxy
-from rqalpha.trading_params import TradingParams
-from rqalpha.utils.click_helper import Date
-from rqalpha.utils import dummy_func, convert_int_to_date
-from rqalpha.scheduler import Scheduler
 from rqalpha.__main__ import run_strategy
 from rqalpha.__main__ import show_draw_result
+
 
 '''
 基于RiceQuant开源的策略回测框架RQAlpha,包装的策略回测API

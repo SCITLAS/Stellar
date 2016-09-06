@@ -314,7 +314,7 @@ def check_data_integrity(data_path):
                     if tmp_code == code:
                         found = True
                         break
-                if found != True:
+                if found is not True:
                     missing_code_list.append(code)
 
             return missing_code_list
