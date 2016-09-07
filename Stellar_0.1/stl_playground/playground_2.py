@@ -47,10 +47,10 @@ class TradeEventSource:
                     yield day.replace(hour=9, minute=minute+30, second=0), EVENT_TYPE.HANDLE_BAR
                 if minute >= 30 and minute < 90:
                     yield day.replace(hour=10, minute=minute-30, second=0), EVENT_TYPE.HANDLE_BAR
-                if  minute >= 90 and minute < 120:
+                if minute >= 90 and minute < 120:
                     yield day.replace(hour=11, minute=minute-90, second=0), EVENT_TYPE.HANDLE_BAR
                 # 边界值
-                if  minute == 120:
+                if minute == 120:
                     yield day.replace(hour=11, minute=minute-90, second=0), EVENT_TYPE.HANDLE_BAR
                     yield day.replace(hour=13, minute=minute-120, second=0), EVENT_TYPE.HANDLE_BAR
                 # 下午
@@ -58,7 +58,7 @@ class TradeEventSource:
                     yield day.replace(hour=13, minute=minute-120, second=0), EVENT_TYPE.HANDLE_BAR
                 if minute >= 180 and minute < 240:
                     yield day.replace(hour=14, minute=minute-180, second=0), EVENT_TYPE.HANDLE_BAR
-                if  minute == 240:
+                if minute == 240:
                     yield day.replace(hour=15, minute=minute-240, second=0), EVENT_TYPE.HANDLE_BAR
             # 收盘
             yield day.replace(hour=16, minute=0, second=0), EVENT_TYPE.DAY_END
@@ -79,10 +79,10 @@ class TradeEventSource:
                         yield day.replace(hour=9, minute=minute+30, second=tick), EVENT_TYPE.HANDLE_BAR
                     if minute >= 30 and minute < 90:
                         yield day.replace(hour=10, minute=minute-30, second=tick), EVENT_TYPE.HANDLE_BAR
-                    if  minute >= 90 and minute < 120:
+                    if minute >= 90 and minute < 120:
                         yield day.replace(hour=11, minute=minute-90, second=tick), EVENT_TYPE.HANDLE_BAR
                     # 边界值
-                    if  minute == 120:
+                    if minute == 120:
                         if not is_morning_trade_over:
                             yield day.replace(hour=11, minute=minute-90, second=tick), EVENT_TYPE.HANDLE_BAR
                             is_morning_trade_over = True
@@ -92,7 +92,7 @@ class TradeEventSource:
                         yield day.replace(hour=13, minute=minute-120, second=tick), EVENT_TYPE.HANDLE_BAR
                     if minute >= 180 and minute < 240:
                         yield day.replace(hour=14, minute=minute-180, second=tick), EVENT_TYPE.HANDLE_BAR
-                    if  minute == 240:
+                    if minute == 240:
                         if not is_aftrernoon_trade_over:
                             yield day.replace(hour=15, minute=minute-240, second=tick), EVENT_TYPE.HANDLE_BAR
                             is_aftrernoon_trade_over = True
@@ -106,7 +106,6 @@ class TradeEventSource:
     def __next__(self):
         for date, event in self.generator:
             return date, event
-
         raise StopIteration
 
 
