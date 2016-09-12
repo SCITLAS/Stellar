@@ -14,8 +14,6 @@ Stellar
 #### 项目依赖：
 - anaconda
 - pyqt5
-- pymysql
-- pymongo
 - ta-lib
 - tushare
 - quandl
@@ -37,8 +35,6 @@ A single process stand alone system, developed with python 3.5, in pycharm 5
 #### Dependencies:
 - anaconda
 - pyqt5
-- pymysql
-- pymongo
 - ta-lib
 - tushare
 - quandl
