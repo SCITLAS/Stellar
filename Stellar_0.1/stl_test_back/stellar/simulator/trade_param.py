@@ -1,2 +1,27 @@
 # -*- coding: utf-8 -*-
 __author__ = 'MoroJoJo'
+
+
+import pytz
+import pandas as pd
+
+
+'''
+策略模拟执行参数
+'''
+
+
+class TradeSimulationParams(object):
+    def __init__(self, trading_calendar, **kwargs):
+        assert isinstance(trading_calendar, pd.Index)
+        self.trading_calendar = trading_calendar
+        self.timezone = kwargs.get("timezone", pytz.utc)
+        self.benchmark = kwargs.get("benchmark", "000300.XSHG")
+        self.frequency = kwargs.get("frequency", "1d")
+
+        self.start_date = kwargs.get("start_date", self.trading_calendar[0].date())
+        self.end_date = kwargs.get("end_date", self.trading_calendar[-1].date())
+
+        self.init_cash = kwargs.get("init_cash", 100000)
+
+        self.show_progress = kwargs.get("show_progress", False)
