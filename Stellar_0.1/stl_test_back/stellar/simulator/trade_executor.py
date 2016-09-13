@@ -2,20 +2,18 @@
 __author__ = 'MoroJoJo'
 
 
-import copy
 import click
-import six
 from six import iteritems
 import pandas as pd
 
-from ..analyser.trade_simulation import TradeSimulation
 from ..const import EVENT_TYPE, EXECUTION_PHASE
 from ..data_model.bar import BarMap
-from .event import TradeSimulationEventSource
 from ..utils import ExecutionContext, dummy_func
 from .scheduler import scheduler
-from ..analyser.commission import AStockCommission
-from ..analyser.slippage import FixedPercentSlippageDecider
+
+from ..analyser.trade_simulation import TradeSimulation
+from .trade_context import TradeSimulationContext
+from .event import TradeSimulationEventSource
 
 
 '''
@@ -34,19 +32,19 @@ class TradeSimulationExecutor(object):
         self.trading_params = trading_params
         self._data_proxy = data_proxy
 
-        self._strategy_context = kwargs.get("strategy_context")
-        if self._strategy_context is None:
-            self._strategy_context = StrategyContext()
+        self._trade_simulation_context = kwargs.get("trade_simulation_context")
+        if self._trade_simulation_context is None:
+            self._trade_simulation_context = TradeSimulationContext()
 
         self._user_init = kwargs.get("init", dummy_func)
         self._user_handle_bar = kwargs.get("handle_bar", dummy_func)
         self._user_before_trading = kwargs.get("before_trading", dummy_func)
 
-        self._simu_exchange = kwargs.get("simu_exchange")
-        if self._simu_exchange is None:
-            self._simu_exchange = SimuExchange(data_proxy, trading_params)
+        self._trade_simulation = kwargs.get("trade_simulation")
+        if self._trade_simulation is None:
+            self._trade_simulation = TradeSimulation(data_proxy, trading_params)
 
-        self._event_source = SimulatorAStockTradingEventSource(trading_params)
+        self._event_source = TradeSimulationEventSource(trading_params)
         self._current_dt = None
         self.current_universe = set()
 
@@ -61,27 +59,27 @@ class TradeSimulationExecutor(object):
         """
         # use local variable for performance
         data_proxy = self.data_proxy
-        strategy_context = self.strategy_context
-        simu_exchange = self.exchange
+        trade_simulation_context = self.trade_simulation_context
+        trade_simulation = self.trade_simulation
 
         init = self._user_init
         before_trading = self._user_before_trading
         handle_bar = self._user_handle_bar
 
-        exchange_on_dt_change = simu_exchange.on_dt_change
-        exchange_on_bar_close = simu_exchange.on_bar_close
-        exchange_on_day_open = simu_exchange.on_day_open
-        exchange_on_day_close = simu_exchange.on_day_close
-        exchange_update_portfolio = simu_exchange.update_portfolio
+        trade_simulation_on_dt_change = trade_simulation.on_dt_change
+        trade_simulation_on_bar_close = trade_simulation.on_bar_close
+        trade_simulation_on_day_open = trade_simulation.on_day_open
+        trade_simulation_on_day_close = trade_simulation.on_day_close
+        trade_simulation_update_portfolio = trade_simulation.update_portfolio
 
         is_show_progress_bar = self.trading_params.show_progress
 
         def on_dt_change(dt):
             self._current_dt = dt
-            exchange_on_dt_change(dt)
+            trade_simulation_on_dt_change(dt)
 
         with ExecutionContext(self, EXECUTION_PHASE.INIT):
-            init(strategy_context)
+            init(trade_simulation_context)
 
         try:
             for dt, event in self._event_source:
@@ -91,38 +89,38 @@ class TradeSimulationExecutor(object):
 
                 if event == EVENT_TYPE.DAY_START:
                     with ExecutionContext(self, EXECUTION_PHASE.BEFORE_TRADING, bar_dict):
-                        exchange_on_day_open()
-                        before_trading(strategy_context, None)
+                        trade_simulation_on_day_open()
+                        before_trading(trade_simulation_context, None)
 
                 elif event == EVENT_TYPE.HANDLE_BAR:
                     with ExecutionContext(self, EXECUTION_PHASE.HANDLE_BAR, bar_dict):
-                        exchange_update_portfolio(bar_dict)
-                        handle_bar(strategy_context, bar_dict)
-                        scheduler.next_day(dt, strategy_context, bar_dict)
-                        exchange_on_bar_close(bar_dict)
+                        trade_simulation_update_portfolio(bar_dict)
+                        handle_bar(trade_simulation_context, bar_dict)
+                        scheduler.next_day(dt, trade_simulation_context, bar_dict)
+                        trade_simulation_on_bar_close(bar_dict)
 
                 elif event == EVENT_TYPE.DAY_END:
                     with ExecutionContext(self, EXECUTION_PHASE.FINALIZED, bar_dict):
-                        exchange_on_day_close()
+                        trade_simulation_on_day_close()
 
                     if is_show_progress_bar:
                         self.progress_bar.update(1)
         finally:
             self.progress_bar.render_finish()
 
-        results_df = self.generate_result(simu_exchange)
+        results_df = self.generate_result(trade_simulation)
 
         return results_df
 
-    def generate_result(self, simu_exchange):
+    def generate_result(self, trade_simulation):
         """generate result dataframe
 
-        :param simu_exchange:
+        :param trade_simulation:
         :returns: result dataframe contains daliy portfolio, risk and trades
         :rtype: pd.DataFrame
         """
-        account = simu_exchange.account
-        risk_cal = simu_exchange.risk_cal
+        account = trade_simulation.account
+        risk_cal = trade_simulation.risk_cal
         columns = [
             "daily_returns",
             "total_returns",
@@ -143,7 +141,7 @@ class TradeSimulationExecutor(object):
         ]
 
         data = []
-        for date, portfolio in iteritems(simu_exchange.daily_portfolios):
+        for date, portfolio in iteritems(trade_simulation.daily_portfolios):
             # portfolio
             items = {"date": pd.Timestamp(date)}
             for key in columns:
@@ -170,22 +168,22 @@ class TradeSimulationExecutor(object):
         return results_df
 
     @property
-    def strategy_context(self):
-        """get current strategy
+    def trade_simulation_context(self):
+        """get current trade simulation context
 
-        :returns: current strategy
-        :rtype: Strategy
+        :returns: current trade simulation context
+        :rtype: TradeSimulationContext
         """
-        return self._strategy_context
+        return self._trade_simulation_context
 
     @property
-    def exchange(self):
-        """get current exchange
+    def trade_simulation(self):
+        """get current trade simulation
 
-        :returns: current exchange
-        :rtype: SimuExchange
+        :returns: current trade simulation
+        :rtype: TradeSimulation
         """
-        return self._simu_exchange
+        return self._trade_simulation
 
     @property
     def data_proxy(self):
@@ -198,7 +196,7 @@ class TradeSimulationExecutor(object):
 
     @property
     def current_dt(self):
-        """get current simu datetime
+        """get current simulation datetime
 
         :returns: current datetime
         :rtype: datetime.datetime
