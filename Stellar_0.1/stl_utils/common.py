@@ -76,10 +76,10 @@ def data_handle_defensive(datas):
         print(line)
 
 
-def get_project_root():
+def get_stellar_root():
     '''
 
-    处理datas容器中的数据, 要求输入参数datas是一个把__iter__实现为生成器的容器类.
+    获取Stellar根目录地址.
 
     Parameters
     ----------
@@ -90,10 +90,28 @@ def get_project_root():
     Exception
         无
     '''
-    thePath = os.getcwd()
-    print(thePath)
-    path_list = thePath.split(PROJECT_CODE_NAME)
-    print(path_list[0]+PROJECT_CODE_NAME)
+    os_path = os.getcwd()
+    path_list = os_path.split(PROJECT_CODE_NAME)
+    return path_list[0]
+
+
+def get_project_root():
+    '''
+
+    获取项目根目录地址.
+
+    Parameters
+    ----------
+        无
+    Returns
+    -------
+        无
+    Exception
+        无
+    '''
+    os_path = os.getcwd()
+    path_list = os_path.split(PROJECT_CODE_NAME)
+    return (path_list[0]+PROJECT_CODE_NAME)
 
 
 if __name__ == '__main__':

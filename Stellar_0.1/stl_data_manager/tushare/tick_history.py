@@ -9,6 +9,7 @@ from concurrent.futures import ThreadPoolExecutor
 import tushare
 
 from stl_utils.logger import dm_log
+from stl_utils.common import get_stellar_root
 from stl_data_manager.tushare import fundamental as sfund
 
 
@@ -24,9 +25,9 @@ USING_MONGO_DB = 3
 STORAGE_MODE = USING_CSV
 
 # TuShare Data Storage Path
-DEFAULT_CSV_PATH_TS = '../../../Data/csv/tushare'
-DEFAULT_MY_SQL_PATH_TS = '../../../Data/mysql/tushare'
-DEFAULT_MONGO_DB_PATH_TS = '../../../Data/mongodb/tushare'
+DEFAULT_CSV_PATH_TS = ('%s/Data/csv/tushare' % get_stellar_root())
+DEFAULT_MY_SQL_PATH_TS = ('%s/Data/mysql/tushare' % get_stellar_root())
+DEFAULT_MONGO_DB_PATH_TS = ('%s/Data/mongodb/tushare' % get_stellar_root())
 
 THREAD_COUNT = 50    # 查询交易数据的并发线程数
 RETRY_COUNT = 5      # 调用tushare接口失败重试次数

@@ -8,6 +8,7 @@ import pandas as pd
 import tushare
 
 from stl_utils.logger import dm_log
+from stl_utils.common import get_stellar_root
 
 
 '''
@@ -22,9 +23,9 @@ USING_MONGO_DB = 3
 STORAGE_MODE = USING_CSV
 
 # TuShare Data Storage Path
-DEFAULT_CSV_PATH_TS = '../../../Data/csv/tushare'
-DEFAULT_MY_SQL_PATH_TS = '../../../Data/mysql/tushare'
-DEFAULT_MONGO_DB_PATH_TS = '../../../Data/mongodb/tushare'
+DEFAULT_CSV_PATH_TS = ('%s/Data/csv/tushare' % get_stellar_root())
+DEFAULT_MY_SQL_PATH_TS = ('%s/Data/mysql/tushare' % get_stellar_root())
+DEFAULT_MONGO_DB_PATH_TS = ('%s/Data/mongodb/tushare' % get_stellar_root())
 
 PROFIT_INFO_COUNT = 200       # 获取的分配预案数据条数
 DATA_YEAR = 2016              # 获取数据的年份

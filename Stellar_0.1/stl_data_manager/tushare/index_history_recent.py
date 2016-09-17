@@ -10,6 +10,7 @@ import linecache
 import tushare
 
 from stl_utils.logger import dm_log
+from stl_utils.common import get_stellar_root
 
 
 '''
@@ -24,16 +25,16 @@ USING_MONGO_DB = 3
 STORAGE_MODE = USING_CSV
 
 # TuShare Data Storage Path
-DEFAULT_CSV_PATH_TS = '../../../Data/csv/tushare'
-DEFAULT_MY_SQL_PATH_TS = '../../../Data/mysql/tushare'
-DEFAULT_MONGO_DB_PATH_TS = '../../../Data/mongodb/tushare'
+DEFAULT_CSV_PATH_TS = ('%s/Data/csv/tushare' % get_stellar_root())
+DEFAULT_MY_SQL_PATH_TS = ('%s/Data/mysql/tushare' % get_stellar_root())
+DEFAULT_MONGO_DB_PATH_TS = ('%s/Data/mongodb/tushare' % get_stellar_root())
 
 THREAD_COUNT = 50    # 查询交易数据的并行线程数
 RETRY_COUNT = 5      # 调用tushare接口失败重试次数
 RETRY_PAUSE = 0.1    # 调用tushare接口失败重试间隔时间
 DROP_FACTOR = True   # 是否移除复权因子，在分析过程中可能复权因子意义不大，但是如需要先储存到数据库之后再分析的话，有该项目会更加灵活
 
-DEFAULT_DIR_PATH = '../../../Data/origin/tushare/index_trade_data/recent'
+DEFAULT_DIR_PATH = ('%s/Data/origin/tushare/index_trade_data/recent' % get_stellar_root())
 
 
 def get_directory_path():

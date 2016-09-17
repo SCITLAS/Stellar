@@ -7,6 +7,7 @@ import os
 import tushare
 
 from stl_utils.logger import dm_log
+from stl_utils.common import get_stellar_root
 
 
 '''
@@ -21,9 +22,9 @@ USING_MONGO_DB = 3
 STORAGE_MODE = USING_CSV
 
 # TuShare Data Storage Path
-DEFAULT_CSV_PATH_TS = '../../../Data/csv/tushare'
-DEFAULT_MY_SQL_PATH_TS = '../../../Data/mysql/tushare'
-DEFAULT_MONGO_DB_PATH_TS = '../../../Data/mongodb/tushare'
+DEFAULT_CSV_PATH_TS = ('%s/Data/csv/tushare' % get_stellar_root())
+DEFAULT_MY_SQL_PATH_TS = ('%s/Data/mysql/tushare' % get_stellar_root())
+DEFAULT_MONGO_DB_PATH_TS = ('%s/Data/mongodb/tushare' % get_stellar_root())
 
 
 def get_directory_path():

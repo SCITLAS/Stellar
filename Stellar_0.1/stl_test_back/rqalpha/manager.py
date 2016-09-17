@@ -16,16 +16,18 @@ from six import print_
 from rqalpha.__main__ import run_strategy
 from rqalpha.__main__ import show_draw_result
 
+from stl_utils.common import get_project_root
+
 
 '''
 基于RiceQuant开源的策略回测框架RQAlpha,包装的策略回测API
 '''
 
 
-DEFAULT_DATA_BUNDLE_PATH = './data_bundle/data'
-DEFAULT_DATA_BUNDLE_TMP_PATH = './data_bundle/tmp'
-DEFAULT_STRATEGY_PATH = './strategy'
-DEFAULT_RESULT_PATH = './result'
+DEFAULT_DATA_BUNDLE_PATH = ('%s/stl_test_back/rqalpha/data_bundle/data' % get_project_root())
+DEFAULT_DATA_BUNDLE_TMP_PATH = ('%s/stl_test_back/rqalpha/data_bundle/tmp' % get_project_root())
+DEFAULT_STRATEGY_PATH = ('%s/stl_test_back/rqalpha/strategy' % get_project_root())
+DEFAULT_RESULT_PATH = ('%s/stl_test_back/rqalpha/result' % get_project_root())
 
 
 def _get_data_bundle_path():
