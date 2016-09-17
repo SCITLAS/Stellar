@@ -5,7 +5,7 @@ __author__ = 'MoroJoJo'
 import pandas as pd
 
 from . import ExecutionContext, get_last_date
-from ..const import EXECUTION_PHASE
+from stl_utils.const import EXECUTION_PHASE
 
 
 '''

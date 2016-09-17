@@ -2,9 +2,14 @@
 __author__ = 'MoroJoJo'
 
 
+import os
+from stl_utils.const import PROJECT_CODE_NAME
+
+
 '''
 常用辅助方法
 '''
+
 
 # bytes转str
 def to_str(bytes_or_str):
@@ -53,13 +58,10 @@ class StlReadVisits(object):
 
 def data_handle_defensive(datas):
     '''
-
     处理datas容器中的数据, 要求输入参数datas是一个把__iter__实现为生成器的容器类.
-
     Parameters
     ----------
         datas: 数据容器
-
     Returns
     -------
         无
@@ -74,6 +76,27 @@ def data_handle_defensive(datas):
         print(line)
 
 
+def get_project_root():
+    '''
+
+    处理datas容器中的数据, 要求输入参数datas是一个把__iter__实现为生成器的容器类.
+
+    Parameters
+    ----------
+        无
+    Returns
+    -------
+        无
+    Exception
+        无
+    '''
+    thePath = os.getcwd()
+    print(thePath)
+    path_list = thePath.split(PROJECT_CODE_NAME)
+    print(path_list[0]+PROJECT_CODE_NAME)
+
+
 if __name__ == '__main__':
     print(to_bytes('xxx'))
     print(to_str('xxxx'))
+    get_project_root()

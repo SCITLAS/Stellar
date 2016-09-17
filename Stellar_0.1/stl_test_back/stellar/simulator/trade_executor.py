@@ -6,7 +6,6 @@ import click
 from six import iteritems
 import pandas as pd
 
-from ..const import EVENT_TYPE, EXECUTION_PHASE
 from ..data_model.bar import BarMap
 from ..utils import ExecutionContext, dummy_func
 from .scheduler import scheduler
@@ -14,6 +13,8 @@ from .scheduler import scheduler
 from ..analyser.trade_simulation import TradeSimulation
 from .trade_context import TradeSimulationContext
 from .event import TradeSimulationEventSource
+
+from stl_utils.const import EVENT_TYPE, EXECUTION_PHASE
 
 
 '''

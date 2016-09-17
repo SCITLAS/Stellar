@@ -5,6 +5,14 @@ __author__ = 'MoroJoJo'
 from enum import Enum
 
 
+'''
+常量定义
+'''
+
+
+PROJECT_CODE_NAME = 'Stellar_0.1'
+
+
 ORDER_STATUS = Enum("ORDER_STATUS", [
     "OPEN",
     "FILLED",

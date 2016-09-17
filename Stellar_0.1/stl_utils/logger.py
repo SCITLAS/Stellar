@@ -33,6 +33,7 @@ def singleton(cls, *args, **kw):
         return instances[cls]
     return _singleton
 
+
 @singleton
 class DmLogger(logging.Logger):
     '''
@@ -50,21 +51,33 @@ class DmLogger(logging.Logger):
         file_handler.setFormatter(formatter)
         self.addHandler(file_handler)
 
-
-
-def user_log_formatter(record, handler):
-    return "{level}: {msg}".format(
-        level=record.level_name,
-        msg=record.message,
-    )
-
-
-handler = ColorizedStderrHandler()
-# handler.formatter = user_log_formatter
-handler.push_application()
-dm_log2 = Logger(name='DATA_MGR')
-
 dm_log = DmLogger()
+
+
+@singleton
+class BTLogger(logging.Logger):
+    '''
+    data_manager的日志类
+    '''
+    def __init__(self):
+        logging.Logger.__init__(self, name='STL_BACK_TEST', level=LOG_LEVEL)
+
+        formatter = logging.Formatter("[%(asctime)s] %(name)s [%(levelname)s] %(filename)s LINE %(lineno)d:  %(message)s")
+        stream_handler = logging.StreamHandler()
+        stream_handler.setFormatter(formatter)
+        self.addHandler(stream_handler)
+
+        file_handler = logging.FileHandler(DM_LOG_FILE)
+        file_handler.setFormatter(formatter)
+        self.addHandler(file_handler)
+
+bt_log = BTLogger()
+
+def bt_user_print(*args, **kwargs):
+    sep = kwargs.get("sep", " ")
+    end = kwargs.get("end", "")
+    message = sep.join(map(str, args)) + end
+    bt_log.info(message)
 
 
 if __name__ == '__main__':
@@ -77,6 +90,21 @@ if __name__ == '__main__':
 
     a = DmLogger()
     b = DmLogger()
+    print(id(a))
+    print(id(b))
+    a.debug('xxx')
+    b.debug('yyy')
+
+
+    bt_log.debug('debug')
+    bt_log.info('info')
+    bt_log.warning('warning')
+    bt_log.error('error')
+    bt_log.fatal('fatal')
+    bt_log.critical('critical')
+
+    a = BTLogger()
+    b = BTLogger()
     print(id(a))
     print(id(b))
     a.debug('xxx')

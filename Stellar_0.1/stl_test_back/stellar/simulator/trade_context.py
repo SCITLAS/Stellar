@@ -5,7 +5,7 @@ __author__ = 'MoroJoJo'
 import copy
 import six
 
-from ..const import EXECUTION_PHASE
+from stl_utils.const import EXECUTION_PHASE
 from ..utils import ExecutionContext
 from ..analyser.commission import AStockCommission
 from ..analyser.slippage import FixedPercentSlippageDecider
@@ -32,7 +32,6 @@ class TradeSimulationContext(object):
     @ExecutionContext.enforce_phase(EXECUTION_PHASE.INIT)
     def slippage(self, value):
         assert isinstance(value, (int, float))
-
         ExecutionContext.get_trade_simulation().account.slippage_decider = FixedPercentSlippageDecider(rate=value)
 
     @property
@@ -43,7 +42,6 @@ class TradeSimulationContext(object):
     @ExecutionContext.enforce_phase(EXECUTION_PHASE.INIT)
     def commission(self, value):
         assert isinstance(value, (int, float))
-
         ExecutionContext.get_trade_simulation().account.commission_decider = AStockCommission(commission_rate=value)
 
     @property
@@ -54,7 +52,6 @@ class TradeSimulationContext(object):
     @ExecutionContext.enforce_phase(EXECUTION_PHASE.INIT)
     def benchmark(self, value):
         assert isinstance(value, six.string_types)
-
         ExecutionContext.get_trading_params().benchmark = value
 
     @property

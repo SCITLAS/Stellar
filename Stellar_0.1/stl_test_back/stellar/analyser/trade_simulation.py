@@ -7,8 +7,7 @@ import pandas as pd
 from collections import defaultdict, OrderedDict
 from six import iteritems
 
-from ..const import ORDER_STATUS
-from .. import const
+from stl_utils.const import ORDER_STATUS
 from ..simulator.account import Account
 from ..data_model.order import Order
 from ..data_model.order import MarketOrder, LimitOrder
@@ -16,6 +15,9 @@ from ..data_model.portfilo import Portfolio
 from ..data_model.dividend import Dividend
 from ..analyser.risk import RiskCalculator
 from ..data_model.trade import Trade
+
+from stl_utils.logger import bt_user_print
+from stl_utils import const
 
 
 '''
@@ -124,7 +126,7 @@ class TradeSimulation(object):
     def reject_all_open_orders(self):
         for order_book_id, order_list in iteritems(self.open_orders):
             for order in order_list:
-                user_log.warn(_("Order Rejected: {order_book_id} can not match, {order_list}").format(
+                bt_user_print.warn(_("Order Rejected: {order_book_id} can not match, {order_list}").format(
                     order_book_id=order_book_id,
                     order_list=order_list,
                 ))

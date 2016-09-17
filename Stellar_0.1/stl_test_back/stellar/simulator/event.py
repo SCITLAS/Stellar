@@ -2,7 +2,7 @@
 __author__ = 'MoroJoJo'
 
 
-from ..const import EVENT_TYPE
+from stl_utils.const import EVENT_TYPE
 
 
 '''

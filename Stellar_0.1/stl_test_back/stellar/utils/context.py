@@ -85,11 +85,11 @@ class ExecutionContext(object):
     @classmethod
     def get_simulation_executor(cls):
         ctx = cls.get_active()
-        return ctx.simuliation_executor
+        return ctx.simulation_executor
 
     @classmethod
     def get_trade_simulation(cls):
-        return cls.get_simulation_executor().exchange
+        return cls.get_simulation_executor().trade_simulation
 
     @classmethod
     def get_current_dt(cls):

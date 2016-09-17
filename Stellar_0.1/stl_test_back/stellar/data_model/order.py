@@ -6,7 +6,7 @@ import uuid
 import abc
 
 from six import with_metaclass
-from ..const import ORDER_STATUS
+from stl_utils.const import ORDER_STATUS
 
 
 '''

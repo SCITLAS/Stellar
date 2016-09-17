@@ -66,7 +66,7 @@ def update_data_bundle(data_bundle_path=_get_data_bundle_path()):
 
     Parameters
     ------
-        vol: 大单手数
+        无
     return
     -------
         无

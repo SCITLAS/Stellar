@@ -2,13 +2,13 @@
 __author__ = 'MoroJoJo'
 
 
-from __future__ import division
+# from __future__ import division
 
 import copy
 import numpy as np
 from collections import OrderedDict
 
-from .. import const
+from stl_utils import const
 
 
 '''
