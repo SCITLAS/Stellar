@@ -3,11 +3,7 @@ __author__ = 'MoroJoJo'
 
 
 import logging
-import sys
-import os
-
-from logbook import Logger, StreamHandler
-from logbook.more import ColorizedStderrHandler
+from stl_utils.common import get_project_root
 
 
 '''
@@ -21,7 +17,9 @@ __all__ = ['dm_log']
 DATA_MGR_LOG = 0
 TEST_BACK_LOG = 1
 
-DM_LOG_FILE = '../../logs/data_manager_log.log'
+DM_LOG_FILE = '%s/logs/data_manager_log.log' % get_project_root()
+BT_LOG_FILE = '%s/logs/back_test_log.log' % get_project_root()
+
 LOG_LEVEL = logging.DEBUG
 
 
@@ -67,7 +65,7 @@ class BTLogger(logging.Logger):
         stream_handler.setFormatter(formatter)
         self.addHandler(stream_handler)
 
-        file_handler = logging.FileHandler(DM_LOG_FILE)
+        file_handler = logging.FileHandler(BT_LOG_FILE)
         file_handler.setFormatter(formatter)
         self.addHandler(file_handler)
 

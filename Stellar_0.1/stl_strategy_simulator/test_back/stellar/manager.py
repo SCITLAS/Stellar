@@ -14,17 +14,17 @@ import click
 
 from six import exec_, print_
 
-from stl_test_back.stellar.utils import dummy_func, convert_int_to_date
-from stl_test_back.stellar.analyser.data_proxy import LocalDataProxy
-from stl_test_back.stellar.simulator.scheduler import Scheduler
-from stl_test_back.stellar.simulator.trade_param import TradeSimulationParams
-from stl_test_back.stellar.simulator.trade_executor import TradeSimulationExecutor
+from stl_strategy_simulator.test_back.stellar.utils import dummy_func, convert_int_to_date
+from stl_strategy_simulator.test_back.stellar.analyser.data_proxy import LocalDataProxy
+from stl_strategy_simulator.test_back.stellar.simulator.scheduler import Scheduler
+from stl_strategy_simulator.test_back.stellar.simulator.trade_param import TradeSimulationParams
+from stl_strategy_simulator.test_back.stellar.simulator.trade_executor import TradeSimulationExecutor
 
 from stl_utils.logger import bt_log
 from stl_utils.logger import bt_user_print
 from stl_utils.common import get_project_root
 
-from stl_test_back.stellar import api
+from stl_strategy_simulator.test_back.stellar import api
 
 
 '''
@@ -32,11 +32,11 @@ from stl_test_back.stellar import api
 '''
 
 
-DEFAULT_DATA_BUNDLE_PATH = ('%s/stl_test_back/stellar/data_bundle/data' % get_project_root())
-DEFAULT_DATA_BUNDLE_TMP_PATH = ('%s/stl_test_back/stellar/data_bundle/tmp' % get_project_root())
-DEFAULT_STRATEGY_PATH = ('%s/stl_test_back/stellar/strategy' % get_project_root())
-DEFAULT_RESULT_PATH = ('%s/stl_test_back/stellar/result' % get_project_root())
-DEFAULT_RESOURCE_PATH = ('%s/stl_test_back/stellar/resource' % get_project_root())
+DEFAULT_DATA_BUNDLE_PATH = ('%s/stl_strategy_simulator/test_back/stellar/data_bundle/data' % get_project_root())
+DEFAULT_DATA_BUNDLE_TMP_PATH = ('%s/stl_strategy_simulator/test_back/stellar/data_bundle/tmp' % get_project_root())
+DEFAULT_STRATEGY_PATH = ('%s/stl_strategy_simulator/test_back/stellar/strategy' % get_project_root())
+DEFAULT_RESULT_PATH = ('%s/stl_strategy_simulator/test_back/stellar/result' % get_project_root())
+DEFAULT_RESOURCE_PATH = ('%s/stl_strategy_simulator/test_back/stellar/resource' % get_project_root())
 
 
 def __get_data_bundle_path():

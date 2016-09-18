@@ -24,10 +24,10 @@ from stl_utils.common import get_project_root
 '''
 
 
-DEFAULT_DATA_BUNDLE_PATH = ('%s/stl_test_back/rqalpha/data_bundle/data' % get_project_root())
-DEFAULT_DATA_BUNDLE_TMP_PATH = ('%s/stl_test_back/rqalpha/data_bundle/tmp' % get_project_root())
-DEFAULT_STRATEGY_PATH = ('%s/stl_test_back/rqalpha/strategy' % get_project_root())
-DEFAULT_RESULT_PATH = ('%s/stl_test_back/rqalpha/result' % get_project_root())
+DEFAULT_DATA_BUNDLE_PATH = ('%s/stl_strategy_simulator/test_back/rqalpha/data_bundle/data' % get_project_root())
+DEFAULT_DATA_BUNDLE_TMP_PATH = ('%s/stl_strategy_simulator/test_back/rqalpha/data_bundle/tmp' % get_project_root())
+DEFAULT_STRATEGY_PATH = ('%s/stl_strategy_simulator/test_back/rqalpha/strategy' % get_project_root())
+DEFAULT_RESULT_PATH = ('%s/stl_strategy_simulator/test_back/rqalpha/result' % get_project_root())
 
 
 def _get_data_bundle_path():
