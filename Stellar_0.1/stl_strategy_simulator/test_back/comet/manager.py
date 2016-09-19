@@ -14,17 +14,17 @@ import click
 
 from six import exec_, print_
 
-from stl_strategy_simulator.test_back.stellar.utils import dummy_func, convert_int_to_date
-from stl_strategy_simulator.test_back.stellar.analyser.data_proxy import LocalDataProxy
-from stl_strategy_simulator.test_back.stellar.simulator.scheduler import Scheduler
-from stl_strategy_simulator.test_back.stellar.simulator.trade_param import TradeSimulationParams
-from stl_strategy_simulator.test_back.stellar.simulator.trade_executor import TradeSimulationExecutor
+from stl_strategy_simulator.test_back.comet.utils import dummy_func, convert_int_to_date
+from stl_strategy_simulator.test_back.comet.analyser.data_proxy import LocalDataProxy
+from stl_strategy_simulator.test_back.comet.simulator.scheduler import Scheduler
+from stl_strategy_simulator.test_back.comet.simulator.trade_param import TradeSimulationParams
+from stl_strategy_simulator.test_back.comet.simulator.trade_executor import TradeSimulationExecutor
 
 from stl_utils.logger import bt_log
 from stl_utils.logger import bt_user_print
 from stl_utils.common import get_project_root
 
-from stl_strategy_simulator.test_back.stellar import api
+from stl_strategy_simulator.test_back.comet import api
 
 
 '''
@@ -32,23 +32,23 @@ from stl_strategy_simulator.test_back.stellar import api
 '''
 
 
-DEFAULT_DATA_BUNDLE_PATH = ('%s/stl_strategy_simulator/test_back/stellar/data_bundle/data' % get_project_root())
-DEFAULT_DATA_BUNDLE_TMP_PATH = ('%s/stl_strategy_simulator/test_back/stellar/data_bundle/tmp' % get_project_root())
-DEFAULT_STRATEGY_PATH = ('%s/stl_strategy_simulator/test_back/stellar/strategy' % get_project_root())
-DEFAULT_RESULT_PATH = ('%s/stl_strategy_simulator/test_back/stellar/result' % get_project_root())
-DEFAULT_RESOURCE_PATH = ('%s/stl_strategy_simulator/test_back/stellar/resource' % get_project_root())
+DEFAULT_DATA_BUNDLE_PATH = ('%s/stl_strategy_simulator/test_back/comet/data_bundle/data' % get_project_root())
+DEFAULT_DATA_BUNDLE_TMP_PATH = ('%s/stl_strategy_simulator/test_back/comet/data_bundle/tmp' % get_project_root())
+DEFAULT_STRATEGY_PATH = ('%s/stl_strategy_simulator/test_back/comet/strategy' % get_project_root())
+DEFAULT_RESULT_PATH = ('%s/stl_strategy_simulator/test_back/comet/result' % get_project_root())
+DEFAULT_RESOURCE_PATH = ('%s/stl_strategy_simulator/test_back/comet/resource' % get_project_root())
 
 
 def __get_data_bundle_path():
     if not os.path.exists(DEFAULT_DATA_BUNDLE_PATH):
         os.makedirs(DEFAULT_DATA_BUNDLE_PATH)
-    return ('%s/stellar.bundle' % DEFAULT_DATA_BUNDLE_PATH)
+    return ('%s/comet.bundle' % DEFAULT_DATA_BUNDLE_PATH)
 
 
 def __get_data_bundle_tmp_path():
     if not os.path.exists(DEFAULT_DATA_BUNDLE_TMP_PATH):
         os.makedirs(DEFAULT_DATA_BUNDLE_TMP_PATH)
-    return ('%s/.stellar' % DEFAULT_DATA_BUNDLE_TMP_PATH)
+    return ('%s/.comet' % DEFAULT_DATA_BUNDLE_TMP_PATH)
 
 
 def __get_strategy_path(file_name):
@@ -314,6 +314,6 @@ def show_simple_macd_test_result():
 
 
 if __name__ == '__main__':
-    # update_data_bundle()
+    update_data_bundle()
     # run_simple_macd_strategy()
     show_simple_macd_test_result()

@@ -2,9 +2,6 @@
 __author__ = 'MoroJoJo'
 
 
-
-# from __future__ import division
-
 import datetime
 from six import iteritems
 
