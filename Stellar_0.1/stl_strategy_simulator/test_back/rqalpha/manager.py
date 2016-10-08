@@ -42,17 +42,11 @@ def _get_data_bundle_tmp_path():
     return ('%s/.rqalpha' % DEFAULT_DATA_BUNDLE_TMP_PATH)
 
 
-def _get_strategy_path(type, file_name):
-    if type == 'rqalpha':
-        dir_path = '%s/%s' % (DEFAULT_STRATEGY_PATH, 'rqalpha')
-        if not os.path.exists(dir_path):
-            os.makedirs(dir_path)
-        return '%s/%s' % (dir_path, file_name)
-    else:
-        dir_path = '%s/%s' % (DEFAULT_STRATEGY_PATH, 'stellar')
-        if not os.path.exists(dir_path):
-            os.makedirs(dir_path)
-        return '%s/%s' % (dir_path, file_name)
+def _get_strategy_path(file_name):
+    dir_path = DEFAULT_STRATEGY_PATH
+    if not os.path.exists(dir_path):
+        os.makedirs(dir_path)
+    return '%s/%s' % (dir_path, file_name)
 
 
 def _get_result_path(dir):
@@ -162,7 +156,7 @@ def show_result(strategy_file, result_df):
 
 def run_simple_macd_strategy():
     para = {}
-    para['strategy_file'] = _get_strategy_path('rqalpha', 'simple_macd.py')
+    para['strategy_file'] = _get_strategy_path('simple_macd.py')
     para['start_date'] = '2014-01-01'
     para['end_date'] = '2016-10-01'
     para['output_file'] = '%s/%s' % (_get_result_path('simple_macd'), 'result.pkl')
@@ -174,7 +168,7 @@ def run_simple_macd_strategy():
 
 def show_simple_macd_test_result():
     para = {}
-    para['strategy_file'] = _get_strategy_path('rqalpha', 'simple_macd.py')
+    para['strategy_file'] = _get_strategy_path('simple_macd.py')
     para['start_date'] = '2014-01-01'
     para['end_date'] = '2016-10-01'
     para['output_file'] = '%s/%s' % (_get_result_path('simple_macd'), 'result.pkl')
