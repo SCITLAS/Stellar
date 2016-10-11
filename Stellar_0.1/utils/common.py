@@ -30,7 +30,7 @@ def to_bytes(bytes_or_str):
 
 
 # 文件读取迭代类, 返回一个生成器
-class StlReadVisits(object):
+class ReadVisits(object):
     def __init__(self, data_path):
         '''
 

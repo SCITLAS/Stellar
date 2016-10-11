@@ -7,7 +7,7 @@ import datetime
 
 
 '''
-数据工具方法
+TuShare工具方法
 '''
 
 
@@ -26,27 +26,6 @@ def get_tushare_data_validate_date():
     date_str = '%d-%02d-%02d %02d:%02d:%02d' % (now.year, now.month, now.day, 15, 0, 0)
     date = datetime.datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S")
     return date
-
-
-def is_market_closed():
-    '''
-    判断是否股市已经收盘
-
-    Parameters
-    ------
-        无
-    return
-    -------
-        bool: 已收盘:True,
-              未收盘:False
-    '''
-    now = datetime.datetime.now()
-    close_date_str = '%d-%02d-%02d %02d:%02d:%02d' % (now.year, now.month, now.day, 15, 0, 0)
-    close_date = datetime.datetime.strptime(close_date_str, "%Y-%m-%d %H:%M:%S")
-    if now <= close_date:
-        return False
-    else:
-        return True
 
 
 def need_data_file_refresh(file_path):

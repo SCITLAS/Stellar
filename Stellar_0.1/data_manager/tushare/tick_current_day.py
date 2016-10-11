@@ -9,8 +9,8 @@ import tushare
 
 from utils.logger import dm_log
 from utils.common import get_stellar_root
-from utils.data import is_market_closed
-from utils.data import need_data_file_refresh
+from utils.time import is_tradetime_now
+from utils.tushare import need_data_file_refresh
 from data_manager.tushare import fundamental as sfund
 
 
@@ -129,7 +129,7 @@ def _get_current_day_tick_data(code):
     -------
         无
     '''
-    if not is_market_closed():
+    if is_tradetime_now():
         # now is too early for refresh, current day data is not ready.
         dm_log.debug('Now is too early for refresh, current day data is not ready.')
         raise MarketNotCloseException
