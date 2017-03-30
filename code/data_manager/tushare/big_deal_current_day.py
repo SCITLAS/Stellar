@@ -8,11 +8,11 @@ from concurrent.futures import ThreadPoolExecutor
 
 import tushare
 
-from utils.logger import *
-from utils.common import get_stellar_root
-from utils.time import is_tradetime_now
-from utils.tushare import need_data_file_refresh
-from data_manager.tushare import fundamental as sfund
+from code.utils.logger import *
+from code.utils.common import get_stellar_root
+from code.utils.time import is_tradetime_now
+from code.utils.tushare import need_data_file_refresh
+from code.data_manager.tushare import fundamental as sfund
 
 
 '''

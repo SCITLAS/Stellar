@@ -7,7 +7,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 
 import tushare
 
-from utils.logger import dm_log
+from code.utils.logger import dm_log
 
 
 '''

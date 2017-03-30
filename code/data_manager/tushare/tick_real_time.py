@@ -6,8 +6,8 @@ import time
 
 import tushare
 
-from utils.logger import dm_log
-from data_manager.tushare import fundamental as sfund
+from code.utils.logger import dm_log
+from code.data_manager.tushare import fundamental as sfund
 from apscheduler.schedulers.background import BackgroundScheduler
 
 

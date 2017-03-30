@@ -3,7 +3,7 @@ __author__ = 'MoroJoJo'
 
 
 import os
-from utils.const import PROJECT_CODE_NAME
+from code.utils.const import PROJECT_CODE_NAME
 
 
 '''

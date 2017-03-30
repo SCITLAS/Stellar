@@ -21,3 +21,13 @@ Stellar_0.1/strategy_simulator/test_back/rqalpha/strategy/*
 Stellar_0.1/strategy_simulator/test_back/comet/data_bundle/*
 Stellar_0.1/strategy_simulator/test_back/comet/strategy/*
 
+
+.idea/misc.xml
+
+.idea/modules.xml
+
+.idea/Stellar.iml
+
+.idea/vcs.xml
+
+.idea/workspace.xml

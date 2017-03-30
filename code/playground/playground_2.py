@@ -2,7 +2,7 @@
 __author__ = 'MoroJoJo'
 
 
-from utils.const import EVENT_TYPE
+from code.utils.const import EVENT_TYPE
 import datetime
 
 

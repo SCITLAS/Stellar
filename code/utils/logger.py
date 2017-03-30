@@ -3,7 +3,7 @@ __author__ = 'MoroJoJo'
 
 
 import logging
-from utils.common import get_project_root
+from code.utils.common import get_project_root
 
 
 '''
