@@ -6,7 +6,7 @@ Stellar
 详见：https://github.com/SCITLAS/Stellar/tree/master/Charter
 
 
-=
+
 ### Stellar 0.1
 
 单机单进程系统，主要使用python 3.4开发，开发环境pycharm。
@@ -19,6 +19,14 @@ Stellar
 - quandl
 - apscheduler
 
+可以通过anaconda下面创建一个虚拟环境，在虚拟环境中安装各个工具包：
+conda install anaconda
+conda install -c quantopian ta-lib=0.4.9
+pip install tushare
+pip install rqalpha
+pip install quandl
+pip install apscheduler
+pip install pyqt5
 
 
 Stellar
@@ -40,4 +48,12 @@ A single process stand alone system, developed with python 3.4, in pycharm.
 - quandl
 - apscheduler
 
+You can create a virtual environment for stellar, and install tool packages in it:
+conda install anaconda
+conda install -c quantopian ta-lib=0.4.9
+pip install tushare
+pip install rqalpha
+pip install quandl
+pip install apscheduler
+pip install pyqt5
 
