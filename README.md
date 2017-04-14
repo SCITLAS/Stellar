@@ -20,13 +20,13 @@ Stellar
 - apscheduler
 
 可以通过anaconda下面创建一个虚拟环境，在虚拟环境中安装各个工具包：
-conda install anaconda
-conda install -c quantopian ta-lib=0.4.9
-pip install tushare
-pip install rqalpha
-pip install quandl
-pip install apscheduler
-pip install pyqt5
+conda install anaconda\n
+conda install -c quantopian ta-lib=0.4.9\n
+pip install tushare\n
+pip install rqalpha\n
+pip install quandl\n
+pip install apscheduler\n
+pip install pyqt5\n
 
 
 Stellar
