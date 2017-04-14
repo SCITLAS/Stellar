@@ -9,7 +9,7 @@ Stellar
 =
 ### Stellar 0.1
 
-单机单进程系统，主要使用python 3.5开发，开发环境pycharm 5。
+单机单进程系统，主要使用python 3.4开发，开发环境pycharm。
 
 #### 项目依赖：
 - anaconda
@@ -30,7 +30,7 @@ See more at: https://github.com/SCITLAS/Stellar/tree/master/Charter
 =
 ### Stellar 0.1
 
-A single process stand alone system, developed with python 3.5, in pycharm 5
+A single process stand alone system, developed with python 3.4, in pycharm.
 
 #### Dependencies:
 - anaconda
