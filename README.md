@@ -20,6 +20,7 @@ Stellar
 - pip install quandl
 - pip install apscheduler
 - pip install pyqt5
+- pip install tensorflow
 
 
 Stellar
@@ -28,7 +29,7 @@ An open source quant project for R&D of financial investment strategies, and tra
 
 See more at: https://github.com/SCITLAS/Stellar/tree/master/Charter
 
-=
+
 ### Stellar 0.1
 
 A single process stand alone system, developed with python 3.4, in pycharm.
@@ -42,4 +43,5 @@ You can create a virtual environment for stellar, and install tool packages in i
 - pip install quandl
 - pip install apscheduler
 - pip install pyqt5
+- pip install tensorflow
 
