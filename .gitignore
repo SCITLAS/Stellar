@@ -7,8 +7,6 @@
 
 *.stackdump
 
-*.xlsx
-
 *.h5
 
 *.pkl
@@ -22,16 +20,5 @@ Stellar_0.1/strategy_simulator/test_back/comet/data_bundle/*
 Stellar_0.1/strategy_simulator/test_back/comet/strategy/*
 
 
-.idea/misc.xml
+.idea/*.*
 
-.idea/modules.xml
-
-.idea/Stellar.iml
-
-.idea/vcs.xml
-
-.idea/workspace.xml
-
-.idea/inspectionProfiles/Project_Default.xml
-
-.idea/inspectionProfiles/profiles_settings.xml
